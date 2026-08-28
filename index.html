@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RedDrop - Real-Time Blood Donation Network Bangladesh</title>
+  <meta name="description" content="A decentralized real-time blood donation and donor matching network connecting patients with voluntary donors and blood banks across Bangladesh.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1, h2, h3, h4, .font-display { font-family: 'Outfit', sans-serif; }
+    @keyframes pulse-slow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.85; }
+    }
+    .animate-pulse-slow { animation: pulse-slow 3s infinite ease-in-out; }
+    .blood-gradient { background: linear-gradient(135deg, #e11d48 0%, #be123c 50%, #9f1239 100%); }
+    .glass-card { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(12px); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-red-500 selection:text-white">
+
+  <!-- Top Emergency Alert Ticker -->
+  <div class="bg-gradient-to-r from-red-700 via-rose-700 to-red-800 text-white text-xs py-2 px-4 shadow-inner">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2 overflow-hidden">
+        <span class="bg-white text-red-700 font-extrabold px-2 py-0.5 rounded-full text-[10px] tracking-wider uppercase flex items-center gap-1 shadow-sm">
+          <span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping"></span> Live SOS
+        </span>
+        <div id="emergency-ticker-content" class="text-xs truncate font-medium text-red-50">
+          Loading live emergency blood requests across Bangladesh...
+        </div>
+      </div>
+      <div class="hidden sm:flex items-center gap-4 text-[11px] font-bold">
+        <span><i data-lucide="phone-call" class="w-3.5 h-3.5 inline mr-1 text-red-300"></i> Hotline: <a href="tel:10678" class="underline hover:text-red-200">10678</a></span>
+        <span><i data-lucide="shield-alert" class="w-3.5 h-3.5 inline mr-1 text-red-300"></i> Govt Health: <a href="tel:16263" class="underline hover:text-red-200">16263</a></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Navigation Header -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="index.html" class="flex items-center gap-3 group">
+        <div class="w-11 h-11 rounded-2xl blood-gradient text-white flex items-center justify-center shadow-lg shadow-red-500/25 group-hover:scale-105 transition duration-300">
+          <i data-lucide="droplet" class="w-6 h-6 fill-current animate-pulse-slow"></i>
+        </div>
+        <div>
+          <span class="font-display font-black text-2xl tracking-tight text-slate-900 flex items-center gap-1">
+            Red<span class="text-red-600">Drop</span>
+            <span class="text-[10px] uppercase tracking-widest bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded-md ml-1">BD</span>
+          </span>
+          <p class="text-[10px] font-semibold text-slate-500 tracking-wide">Live Donor & Blood Matching</p>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <nav class="hidden lg:flex items-center gap-1 text-xs font-bold text-slate-600">
+        <a href="index.html" class="px-3.5 py-2 rounded-xl text-red-600 bg-red-50 font-extrabold flex items-center gap-1.5 transition">
+          <i data-lucide="home" class="w-4 h-4"></i> Home
+        </a>
+        <a href="donors.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 flex items-center gap-1.5 transition">
+          <i data-lucide="users" class="w-4 h-4"></i> Find Donors
+        </a>
+        <a href="requests.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 flex items-center gap-1.5 transition relative">
+          <i data-lucide="alert-circle" class="w-4 h-4 text-rose-500"></i> Emergency SOS
+          <span class="w-2 h-2 rounded-full bg-red-600 animate-ping absolute top-2 right-1.5"></span>
+        </a>
+        <a href="inventory.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 flex items-center gap-1.5 transition">
+          <i data-lucide="package" class="w-4 h-4"></i> Blood Inventory
+        </a>
+        <a href="admin.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 flex items-center gap-1.5 transition">
+          <i data-lucide="database" class="w-4 h-4 text-amber-500"></i> DBMS Studio
+        </a>
+        <a href="donor-dashboard.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 flex items-center gap-1.5 transition">
+          <i data-lucide="user-check" class="w-4 h-4 text-emerald-600"></i> My Donor ID
+        </a>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="hidden sm:flex items-center gap-3">
+        <button onclick="openRequestModal()" class="px-4 py-2.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-extrabold flex items-center gap-1.5 transition">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> Post Request
+        </button>
+        <a href="auth.html" class="px-5 py-2.5 rounded-xl blood-gradient text-white text-xs font-black shadow-lg shadow-red-500/30 hover:shadow-red-500/50 hover:opacity-95 transition flex items-center gap-1.5">
+          <i data-lucide="heart-handshake" class="w-4 h-4"></i> Donate Now
+        </a>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button onclick="toggleMobileMenu()" class="lg:hidden p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobile-nav" class="hidden lg:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-2 text-xs font-bold">
+      <a href="index.html" class="block p-2.5 rounded-xl bg-red-50 text-red-600">Home</a>
+      <a href="donors.html" class="block p-2.5 rounded-xl hover:bg-slate-50">Find Donors</a>
+      <a href="requests.html" class="block p-2.5 rounded-xl hover:bg-slate-50">Emergency SOS Requests</a>
+      <a href="inventory.html" class="block p-2.5 rounded-xl hover:bg-slate-50">Blood Inventory</a>
+      <a href="admin.html" class="block p-2.5 rounded-xl hover:bg-slate-50">DBMS Lab Portal</a>
+      <a href="donor-dashboard.html" class="block p-2.5 rounded-xl hover:bg-slate-50">Donor Profile & Card</a>
+      <div class="pt-2 grid grid-cols-2 gap-2">
+        <button onclick="openRequestModal()" class="w-full py-2.5 rounded-xl border border-red-200 text-red-600 text-center font-bold">Post Request</button>
+        <a href="auth.html" class="w-full py-2.5 rounded-xl bg-red-600 text-white text-center font-bold">Donate Now</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative pt-12 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-b from-red-50/80 via-white to-slate-50">
+    <!-- Decorative background blobs -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full pointer-events-none overflow-hidden">
+      <div class="absolute -top-24 -left-20 w-96 h-96 bg-red-200/40 rounded-full blur-3xl"></div>
+      <div class="absolute top-32 -right-20 w-96 h-96 bg-rose-200/30 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="max-w-5xl mx-auto text-center relative z-10">
+      
+      <!-- Trust Pill -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-red-100 shadow-sm mb-6 animate-fade-in">
+        <span class="flex h-2 w-2 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+        </span>
+        <span class="text-[11px] font-bold text-slate-700">Bangladesh's Smartest Real-Time Blood Matching Network</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="font-display text-4xl sm:text-6xl font-black text-slate-950 tracking-tight leading-tight sm:leading-none mb-6">
+        Save a Life in Minutes with <br class="hidden sm:inline"/>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-rose-600 to-red-700">Real-Time Blood Matching</span>
+      </h1>
+
+      <p class="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto mb-10 leading-relaxed font-normal">
+        Connecting voluntary blood donors directly with critical patients across all 64 districts in Bangladesh. Zero middleman fees, 100% voluntary, instant SMS & call connectivity.
+      </p>
+
+      <!-- Search Box Card -->
+      <div class="glass-card p-4 sm:p-5 rounded-3xl shadow-2xl shadow-red-950/5 border border-red-100 max-w-3xl mx-auto mb-12">
+        <form onsubmit="handleHeroSearch(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+          <div>
+            <label class="block text-left text-[11px] font-extrabold text-slate-500 mb-1 ml-1">BLOOD GROUP</label>
+            <select id="hero-blood-group" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-3 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+              <option value="ALL">All Blood Groups</option>
+              <option value="A+">A+ (Positive)</option>
+              <option value="A-">A- (Negative)</option>
+              <option value="B+">B+ (Positive)</option>
+              <option value="B-">B- (Negative)</option>
+              <option value="O+">O+ (Positive)</option>
+              <option value="O-">O- (Negative)</option>
+              <option value="AB+">AB+ (Positive)</option>
+              <option value="AB-">AB- (Negative)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-left text-[11px] font-extrabold text-slate-500 mb-1 ml-1">DISTRICT / CITY</label>
+            <select id="hero-district" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+              <option value="ALL">All Districts (64)</option>
+              <option value="Dhaka">Dhaka</option>
+              <option value="Chattogram">Chattogram</option>
+              <option value="Sylhet">Sylhet</option>
+              <option value="Rajshahi">Rajshahi</option>
+              <option value="Khulna">Khulna</option>
+              <option value="Barishal">Barishal</option>
+              <option value="Rangpur">Rangpur</option>
+              <option value="Mymensingh">Mymensingh</option>
+              <option value="Cumilla">Cumilla</option>
+              <option value="Gazipur">Gazipur</option>
+              <option value="Bogura">Bogura</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-left text-[11px] font-extrabold text-slate-500 mb-1 ml-1">AVAILABILITY</label>
+            <select id="hero-status" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+              <option value="ALL">Any Status</option>
+              <option value="AVAILABLE" selected>Available Now (90+ Days)</option>
+              <option value="VERIFIED">Verified Donors Only</option>
+            </select>
+          </div>
+
+          <div class="flex items-end">
+            <button type="submit" class="w-full py-3 px-4 rounded-2xl blood-gradient text-white font-extrabold shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:scale-[1.02] active:scale-[0.98] transition flex items-center justify-center gap-2">
+              <i data-lucide="search" class="w-4 h-4"></i> Search Donors
+            </button>
+          </div>
+        </form>
+
+        <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between text-[11px] text-slate-500 px-1 gap-2">
+          <span class="flex items-center gap-1 font-medium"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i> Privacy Protected Contacts</span>
+          <span class="flex items-center gap-1 font-medium"><i data-lucide="clock" class="w-3.5 h-3.5 text-rose-500"></i> Average response time: <strong>8 minutes</strong></span>
+          <button onclick="openEligibilityModal()" class="text-red-600 font-bold hover:underline">Check if you can donate blood &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Counters -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm text-center">
+          <p class="font-display text-2xl sm:text-3xl font-black text-slate-900" id="stat-donors">2,450+</p>
+          <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-1">Verified Donors</p>
+        </div>
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm text-center">
+          <p class="font-display text-2xl sm:text-3xl font-black text-red-600" id="stat-saved">7,820+</p>
+          <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-1">Lives Saved</p>
+        </div>
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm text-center">
+          <p class="font-display text-2xl sm:text-3xl font-black text-slate-900">64 / 64</p>
+          <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-1">Districts Active</p>
+        </div>
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm text-center">
+          <p class="font-display text-2xl sm:text-3xl font-black text-emerald-600">100%</p>
+          <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-1">Free & Volunteer</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Interactive Blood Compatibility Matrix Tool -->
+  <section class="py-16 px-4 sm:px-6 lg:px-8 bg-white border-y border-slate-100">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <span class="text-red-600 font-extrabold text-xs tracking-wider uppercase bg-red-50 px-3 py-1 rounded-full">Educational Tool</span>
+        <h2 class="font-display text-3xl font-black text-slate-900 mt-2">Interactive Blood Compatibility Matrix</h2>
+        <p class="text-slate-600 text-xs sm:text-sm mt-1">Select any blood type below to visually check who they can donate blood to and receive blood from safely.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- Selector Buttons -->
+        <div class="lg:col-span-4 bg-slate-50 p-6 rounded-3xl border border-slate-100">
+          <p class="text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-4">Select Blood Type:</p>
+          <div class="grid grid-cols-4 sm:grid-cols-4 gap-2.5" id="compat-pills">
+            <!-- Rendered by JS -->
+          </div>
+          <div class="mt-6 p-4 rounded-2xl bg-white border border-slate-200/80 text-xs">
+            <p class="font-bold text-slate-900" id="compat-selected-name">Blood Group: O-</p>
+            <p class="text-slate-500 mt-1 text-[11px]" id="compat-selected-desc">Universal Red Cell Donor (Lifesaver in emergencies!)</p>
+          </div>
+        </div>
+
+        <!-- Visual Flow Display -->
+        <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-rose-50/60 p-6 rounded-3xl border border-rose-100">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center text-xs font-black shadow-sm">
+                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-sm">Can DONATE To:</h3>
+                <p class="text-[11px] text-slate-500">Recipients who can safely receive this blood</p>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2 pt-2" id="compat-give-list">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <div class="bg-emerald-50/60 p-6 rounded-3xl border border-emerald-100">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xs font-black shadow-sm">
+                <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-sm">Can RECEIVE From:</h3>
+                <p class="text-[11px] text-slate-500">Donors who can safely give to this patient</p>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2 pt-2" id="compat-receive-list">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Urgent Blood Requests Section -->
+  <section class="py-16 px-4 sm:px-6 lg:px-8 bg-slate-50">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 gap-4">
+        <div>
+          <div class="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 bg-red-100/70 px-2.5 py-0.5 rounded-full mb-2">
+            <span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span> Live Broadcast
+          </div>
+          <h2 class="font-display text-3xl font-black text-slate-900">Urgent Emergency Blood Needs</h2>
+          <p class="text-slate-600 text-xs sm:text-sm mt-1">Directly contact patient attendants or pledge to donate immediately.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="openRequestModal()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow transition flex items-center gap-1.5">
+            <i data-lucide="plus" class="w-4 h-4"></i> Post New Request
+          </button>
+          <a href="requests.html" class="px-4 py-2 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 rounded-xl text-xs font-bold transition">
+            View All Requests &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Requests Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="home-requests-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 4-Step Donation Journey -->
+  <section class="py-16 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-100">
+    <div class="max-w-6xl mx-auto text-center">
+      <span class="text-red-600 font-extrabold text-xs tracking-wider uppercase bg-red-50 px-3 py-1 rounded-full">Simple & Safe</span>
+      <h2 class="font-display text-3xl font-black text-slate-900 mt-2 mb-3">How Donating Blood Works</h2>
+      <p class="text-slate-600 text-xs sm:text-sm max-w-xl mx-auto mb-12">The entire process takes less than 25 minutes and can save up to 3 adult or pediatric lives.</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+        <!-- Step 1 -->
+        <div class="p-6 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-lg transition relative">
+          <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center font-display font-black text-xl mb-4">
+            01
+          </div>
+          <h3 class="font-bold text-slate-900 text-base mb-1">Online Registration</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">Sign up in 30 seconds with your blood group, district, and phone number to get your digital Donor ID.</p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="p-6 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-lg transition relative">
+          <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center font-display font-black text-xl mb-4">
+            02
+          </div>
+          <h3 class="font-bold text-slate-900 text-base mb-1">Health Screening</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">Fast checkup of Hemoglobin levels, Blood Pressure, Pulse, and Weight by medical personnel.</p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="p-6 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-lg transition relative">
+          <div class="w-12 h-12 rounded-2xl bg-red-600 text-white flex items-center justify-center font-display font-black text-xl mb-4 shadow-md shadow-red-200">
+            03
+          </div>
+          <h3 class="font-bold text-slate-900 text-base mb-1">10-Minute Donation</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">Safe, sterile, and virtually painless collection of 350ml-450ml blood using disposable equipment.</p>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="p-6 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-lg transition relative">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-display font-black text-xl mb-4">
+            04
+          </div>
+          <h3 class="font-bold text-slate-900 text-base mb-1">Refresh & Certificate</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">Enjoy juice, rest for 10 minutes, and receive your digital Lifesaver Certificate and hero badge!</p>
+        </div>
+      </div>
+
+      <div class="mt-12 inline-flex items-center gap-4 bg-slate-900 text-white px-6 py-4 rounded-3xl text-xs font-bold shadow-xl">
+        <span>Ready to make an impact today?</span>
+        <a href="auth.html" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-xl transition font-black">Register as Donor &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Top Lifesavers Wall of Fame -->
+  <section class="py-16 px-4 sm:px-6 lg:px-8 bg-slate-50">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <span class="text-amber-600 font-extrabold text-xs tracking-wider uppercase bg-amber-50 px-3 py-1 rounded-full">Community Champions</span>
+        <h2 class="font-display text-3xl font-black text-slate-900 mt-2">Top Lifesaver Donors</h2>
+        <p class="text-slate-600 text-xs sm:text-sm mt-1">Recognizing dedicated voluntary donors who have given multiple times across Bangladesh.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="home-donors-leaderboard">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="text-center mt-8">
+        <a href="donors.html" class="inline-flex items-center gap-2 text-xs font-extrabold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-5 py-2.5 rounded-2xl transition">
+          Browse All Donors Directory &rarr;
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Blood Donation Myths vs Facts Accordion -->
+  <section class="py-16 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-100">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-10">
+        <span class="text-red-600 font-extrabold text-xs tracking-wider uppercase bg-red-50 px-3 py-1 rounded-full">Health Knowledge</span>
+        <h2 class="font-display text-3xl font-black text-slate-900 mt-2">Common Myths vs. Medical Facts</h2>
+      </div>
+
+      <div class="space-y-4 text-xs" id="faq-accordion">
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+          <p class="font-bold text-slate-900 text-sm flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-[10px]">M</span>
+            Myth: Donating blood makes you physically weak or sick.
+          </p>
+          <p class="text-slate-600 mt-2 leading-relaxed pl-7">
+            <strong>Medical Fact:</strong> Your body naturally replenishes the lost fluid volume within 24–48 hours, and new red blood cells are generated within a few weeks. Regular blood donation actually stimulates new cell growth and reduces harmful excess iron!
+          </p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+          <p class="font-bold text-slate-900 text-sm flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-[10px]">M</span>
+            Myth: You can catch infections like HIV or Hepatitis by donating blood.
+          </p>
+          <p class="text-slate-600 mt-2 leading-relaxed pl-7">
+            <strong>Medical Fact:</strong> Completely impossible. A brand-new, sterile, disposable needle and bag set is used for every single donor and incinerated immediately afterward.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+          <p class="font-bold text-slate-900 text-sm flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-[10px]">M</span>
+            Myth: Women cannot donate blood.
+          </p>
+          <p class="text-slate-600 mt-2 leading-relaxed pl-7">
+            <strong>Medical Fact:</strong> Any healthy female aged 18–60 with a weight of 48kg+ and normal hemoglobin (>=12.0 g/dL) can safely donate blood every 4 months.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comprehensive Footer -->
+  <footer class="bg-slate-950 text-slate-400 text-xs pt-16 pb-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+        <!-- Brand Info -->
+        <div class="space-y-4">
+          <div class="flex items-center gap-2.5 text-white font-display font-black text-xl">
+            <div class="w-8 h-8 rounded-xl blood-gradient flex items-center justify-center text-white">
+              <i data-lucide="droplet" class="w-4 h-4 fill-current"></i>
+            </div>
+            Red<span class="text-red-500">Drop</span>
+          </div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            A voluntary, non-profit digital blood donation and database management network designed to save lives across Bangladesh.
+          </p>
+          <div class="flex items-center gap-2 text-slate-300">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span class="text-[11px]">System Status: 100% Operational</span>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div>
+          <p class="font-bold text-white uppercase tracking-wider text-[11px] mb-4">Quick Navigation</p>
+          <ul class="space-y-2.5">
+            <li><a href="index.html" class="hover:text-red-400 transition">Home Page</a></li>
+            <li><a href="donors.html" class="hover:text-red-400 transition">Find Donors Directory</a></li>
+            <li><a href="requests.html" class="hover:text-red-400 transition">Emergency SOS Feed</a></li>
+            <li><a href="inventory.html" class="hover:text-red-400 transition">Blood Bank Inventory</a></li>
+            <li><a href="admin.html" class="hover:text-red-400 transition">DBMS Admin & SQL Studio</a></li>
+          </ul>
+        </div>
+
+        <!-- 24/7 Emergency Hotlines -->
+        <div>
+          <p class="font-bold text-white uppercase tracking-wider text-[11px] mb-4">Emergency Hotlines (BD)</p>
+          <ul class="space-y-2.5 font-mono">
+            <li class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+              <span>National Emergency:</span>
+              <a href="tel:999" class="text-red-400 font-bold hover:underline">999</a>
+            </li>
+            <li class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+              <span>Health Window BD:</span>
+              <a href="tel:16263" class="text-red-400 font-bold hover:underline">16263</a>
+            </li>
+            <li class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+              <span>Red Crescent Blood:</span>
+              <a href="tel:029116563" class="text-red-400 font-bold hover:underline">02-9116563</a>
+            </li>
+            <li class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+              <span>Evercare Emergency:</span>
+              <a href="tel:10678" class="text-red-400 font-bold hover:underline">10678</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- DBMS Project Note -->
+        <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 text-[11px]">
+          <p class="font-bold text-white mb-1 flex items-center gap-1.5">
+            <i data-lucide="database" class="w-3.5 h-3.5 text-amber-400"></i> CSE DBMS Project
+          </p>
+          <p class="text-slate-400 leading-relaxed">
+            Equipped with SQL query generator, relational schema inspection, real-time trigger simulators, and ER diagrams.
+          </p>
+          <a href="admin.html" class="inline-block mt-3 bg-slate-800 hover:bg-slate-700 text-red-400 px-3 py-1.5 rounded-xl font-bold transition">Open SQL Console &rarr;</a>
+        </div>
+      </div>
+
+      <div class="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
+        <p>&copy; 2026 RedDrop Bangladesh. Developed for CSE Blood Donation & Database Systems.</p>
+        <div class="flex gap-4">
+          <a href="#" class="hover:text-slate-200">Privacy Policy</a>
+          <a href="#" class="hover:text-slate-200">Terms of Voluntary Service</a>
+          <a href="auth.html" class="hover:text-slate-200">Donor Portal</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="nav-footer.js"></script>
+  <script>
+    let currentCompatGroup = "O-";
+
+    document.addEventListener('DOMContentLoaded', () => {
+      RedDropStore.init();
+      renderCompatPills();
+      updateCompatDisplay("O-");
+      renderHomeRequests();
+      renderHomeLeaderboard();
+      updateDynamicStats();
+      if (window.lucide) lucide.createIcons();
+    });
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-nav');
+      menu.classList.toggle('hidden');
+    }
+
+    function handleHeroSearch(e) {
+      e.preventDefault();
+      const blood = document.getElementById('hero-blood-group').value;
+      const district = document.getElementById('hero-district').value;
+      const status = document.getElementById('hero-status').value;
+      window.location.href = `donors.html?blood=${encodeURIComponent(blood)}&district=${encodeURIComponent(district)}&status=${encodeURIComponent(status)}`;
+    }
+
+    function renderCompatPills() {
+      const pillsContainer = document.getElementById('compat-pills');
+      const groups = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
+      pillsContainer.innerHTML = groups.map(g => `
+        <button onclick="updateCompatDisplay('${g}')" id="compat-btn-${g.replace('+', 'pos').replace('-', 'neg')}" class="py-2 px-1 rounded-xl text-xs font-black border transition ${g === currentCompatGroup ? 'bg-red-600 text-white border-red-600 shadow-md' : 'bg-white text-slate-700 border-slate-200 hover:border-red-300'}">
+          ${g}
+        </button>
+      `).join('');
+    }
+
+    function updateCompatDisplay(group) {
+      currentCompatGroup = group;
+      renderCompatPills();
+      const info = BLOOD_COMPATIBILITY[group];
+      if (!info) return;
+
+      document.getElementById('compat-selected-name').innerText = `Selected Blood Group: ${group}`;
+      document.getElementById('compat-selected-desc').innerText = info.label;
+
+      const giveContainer = document.getElementById('compat-give-list');
+      giveContainer.innerHTML = info.giveTo.map(g => `
+        <span class="px-3 py-1.5 rounded-xl bg-rose-600 text-white font-black text-xs shadow-sm">${g}</span>
+      `).join('');
+
+      const receiveContainer = document.getElementById('compat-receive-list');
+      receiveContainer.innerHTML = info.receiveFrom.map(g => `
+        <span class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-black text-xs shadow-sm">${g}</span>
+      `).join('');
+    }
+
+    function renderHomeRequests() {
+      const container = document.getElementById('home-requests-grid');
+      const requests = RedDropStore.getRequests().slice(0, 3);
+      container.innerHTML = requests.map(r => {
+        const isCritical = r.urgency === 'CRITICAL';
+        return `
+          <div class="bg-white rounded-3xl p-5 border ${isCritical ? 'border-red-200 ring-1 ring-red-100 shadow-xl shadow-red-500/5' : 'border-slate-100 shadow-md'} flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-extrabold px-2.5 py-1 rounded-full ${isCritical ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'}">
+                  ${r.timeLimit}
+                </span>
+                <span class="text-[11px] text-slate-500 font-medium">${r.postedAgo}</span>
+              </div>
+
+              <div class="flex items-start gap-3 mb-3">
+                <div class="w-12 h-12 rounded-2xl bg-red-600 text-white font-display font-black text-xl flex items-center justify-center flex-shrink-0 shadow-md shadow-red-200">
+                  ${r.bloodGroup}
+                </div>
+                <div>
+                  <h3 class="font-bold text-slate-900 text-sm">${r.patientName}</h3>
+                  <p class="text-xs text-red-600 font-semibold">${r.bagsNeeded} Bags Required (${r.bagsFulfilled} Fulfilled)</p>
+                </div>
+              </div>
+
+              <p class="text-xs text-slate-600 mb-1 flex items-center gap-1.5">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i>
+                <span class="truncate">${r.hospital} (${r.district})</span>
+              </p>
+              <p class="text-[11px] text-slate-500 mb-4 bg-slate-50 p-2 rounded-xl">
+                <strong>Case:</strong> ${r.reason}
+              </p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex items-center gap-2">
+              <a href="tel:${r.attendantPhone}" class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow transition">
+                <i data-lucide="phone" class="w-3.5 h-3.5"></i> Call (${r.attendantPhone})
+              </a>
+              <button onclick="handlePledge('${r.id}')" class="px-3.5 py-2.5 rounded-xl border border-emerald-300 text-emerald-700 hover:bg-emerald-50 text-xs font-bold transition">
+                I Can Donate
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderHomeLeaderboard() {
+      const container = document.getElementById('home-donors-leaderboard');
+      const donors = RedDropStore.getDonors().slice(0, 3);
+      container.innerHTML = donors.map((d, idx) => `
+        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+          <div class="relative">
+            <img src="${d.avatar}" alt="${d.name}" class="w-14 h-14 rounded-2xl object-cover border-2 border-red-100">
+            <span class="absolute -top-2 -left-2 w-6 h-6 rounded-full ${idx === 0 ? 'bg-amber-400 text-slate-900' : idx === 1 ? 'bg-slate-300 text-slate-900' : 'bg-amber-600 text-white'} text-[10px] font-black flex items-center justify-center shadow">#${idx + 1}</span>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-1.5">
+              <h3 class="font-bold text-slate-900 text-sm">${d.name}</h3>
+              <span class="text-xs font-black text-red-600 bg-red-50 px-2 py-0.5 rounded-md">${d.bloodGroup}</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">${d.area}</p>
+            <p class="text-[11px] font-extrabold text-emerald-600 mt-1">${d.totalDonations} Donations • ${d.tier}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateDynamicStats() {
+      const donors = RedDropStore.getDonors();
+      const totalSaved = donors.reduce((sum, d) => sum + (d.totalDonations * 3), 0);
+      document.getElementById('stat-donors').innerText = `${donors.length + 2450}+`;
+      document.getElementById('stat-saved').innerText = `${totalSaved + 7820}+`;
+    }
+
+    function handlePledge(reqId) {
+      const res = RedDropStore.pledgeDonation(reqId, "Tanvir Ahmed");
+      if (res.success) {
+        showToast(`Thank you! Your pledge for 1 bag was registered. Attendant notified.`, 'success');
+        renderHomeRequests();
+      } else {
+        showToast(res.message, 'warning');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donor Profile & Digital ID Card - RedDrop Bangladesh</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;700&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1, h2, h3, h4, .font-display { font-family: 'Outfit', sans-serif; }
+    .blood-card {
+      background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 40%, #881337 100%);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+    .gold-badge {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+
+  <!-- Navigation -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-red-600 text-white flex items-center justify-center shadow-lg shadow-red-500/25">
+          <i data-lucide="droplet" class="w-5 h-5 fill-current"></i>
+        </div>
+        <div>
+          <span class="font-display font-black text-2xl tracking-tight text-slate-900">Red<span class="text-red-600">Drop</span></span>
+          <p class="text-[10px] font-semibold text-slate-500">Lifesaver Portal</p>
+        </div>
+      </a>
+
+      <nav class="hidden lg:flex items-center gap-1 text-xs font-bold text-slate-600">
+        <a href="index.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">Home</a>
+        <a href="donors.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">Find Donors</a>
+        <a href="requests.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">Emergency SOS</a>
+        <a href="inventory.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">Blood Inventory</a>
+        <a href="admin.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">DBMS Studio</a>
+        <a href="donor-dashboard.html" class="px-3.5 py-2 rounded-xl text-red-600 bg-red-50 font-extrabold transition">My Donor ID</a>
+      </nav>
+
+      <div class="flex items-center gap-2.5">
+        <button onclick="openRequestModal()" class="px-4 py-2.5 rounded-xl bg-red-600 text-white text-xs font-black shadow-lg shadow-red-500/25 hover:opacity-95 transition">
+          Post Request
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    
+    <!-- Top Greeting & Countdown Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Digital Donor Card (Col 5) -->
+      <div class="lg:col-span-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="font-display font-black text-xl text-slate-900 flex items-center gap-2">
+            <i data-lucide="credit-card" class="w-5 h-5 text-red-600"></i> Digital Donor ID Card
+          </h2>
+          <button onclick="window.print()" class="text-xs font-bold text-red-600 hover:underline flex items-center gap-1">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i> Print Card
+          </button>
+        </div>
+
+        <!-- The Physical-style Digital Card -->
+        <div id="printable-card" class="blood-card rounded-3xl p-6 text-white shadow-2xl relative overflow-hidden">
+          <!-- Background Watermark -->
+          <div class="absolute -right-8 -bottom-8 opacity-10 pointer-events-none">
+            <i data-lucide="droplet" class="w-48 h-48 fill-current"></i>
+          </div>
+
+          <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-xl bg-red-600 flex items-center justify-center text-white">
+                <i data-lucide="droplet" class="w-4 h-4 fill-current"></i>
+              </div>
+              <div>
+                <h3 class="font-display font-black text-sm tracking-wider uppercase">RedDrop Bangladesh</h3>
+                <p class="text-[9px] text-red-300 font-mono">OFFICIAL VOLUNTARY DONOR CARD</p>
+              </div>
+            </div>
+            <span class="gold-badge text-slate-950 font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow">
+              Gold Tier
+            </span>
+          </div>
+
+          <div class="flex items-start justify-between gap-4 mb-4">
+            <div class="space-y-1">
+              <p class="text-[10px] text-slate-400 font-medium">DONOR NAME</p>
+              <h4 class="font-display font-black text-lg text-white" id="card-name">Tanvir Ahmed</h4>
+              <p class="text-xs text-slate-300 font-mono" id="card-district">Dhanmondi, Dhaka</p>
+            </div>
+            <div class="w-16 h-16 rounded-2xl bg-red-600 text-white font-display font-black text-3xl flex items-center justify-center shadow-lg shadow-red-600/50 flex-shrink-0" id="card-blood">
+              A+
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-[11px] font-mono bg-black/30 p-3 rounded-2xl border border-white/5 mb-4">
+            <div>
+              <span class="text-slate-400 block text-[9px]">DONOR ID:</span>
+              <strong class="text-red-300" id="card-donor-id">RD-BD-2026-8942</strong>
+            </div>
+            <div>
+              <span class="text-slate-400 block text-[9px]">TOTAL DONATIONS:</span>
+              <strong class="text-emerald-400" id="card-total">12 Times (36 Lives)</strong>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-[10px] text-slate-400 pt-1">
+            <span>Verified Lifesaver • 24/7 SOS</span>
+            <span class="font-mono text-slate-300">Valid Nationwide</span>
+          </div>
+        </div>
+
+        <!-- Quick Status Toggle -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-xs">
+          <div>
+            <span class="font-bold text-slate-800 block">Emergency Readiness Status</span>
+            <span class="text-slate-500 text-[11px]">Allow patient attendants to reach you</span>
+          </div>
+          <button onclick="toggleStatus()" id="status-toggle-btn" class="px-4 py-2 rounded-xl bg-emerald-100 text-emerald-800 font-bold border border-emerald-300 transition">
+            ● Available
+          </button>
+        </div>
+      </div>
+
+      <!-- Eligibility & Vitals (Col 7) -->
+      <div class="lg:col-span-7 space-y-6">
+        
+        <!-- Next Donation Countdown Box -->
+        <div class="bg-gradient-to-br from-red-600 to-rose-700 rounded-3xl p-6 text-white shadow-xl">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+            <div>
+              <span class="bg-white/20 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Health Recovery Cycle</span>
+              <h3 class="font-display font-black text-2xl mt-1">Next Eligible Donation Window</h3>
+            </div>
+            <span class="text-xs font-mono bg-black/20 px-3 py-1.5 rounded-xl text-red-100">Cycle: 90 Days</span>
+          </div>
+
+          <!-- Countdown Tiles -->
+          <div class="grid grid-cols-4 gap-3 text-center my-4">
+            <div class="bg-black/20 p-3 rounded-2xl backdrop-blur-sm">
+              <span class="font-display text-2xl sm:text-3xl font-black block" id="cd-days">13</span>
+              <span class="text-[10px] text-red-200 font-bold uppercase">Days</span>
+            </div>
+            <div class="bg-black/20 p-3 rounded-2xl backdrop-blur-sm">
+              <span class="font-display text-2xl sm:text-3xl font-black block" id="cd-hours">08</span>
+              <span class="text-[10px] text-red-200 font-bold uppercase">Hours</span>
+            </div>
+            <div class="bg-black/20 p-3 rounded-2xl backdrop-blur-sm">
+              <span class="font-display text-2xl sm:text-3xl font-black block" id="cd-mins">42</span>
+              <span class="text-[10px] text-red-200 font-bold uppercase">Mins</span>
+            </div>
+            <div class="bg-black/20 p-3 rounded-2xl backdrop-blur-sm">
+              <span class="font-display text-2xl sm:text-3xl font-black block" id="cd-secs">19</span>
+              <span class="text-[10px] text-red-200 font-bold uppercase">Secs</span>
+            </div>
+          </div>
+
+          <p class="text-xs text-red-100 leading-relaxed">
+            Your body has regenerated 85% of hemoglobin and red blood cells. You will be fully ready for your 13th voluntary donation on <strong>September 8, 2026</strong>.
+          </p>
+        </div>
+
+        <!-- Health & Vitals Snapshot -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm">
+          <h3 class="font-display font-black text-lg text-slate-900 mb-4 flex items-center gap-2">
+            <i data-lucide="heart-pulse" class="w-5 h-5 text-rose-500"></i> Health & Medical Vitals Log
+          </h3>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+            <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+              <span class="text-slate-500 font-medium block">Hemoglobin</span>
+              <strong class="text-base font-black text-slate-900 mt-1 block">14.8 g/dL</strong>
+              <span class="text-[10px] text-emerald-600 font-bold">Optimal (13.5+)</span>
+            </div>
+
+            <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+              <span class="text-slate-500 font-medium block">Blood Pressure</span>
+              <strong class="text-base font-black text-slate-900 mt-1 block">120 / 80</strong>
+              <span class="text-[10px] text-emerald-600 font-bold">Normal</span>
+            </div>
+
+            <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+              <span class="text-slate-500 font-medium block">Pulse Rate</span>
+              <strong class="text-base font-black text-slate-900 mt-1 block">72 bpm</strong>
+              <span class="text-[10px] text-emerald-600 font-bold">Healthy</span>
+            </div>
+
+            <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+              <span class="text-slate-500 font-medium block">Body Weight</span>
+              <strong class="text-base font-black text-slate-900 mt-1 block">68 kg</strong>
+              <span class="text-[10px] text-emerald-600 font-bold">Eligible (50kg+)</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Donation History Timeline -->
+    <section class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h3 class="font-display font-black text-xl text-slate-900">Donation History & Recognition</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Official recorded donations and downloadable Lifesaver certificates</p>
+        </div>
+        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+          Total 12 Units Given
+        </span>
+      </div>
+
+      <div class="space-y-4" id="history-timeline">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Certificate View Modal -->
+  <div id="cert-modal" class="fixed inset-0 z-[999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white max-w-lg w-full rounded-3xl p-8 shadow-2xl border border-amber-200 text-center text-xs">
+      <div class="w-16 h-16 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-3">
+        <i data-lucide="award" class="w-8 h-8"></i>
+      </div>
+      <span class="text-[10px] font-mono font-bold text-amber-600 tracking-widest uppercase">Certificate of Appreciation</span>
+      <h3 class="font-display font-black text-2xl text-slate-900 mt-1 mb-2">Lifesaver Recognition</h3>
+      <p class="text-slate-600 leading-relaxed mb-4">
+        This certifies that <strong class="text-slate-900" id="cert-donor-name">Tanvir Ahmed</strong> voluntarily donated blood on <strong id="cert-date">June 10, 2026</strong> at <strong id="cert-hospital">NICVD, Dhaka</strong>, saving valuable human lives.
+      </p>
+
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-6 font-mono text-[11px] flex justify-between">
+        <span>Certificate ID: <strong id="cert-id" class="text-red-600">CERT-2026-1092</strong></span>
+        <span>Issued by: RedDrop BD</span>
+      </div>
+
+      <div class="flex gap-2">
+        <button onclick="closeCertModal()" class="flex-1 py-2.5 border rounded-xl font-bold text-slate-600">Close</button>
+        <button onclick="window.print()" class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow">Print Certificate</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="nav-footer.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      RedDropStore.init();
+      loadProfileData();
+      renderHistory();
+      startCountdown();
+      if (window.lucide) lucide.createIcons();
+    });
+
+    function loadProfileData() {
+      const user = RedDropStore.getUserProfile();
+      document.getElementById('card-name').innerText = user.name;
+      document.getElementById('card-district').innerText = user.area;
+      document.getElementById('card-blood').innerText = user.bloodGroup;
+      document.getElementById('card-donor-id').innerText = user.donorId;
+      document.getElementById('card-total').innerText = `${user.totalDonations} Times (${user.livesSaved} Lives)`;
+    }
+
+    function toggleStatus() {
+      const user = RedDropStore.getUserProfile();
+      const newStatus = user.status === 'AVAILABLE' ? 'COOLDOWN' : 'AVAILABLE';
+      RedDropStore.updateUserProfile({ status: newStatus });
+      const btn = document.getElementById('status-toggle-btn');
+      if (newStatus === 'AVAILABLE') {
+        btn.className = 'px-4 py-2 rounded-xl bg-emerald-100 text-emerald-800 font-bold border border-emerald-300 transition';
+        btn.innerText = '● Available';
+        showToast('Your status is now Available for emergency requests!', 'success');
+      } else {
+        btn.className = 'px-4 py-2 rounded-xl bg-amber-100 text-amber-800 font-bold border border-amber-300 transition';
+        btn.innerText = '⏳ Inactive';
+        showToast('Status set to temporarily inactive.', 'warning');
+      }
+    }
+
+    function renderHistory() {
+      const user = RedDropStore.getUserProfile();
+      const container = document.getElementById('history-timeline');
+      container.innerHTML = user.history.map(h => `
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center font-bold flex-shrink-0">
+              <i data-lucide="droplet" class="w-5 h-5 fill-current"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-900">${h.hospital}</h4>
+              <p class="text-[11px] text-slate-500">${h.recipient} • ${h.bags} Bag Donated</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="font-mono text-slate-500 text-[11px]">${h.date}</span>
+            <button onclick="openCertModal('${h.certificateId}', '${h.date}', '${h.hospital}')" class="px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 font-bold hover:bg-amber-100 transition flex items-center gap-1">
+              <i data-lucide="award" class="w-3.5 h-3.5 text-amber-600"></i> Certificate
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function startCountdown() {
+      let days = 13, hours = 8, mins = 42, secs = 19;
+      setInterval(() => {
+        if (secs > 0) secs--;
+        else {
+          secs = 59;
+          if (mins > 0) mins--;
+          else {
+            mins = 59;
+            if (hours > 0) hours--;
+            else {
+              hours = 23;
+              if (days > 0) days--;
+            }
+          }
+        }
+        document.getElementById('cd-days').innerText = String(days).padStart(2, '0');
+        document.getElementById('cd-hours').innerText = String(hours).padStart(2, '0');
+        document.getElementById('cd-mins').innerText = String(mins).padStart(2, '0');
+        document.getElementById('cd-secs').innerText = String(secs).padStart(2, '0');
+      }, 1000);
+    }
+
+    function openCertModal(certId, date, hospital) {
+      const user = RedDropStore.getUserProfile();
+      document.getElementById('cert-donor-name').innerText = user.name;
+      document.getElementById('cert-date').innerText = date;
+      document.getElementById('cert-hospital').innerText = hospital;
+      document.getElementById('cert-id').innerText = certId;
+      document.getElementById('cert-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeCertModal() {
+      document.getElementById('cert-modal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>

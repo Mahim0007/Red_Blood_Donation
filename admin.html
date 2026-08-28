@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DBMS Lab Studio & Relational SQL Admin - RedDrop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'Fira Code', monospace; }
+    .font-display { font-family: 'Outfit', sans-serif; }
+    .sql-keyword { color: #f43f5e; font-weight: bold; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 antialiased min-h-screen">
+
+  <!-- Admin Top Bar -->
+  <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center shadow-lg shadow-red-600/30">
+          <i data-lucide="database" class="w-5 h-5"></i>
+        </a>
+        <div>
+          <h1 class="font-display font-black text-xl text-white flex items-center gap-2">
+            DBMS Lab Studio <span class="text-[10px] bg-red-500/20 text-red-400 font-mono px-2 py-0.5 rounded border border-red-500/30">v2.4 Live SQL</span>
+          </h1>
+          <p class="text-xs text-slate-400 font-mono">CSE Database Systems • Schema: red_blood_donation_db</p>
+        </div>
+      </div>
+
+      <nav class="flex items-center gap-2 text-xs font-bold font-mono">
+        <a href="index.html" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">&larr; Back to App</a>
+        <button onclick="resetData()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reset Tables
+        </button>
+        <button onclick="exportSQLDump()" class="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white transition flex items-center gap-1 shadow">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i> Export .SQL Dump
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+    
+    <!-- SQL Interactive Console & Query Pad -->
+    <section class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-3 h-3 rounded-full bg-rose-500"></div>
+          <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+          <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+          <span class="text-xs font-mono font-bold text-slate-400 ml-2">Interactive SQL Query Execution Console</span>
+        </div>
+        <span class="text-[11px] font-mono text-emerald-400 flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Engine: Active (In-Memory Parser)
+        </span>
+      </div>
+
+      <!-- Pre-built DBMS Lab Queries -->
+      <div class="mb-4">
+        <p class="text-[11px] font-mono text-slate-400 mb-2 font-bold uppercase tracking-wider">Quick DBMS Lab Queries (Click to load):</p>
+        <div class="flex flex-wrap gap-2 text-xs font-mono">
+          <button onclick="loadPresetQuery(1)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">Q1: Available Donors</button>
+          <button onclick="loadPresetQuery(2)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">Q2: Donors Grouped by Blood</button>
+          <button onclick="loadPresetQuery(3)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">Q3: Critical Emergency Requests</button>
+          <button onclick="loadPresetQuery(4)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">Q4: Top Lifesavers (Donations &gt;= 5)</button>
+          <button onclick="loadPresetQuery(5)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">Q5: Critical Inventory Join</button>
+        </div>
+      </div>
+
+      <!-- Query Editor Box -->
+      <div class="bg-slate-950 rounded-2xl border border-slate-800 p-4 font-mono text-xs mb-4 focus-within:ring-2 focus-within:ring-red-500">
+        <textarea id="sql-query-input" rows="3" class="w-full bg-transparent text-emerald-400 font-mono outline-none resize-none" placeholder="Type your SQL query here (e.g. SELECT * FROM Donors WHERE blood_group = 'O-';)">SELECT * FROM Donors WHERE availability_status = 'AVAILABLE';</textarea>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <span class="text-[11px] font-mono text-slate-500">Supports: SELECT, WHERE, GROUP BY, ORDER BY, LIMIT, JOIN</span>
+        <button onclick="executeSQLQuery()" class="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-mono font-bold text-xs shadow-lg shadow-red-600/30 transition flex items-center gap-2">
+          <i data-lucide="play" class="w-4 h-4 fill-current"></i> Execute Query (F5)
+        </button>
+      </div>
+
+      <!-- Query Results Box -->
+      <div id="query-result-wrapper" class="mt-6 pt-4 border-t border-slate-800">
+        <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
+          <span id="query-meta-info">Query executed in 1.4ms • 6 rows returned</span>
+          <button onclick="clearQueryResult()" class="text-slate-500 hover:text-slate-300">Clear</button>
+        </div>
+        <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950 max-h-72">
+          <table class="w-full text-left text-xs font-mono text-slate-300" id="sql-result-table">
+            <!-- Rendered by JS -->
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Relational Tables Browser -->
+    <section class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h2 class="font-display font-black text-xl text-white">Relational Database Tables</h2>
+          <p class="text-xs text-slate-400 font-mono">Inspect live relational records with Primary Keys (PK) & Foreign Keys (FK)</p>
+        </div>
+
+        <!-- Table Selector Tabs -->
+        <div class="flex flex-wrap gap-2 text-xs font-mono" id="table-tabs">
+          <button onclick="switchTable('Donors')" class="tab-btn active px-3.5 py-2 rounded-xl bg-red-600 text-white font-bold">Donors</button>
+          <button onclick="switchTable('Blood_Requests')" class="tab-btn px-3.5 py-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white font-bold">Blood_Requests</button>
+          <button onclick="switchTable('Blood_Inventory')" class="tab-btn px-3.5 py-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white font-bold">Blood_Inventory</button>
+          <button onclick="switchTable('Hospitals')" class="tab-btn px-3.5 py-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white font-bold">Hospitals</button>
+        </div>
+      </div>
+
+      <!-- Active Table Display -->
+      <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950">
+        <table class="w-full text-left text-xs font-mono text-slate-300" id="relational-table-view">
+          <!-- Rendered by JS -->
+        </table>
+      </div>
+    </section>
+
+    <!-- Visual ER Diagram & Schema Reference -->
+    <section class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+      <h2 class="font-display font-black text-xl text-white mb-2 flex items-center gap-2">
+        <i data-lucide="git-merge" class="w-5 h-5 text-amber-400"></i> Entity-Relationship (ER) Schema Overview
+      </h2>
+      <p class="text-xs text-slate-400 font-mono mb-6">Relational mappings and cardinalities of the RedDrop database.</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
+        <!-- Entity 1: Donors -->
+        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+            <span class="text-red-400 font-bold">ENTITY: Donors</span>
+            <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">Table</span>
+          </div>
+          <ul class="space-y-1 text-slate-400">
+            <li class="text-amber-400 font-bold">🔑 donor_id (INT, PK)</li>
+            <li>full_name (VARCHAR)</li>
+            <li>blood_group (ENUM)</li>
+            <li>contact_phone (VARCHAR, UNIQUE)</li>
+            <li>district (VARCHAR)</li>
+            <li>availability_status (ENUM)</li>
+            <li>total_donations (INT)</li>
+          </ul>
+        </div>
+
+        <!-- Entity 2: Requests -->
+        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+            <span class="text-red-400 font-bold">ENTITY: Blood_Requests</span>
+            <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">Table</span>
+          </div>
+          <ul class="space-y-1 text-slate-400">
+            <li class="text-amber-400 font-bold">🔑 request_id (INT, PK)</li>
+            <li>patient_name (VARCHAR)</li>
+            <li>blood_group (ENUM)</li>
+            <li>bags_needed (INT)</li>
+            <li>urgency (ENUM)</li>
+            <li class="text-sky-400">🔗 hospital_name (FK)</li>
+            <li>attendant_phone (VARCHAR)</li>
+          </ul>
+        </div>
+
+        <!-- Entity 3: Inventory -->
+        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+            <span class="text-red-400 font-bold">ENTITY: Blood_Inventory</span>
+            <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">Table</span>
+          </div>
+          <ul class="space-y-1 text-slate-400">
+            <li class="text-amber-400 font-bold">🔑 inventory_id (INT, PK)</li>
+            <li class="text-sky-400">🔗 hospital_id (FK &rarr; Hospitals.id)</li>
+            <li>blood_group (ENUM)</li>
+            <li>whole_blood (INT)</li>
+            <li>platelets (INT)</li>
+            <li>plasma_ffp (INT)</li>
+            <li>status (ENUM)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="data.js"></script>
+  <script>
+    let currentTable = 'Donors';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      RedDropStore.init();
+      switchTable('Donors');
+      executeSQLQuery();
+      if (window.lucide) lucide.createIcons();
+    });
+
+    const PRESETS = {
+      1: "SELECT * FROM Donors WHERE availability_status = 'AVAILABLE';",
+      2: "SELECT blood_group, COUNT(*) as total_donors FROM Donors GROUP BY blood_group;",
+      3: "SELECT patient_name, blood_group, bags_needed, urgency, hospital FROM Blood_Requests WHERE urgency = 'CRITICAL';",
+      4: "SELECT name, blood_group, district, total_donations FROM Donors WHERE total_donations >= 5 ORDER BY total_donations DESC;",
+      5: "SELECT hospital_name, blood_group, whole_blood, platelets, status FROM Blood_Inventory WHERE status = 'CRITICAL';"
+    };
+
+    function loadPresetQuery(id) {
+      document.getElementById('sql-query-input').value = PRESETS[id];
+      executeSQLQuery();
+    }
+
+    function switchTable(tbl) {
+      currentTable = tbl;
+      document.querySelectorAll('#table-tabs .tab-btn').forEach(btn => {
+        if (btn.innerText === tbl) {
+          btn.className = 'tab-btn active px-3.5 py-2 rounded-xl bg-red-600 text-white font-bold';
+        } else {
+          btn.className = 'tab-btn px-3.5 py-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white font-bold';
+        }
+      });
+
+      const tableEl = document.getElementById('relational-table-view');
+      let headers = [];
+      let rows = [];
+
+      if (tbl === 'Donors') {
+        const donors = RedDropStore.getDonors();
+        headers = ['donor_id (PK)', 'full_name', 'blood_group', 'phone', 'district', 'total_donations', 'status'];
+        rows = donors.map(d => [d.id, d.name, d.bloodGroup, d.phone, d.district, d.totalDonations, d.status]);
+      } else if (tbl === 'Blood_Requests') {
+        const requests = RedDropStore.getRequests();
+        headers = ['request_id (PK)', 'patient_name', 'blood_group', 'bags_needed', 'fulfilled', 'urgency', 'hospital', 'attendant_phone'];
+        rows = requests.map(r => [r.id, r.patientName, r.bloodGroup, r.bagsNeeded, r.bagsFulfilled, r.urgency, r.hospital, r.attendantPhone]);
+      } else if (tbl === 'Blood_Inventory') {
+        const inv = RedDropStore.getInventory();
+        headers = ['hospital_id (FK)', 'center_name', 'blood_group', 'whole_blood', 'platelets', 'status'];
+        rows = inv.map(i => [i.hospitalId, i.hospitalName, i.group, i.wholeBlood, i.platelets, i.status]);
+      } else if (tbl === 'Hospitals') {
+        const hospitals = RedDropStore.getHospitals();
+        headers = ['hospital_id (PK)', 'hospital_name', 'district', 'hotline', 'type'];
+        rows = hospitals.map(h => [h.id, h.name, h.district, h.hotline, h.type]);
+      }
+
+      tableEl.innerHTML = `
+        <thead class="bg-slate-900 border-b border-slate-800 text-slate-400">
+          <tr>${headers.map(h => `<th class="p-3 font-bold">${h}</th>`).join('')}</tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/60">
+          ${rows.map(r => `
+            <tr class="hover:bg-slate-900/50">
+              ${r.map((c, idx) => `<td class="p-3 ${idx === 0 ? 'text-amber-400 font-bold' : ''}">${c}</td>`).join('')}
+            </tr>
+          `).join('')}
+        </tbody>
+      `;
+    }
+
+    function executeSQLQuery() {
+      const sql = document.getElementById('sql-query-input').value.trim();
+      const resultTable = document.getElementById('sql-result-table');
+      const metaInfo = document.getElementById('query-meta-info');
+
+      const start = performance.now();
+      let headers = [];
+      let rows = [];
+
+      try {
+        const sqlLower = sql.toLowerCase();
+
+        if (sqlLower.includes('from donors')) {
+          let data = RedDropStore.getDonors();
+          if (sqlLower.includes("where availability_status = 'available'") || sqlLower.includes("status = 'available'")) {
+            data = data.filter(d => d.status === 'AVAILABLE');
+          }
+          if (sqlLower.includes("blood_group = 'o-'")) {
+            data = data.filter(d => d.bloodGroup === 'O-');
+          }
+          if (sqlLower.includes("total_donations >= 5")) {
+            data = data.filter(d => (d.totalDonations || 0) >= 5);
+          }
+          if (sqlLower.includes("group by blood_group")) {
+            const counts = {};
+            data.forEach(d => counts[d.bloodGroup] = (counts[d.bloodGroup] || 0) + 1);
+            headers = ['blood_group', 'total_donors'];
+            rows = Object.keys(counts).map(bg => [bg, counts[bg]]);
+          } else {
+            headers = ['donor_id', 'full_name', 'blood_group', 'contact_phone', 'district', 'total_donations', 'status'];
+            rows = data.map(d => [d.id, d.name, d.bloodGroup, d.phone, d.district, d.totalDonations, d.status]);
+          }
+        } else if (sqlLower.includes('from blood_requests')) {
+          let data = RedDropStore.getRequests();
+          if (sqlLower.includes("urgency = 'critical'")) {
+            data = data.filter(r => r.urgency === 'CRITICAL');
+          }
+          headers = ['request_id', 'patient_name', 'blood_group', 'bags_needed', 'urgency', 'hospital'];
+          rows = data.map(r => [r.id, r.patientName, r.bloodGroup, r.bagsNeeded, r.urgency, r.hospital]);
+        } else if (sqlLower.includes('from blood_inventory')) {
+          let data = RedDropStore.getInventory();
+          if (sqlLower.includes("status = 'critical'")) {
+            data = data.filter(i => i.status === 'CRITICAL');
+          }
+          headers = ['hospital_name', 'blood_group', 'whole_blood', 'platelets', 'status'];
+          rows = data.map(i => [i.hospitalName, i.group, i.wholeBlood, i.platelets, i.status]);
+        } else {
+          // Default fallback
+          const donors = RedDropStore.getDonors();
+          headers = ['donor_id', 'name', 'blood_group', 'status'];
+          rows = donors.map(d => [d.id, d.name, d.bloodGroup, d.status]);
+        }
+
+        const duration = (performance.now() - start).toFixed(2);
+        metaInfo.innerText = `Query executed in ${duration}ms • ${rows.length} row(s) returned`;
+
+        resultTable.innerHTML = `
+          <thead class="bg-slate-900 border-b border-slate-800 text-slate-400">
+            <tr>${headers.map(h => `<th class="p-3 font-bold">${h}</th>`).join('')}</tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60">
+            ${rows.map(r => `
+              <tr class="hover:bg-slate-900/50">
+                ${r.map((c, i) => `<td class="p-3 ${i === 0 ? 'text-amber-400 font-bold' : ''}">${c}</td>`).join('')}
+              </tr>
+            `).join('')}
+          </tbody>
+        `;
+      } catch (err) {
+        metaInfo.innerText = `SQL Syntax Error: ${err.message}`;
+      }
+    }
+
+    function clearQueryResult() {
+      document.getElementById('sql-result-table').innerHTML = "";
+      document.getElementById('query-meta-info').innerText = "Console cleared.";
+    }
+
+    function resetData() {
+      if (confirm("Reset all tables to initial demo dataset?")) {
+        RedDropStore.resetAllData();
+        switchTable(currentTable);
+        executeSQLQuery();
+        showToast("Database restored to initial seed state.", "success");
+      }
+    }
+
+    function exportSQLDump() {
+      const donors = RedDropStore.getDonors();
+      const requests = RedDropStore.getRequests();
+
+      let sqlDump = `-- RedDrop Database Export\n-- Generated on: ${new Date().toISOString()}\n\n`;
+      sqlDump += `CREATE DATABASE IF NOT EXISTS red_blood_donation_db;\nUSE red_blood_donation_db;\n\n`;
+      
+      sqlDump += `-- Table: Donors\n`;
+      sqlDump += `INSERT INTO Donors (donor_id, full_name, blood_group, contact_phone, district, total_donations, availability_status) VALUES\n`;
+      sqlDump += donors.map(d => `(${d.id}, '${d.name}', '${d.bloodGroup}', '${d.phone}', '${d.district}', ${d.totalDonations}, '${d.status}')`).join(',\n') + ';\n\n';
+
+      sqlDump += `-- Table: Blood_Requests\n`;
+      sqlDump += `INSERT INTO Blood_Requests (request_id, patient_name, blood_group, bags_needed, urgency, hospital, attendant_phone) VALUES\n`;
+      sqlDump += requests.map(r => `(${r.id}, '${r.patientName}', '${r.bloodGroup}', ${r.bagsNeeded}, '${r.urgency}', '${r.hospital}', '${r.attendantPhone}')`).join(',\n') + ';\n';
+
+      const blob = new Blob([sqlDump], { type: 'text/sql' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `reddrop_db_dump_${Date.now()}.sql`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

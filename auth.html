@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join RedDrop - Register as Voluntary Donor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1, h2, h3, h4, .font-display { font-family: 'Outfit', sans-serif; }
+    .blood-gradient { background: linear-gradient(135deg, #e11d48 0%, #be123c 50%, #9f1239 100%); }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col justify-between antialiased">
+
+  <!-- Top Simple Nav -->
+  <header class="bg-white border-b border-slate-200 py-4 px-6">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-2xl blood-gradient text-white flex items-center justify-center shadow">
+          <i data-lucide="droplet" class="w-5 h-5 fill-current"></i>
+        </div>
+        <span class="font-display font-black text-xl text-slate-900">Red<span class="text-red-600">Drop</span></span>
+      </a>
+      <a href="index.html" class="text-xs font-bold text-slate-600 hover:text-red-600 flex items-center gap-1">
+        &larr; Back to Home
+      </a>
+    </div>
+  </header>
+
+  <!-- Auth Main Container -->
+  <main class="max-w-xl w-full mx-auto px-4 py-8">
+    <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-xl">
+      
+      <!-- Role Tabs -->
+      <div class="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-2xl mb-6 text-xs font-bold" id="auth-tabs">
+        <button onclick="setAuthTab('donor-register')" id="tab-btn-register" class="py-2.5 rounded-xl bg-white text-slate-900 shadow">
+          Volunteer Donor Registration
+        </button>
+        <button onclick="setAuthTab('login')" id="tab-btn-login" class="py-2.5 rounded-xl text-slate-600 hover:text-slate-900">
+          Donor Login / Portal
+        </button>
+      </div>
+
+      <!-- Registration Form View -->
+      <div id="view-register">
+        <div class="mb-6">
+          <h2 class="font-display font-black text-2xl text-slate-900">Register as a Lifesaver</h2>
+          <p class="text-xs text-slate-500 mt-1">Join over 2,450+ verified voluntary blood donors across Bangladesh.</p>
+        </div>
+
+        <form onsubmit="handleRegistration(event)" class="space-y-4 text-xs">
+          <!-- Step 1: Personal Info -->
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Full Name *</label>
+            <input type="text" id="reg-name" required placeholder="e.g. Mahim Bin Tariq" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-500 font-medium">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Blood Group *</label>
+              <select id="reg-blood" required class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-500 font-bold bg-white text-red-600">
+                <option value="A+">A+ (A Positive)</option>
+                <option value="A-">A- (A Negative)</option>
+                <option value="B+">B+ (B Positive)</option>
+                <option value="B-">B- (B Negative)</option>
+                <option value="O+">O+ (O Positive)</option>
+                <option value="O-">O- (O Negative)</option>
+                <option value="AB+">AB+ (AB Positive)</option>
+                <option value="AB-">AB- (AB Negative)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Gender *</label>
+              <select id="reg-gender" class="w-full p-3 rounded-xl border border-slate-200 font-medium bg-white">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Age (Years) *</label>
+              <input type="number" id="reg-age" min="18" max="65" value="22" required class="w-full p-3 rounded-xl border border-slate-200 font-medium">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Body Weight (kg) *</label>
+              <input type="number" id="reg-weight" min="48" max="150" value="65" required class="w-full p-3 rounded-xl border border-slate-200 font-medium">
+            </div>
+          </div>
+
+          <!-- Step 2: Location -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">District *</label>
+              <select id="reg-district" required class="w-full p-3 rounded-xl border border-slate-200 font-medium bg-white">
+                <option value="Dhaka">Dhaka</option>
+                <option value="Chattogram">Chattogram</option>
+                <option value="Sylhet">Sylhet</option>
+                <option value="Rajshahi">Rajshahi</option>
+                <option value="Khulna">Khulna</option>
+                <option value="Barishal">Barishal</option>
+                <option value="Rangpur">Rangpur</option>
+                <option value="Mymensingh">Mymensingh</option>
+                <option value="Cumilla">Cumilla</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Area / Thana *</label>
+              <input type="text" id="reg-area" required placeholder="e.g. Dhanmondi 32" class="w-full p-3 rounded-xl border border-slate-200 font-medium">
+            </div>
+          </div>
+
+          <!-- Step 3: Contact Details -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Phone (01XXXXXXXXX) *</label>
+              <input type="tel" id="reg-phone" required placeholder="01711223344" pattern="01[3-9][0-9]{8}" class="w-full p-3 rounded-xl border border-slate-200 font-bold">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Email (Optional)</label>
+              <input type="email" id="reg-email" placeholder="mahim@gmail.com" class="w-full p-3 rounded-xl border border-slate-200 font-medium">
+            </div>
+          </div>
+
+          <!-- Compliance checkbox -->
+          <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-start gap-2">
+            <input type="checkbox" id="reg-agree" required class="mt-0.5 rounded text-red-600 focus:ring-red-500">
+            <label for="reg-agree" class="text-[11px] text-slate-600 leading-tight cursor-pointer">
+              I certify that I am at least 18 years old, weigh 48kg+, and am willing to voluntarily donate blood to save lives.
+            </label>
+          </div>
+
+          <button type="submit" class="w-full py-3.5 rounded-2xl blood-gradient hover:opacity-95 text-white font-display font-black text-sm shadow-xl shadow-red-500/25 transition">
+            Complete Registration & Get Donor ID &rarr;
+          </button>
+        </form>
+      </div>
+
+      <!-- Login View -->
+      <div id="view-login" class="hidden">
+        <div class="mb-6">
+          <h2 class="font-display font-black text-2xl text-slate-900">Donor Account Login</h2>
+          <p class="text-xs text-slate-500 mt-1">Access your digital Donor ID Card, history, and certificates.</p>
+        </div>
+
+        <form onsubmit="handleLogin(event)" class="space-y-4 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Phone Number or Donor ID *</label>
+            <input type="text" id="login-id" required value="01711223344" class="w-full p-3 rounded-xl border border-slate-200 font-bold">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Password / PIN *</label>
+            <input type="password" id="login-pin" required value="123456" class="w-full p-3 rounded-xl border border-slate-200 font-medium">
+          </div>
+
+          <button type="submit" class="w-full py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-display font-black text-sm shadow transition">
+            Login to Donor Dashboard &rarr;
+          </button>
+        </form>
+
+        <!-- Quick Demo Profiles -->
+        <div class="mt-6 pt-6 border-t border-slate-100">
+          <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Demo Quick-Access Accounts:</p>
+          <div class="space-y-2">
+            <button onclick="quickDemoLogin('Tanvir Ahmed', 'A+', '01711223344')" class="w-full p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left text-xs font-semibold flex items-center justify-between">
+              <span>👤 <strong>Tanvir Ahmed</strong> (A+ • Gold Tier)</span>
+              <span class="text-red-600 font-bold">Login &rarr;</span>
+            </button>
+            <button onclick="quickDemoLogin('Dr. Sadia Rahman', 'O-', '01822334455')" class="w-full p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left text-xs font-semibold flex items-center justify-between">
+              <span>👤 <strong>Dr. Sadia Rahman</strong> (O- • Rare Hero)</span>
+              <span class="text-red-600 font-bold">Login &rarr;</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="text-center py-6 text-xs text-slate-400">
+    &copy; 2026 RedDrop Blood Donation Network Bangladesh
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="nav-footer.js"></script>
+  <script>
+    function setAuthTab(tab) {
+      if (tab === 'donor-register') {
+        document.getElementById('view-register').classList.remove('hidden');
+        document.getElementById('view-login').classList.add('hidden');
+        document.getElementById('tab-btn-register').className = 'py-2.5 rounded-xl bg-white text-slate-900 shadow';
+        document.getElementById('tab-btn-login').className = 'py-2.5 rounded-xl text-slate-600 hover:text-slate-900';
+      } else {
+        document.getElementById('view-register').classList.add('hidden');
+        document.getElementById('view-login').classList.remove('hidden');
+        document.getElementById('tab-btn-login').className = 'py-2.5 rounded-xl bg-white text-slate-900 shadow';
+        document.getElementById('tab-btn-register').className = 'py-2.5 rounded-xl text-slate-600 hover:text-slate-900';
+      }
+    }
+
+    function handleRegistration(e) {
+      e.preventDefault();
+      const name = document.getElementById('reg-name').value;
+      const bloodGroup = document.getElementById('reg-blood').value;
+      const gender = document.getElementById('reg-gender').value;
+      const age = document.getElementById('reg-age').value;
+      const weight = document.getElementById('reg-weight').value;
+      const district = document.getElementById('reg-district').value;
+      const area = document.getElementById('reg-area').value;
+      const phone = document.getElementById('reg-phone').value;
+      const email = document.getElementById('reg-email').value || `${name.toLowerCase().replace(/\s+/g, '')}@gmail.com`;
+
+      const newDonor = {
+        name,
+        bloodGroup,
+        gender,
+        age: parseInt(age),
+        weight: parseInt(weight),
+        district,
+        area: `${area}, ${district}`,
+        division: district === 'Chattogram' ? 'Chattogram' : district === 'Sylhet' ? 'Sylhet' : 'Dhaka',
+        phone,
+        email,
+        totalDonations: 1,
+        lastDonatedDate: "2026-05-01",
+        status: "AVAILABLE"
+      };
+
+      RedDropStore.addDonor(newDonor);
+      RedDropStore.updateUserProfile({
+        name,
+        bloodGroup,
+        phone,
+        email,
+        district,
+        area: `${area}, ${district}`,
+        donorId: `RD-BD-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        tier: "Active Lifesaver",
+        totalDonations: 1,
+        livesSaved: 3,
+        status: "AVAILABLE"
+      });
+
+      showToast(`Welcome ${name}! Your Donor ID Card is generated.`, 'success');
+      setTimeout(() => {
+        window.location.href = 'donor-dashboard.html';
+      }, 800);
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      showToast('Logged in successfully!', 'success');
+      setTimeout(() => {
+        window.location.href = 'donor-dashboard.html';
+      }, 500);
+    }
+
+    function quickDemoLogin(name, bloodGroup, phone) {
+      RedDropStore.updateUserProfile({
+        name,
+        bloodGroup,
+        phone,
+        donorId: `RD-BD-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        status: "AVAILABLE"
+      });
+      showToast(`Logged in as ${name}`, 'success');
+      setTimeout(() => {
+        window.location.href = 'donor-dashboard.html';
+      }, 500);
+    }
+  </script>
+</body>
+</html>

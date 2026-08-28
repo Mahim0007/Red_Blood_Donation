@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergency Blood Requests (Live SOS) - RedDrop Bangladesh</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1, h2, h3, h4, .font-display { font-family: 'Outfit', sans-serif; }
+    .blood-gradient { background: linear-gradient(135deg, #e11d48 0%, #be123c 50%, #9f1239 100%); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+
+  <!-- Top Hotline Bar -->
+  <div class="bg-red-700 text-white text-xs py-2 px-4 shadow-inner">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+        <span class="font-bold text-[11px]">Emergency Live SOS Broadcast: Patient attendants are waiting for donors</span>
+      </div>
+      <div class="hidden sm:flex items-center gap-4 text-[11px] font-bold">
+        <span>Ambulance: 999</span>
+        <span>RedDrop 24/7 Dispatch: 10678</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl blood-gradient text-white flex items-center justify-center shadow-lg shadow-red-500/25">
+          <i data-lucide="droplet" class="w-5 h-5 fill-current"></i>
+        </div>
+        <div>
+          <span class="font-display font-black text-2xl tracking-tight text-slate-900">Red<span class="text-red-600">Drop</span></span>
+          <p class="text-[10px] font-semibold text-slate-500">Live Emergency SOS</p>
+        </div>
+      </a>
+
+      <nav class="hidden lg:flex items-center gap-1 text-xs font-bold text-slate-600">
+        <a href="index.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">Home</a>
+        <a href="donors.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">Find Donors</a>
+        <a href="requests.html" class="px-3.5 py-2 rounded-xl text-red-600 bg-red-50 font-extrabold transition">Emergency SOS</a>
+        <a href="inventory.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">Blood Inventory</a>
+        <a href="admin.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">DBMS Studio</a>
+        <a href="donor-dashboard.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">My Donor ID</a>
+      </nav>
+
+      <div class="flex items-center gap-2.5">
+        <button onclick="openRequestModal()" class="px-4 py-2.5 rounded-xl blood-gradient text-white text-xs font-black shadow-lg shadow-red-500/25 hover:opacity-95 transition flex items-center gap-1.5">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> Post Request
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Header -->
+  <section class="bg-gradient-to-b from-red-50 to-slate-50 pt-10 pb-8 px-4 sm:px-6 lg:px-8 border-b border-slate-100">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-1.5 text-xs font-extrabold text-red-700 bg-red-100 px-3 py-1 rounded-full mb-2">
+            <span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span> Real-Time Urgent Queue
+          </div>
+          <h1 class="font-display text-3xl sm:text-4xl font-black text-slate-900">Live Emergency Blood Requests</h1>
+          <p class="text-slate-600 text-xs sm:text-sm mt-1">Patients in hospitals needing urgent blood transfusion. Every second counts.</p>
+        </div>
+        <button onclick="openRequestModal()" class="self-start md:self-auto px-5 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-lg shadow-red-200 transition flex items-center gap-2">
+          <i data-lucide="bell-ring" class="w-4 h-4"></i> Post Urgent Blood Need
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter & Requests List -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Filter Toolbar -->
+    <div class="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-sm mb-8 flex flex-wrap items-center justify-between gap-4 text-xs">
+      <!-- Urgency Tabs -->
+      <div class="flex flex-wrap gap-1.5" id="urgency-tabs">
+        <button onclick="setUrgencyFilter('ALL')" class="urgency-tab px-4 py-2 rounded-xl font-bold bg-red-600 text-white shadow">All Requests</button>
+        <button onclick="setUrgencyFilter('CRITICAL')" class="urgency-tab px-4 py-2 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Critical (&lt; 2-4 hrs)</button>
+        <button onclick="setUrgencyFilter('URGENT')" class="urgency-tab px-4 py-2 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Urgent (Today)</button>
+        <button onclick="setUrgencyFilter('SCHEDULED')" class="urgency-tab px-4 py-2 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Scheduled</button>
+      </div>
+
+      <!-- Quick Group & District Filter -->
+      <div class="flex flex-wrap items-center gap-3">
+        <select id="filter-blood" onchange="renderRequestsGrid()" class="bg-slate-50 border border-slate-200 rounded-xl p-2 font-bold text-slate-800">
+          <option value="ALL">All Blood Groups</option>
+          <option value="A+">A+</option>
+          <option value="A-">A-</option>
+          <option value="B+">B+</option>
+          <option value="B-">B-</option>
+          <option value="O+">O+</option>
+          <option value="O-">O-</option>
+          <option value="AB+">AB+</option>
+          <option value="AB-">AB-</option>
+        </select>
+
+        <select id="filter-district" onchange="renderRequestsGrid()" class="bg-slate-50 border border-slate-200 rounded-xl p-2 font-medium text-slate-800">
+          <option value="ALL">All Districts</option>
+          <option value="Dhaka">Dhaka</option>
+          <option value="Chattogram">Chattogram</option>
+          <option value="Sylhet">Sylhet</option>
+          <option value="Rajshahi">Rajshahi</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Requests Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="requests-grid">
+      <!-- Rendered by JS -->
+    </div>
+
+  </main>
+
+  <!-- Share Request Modal -->
+  <div id="share-modal" class="fixed inset-0 z-[999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white max-w-md w-full rounded-3xl p-6 shadow-2xl border border-slate-100 text-xs">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+          <i data-lucide="share-2" class="w-4 h-4 text-red-600"></i> Share Blood Request on Social Media
+        </h3>
+        <button onclick="closeShareModal()" class="w-7 h-7 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <p class="text-slate-500 mb-2">Copy this formatted text to share in Facebook blood groups, WhatsApp, or Telegram:</p>
+      <textarea id="share-text-box" rows="6" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 font-mono text-[11px] text-slate-800 focus:outline-none" readonly></textarea>
+
+      <div class="mt-4 flex gap-2">
+        <button onclick="copyShareText()" class="flex-1 py-2.5 bg-slate-900 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 hover:bg-slate-800 transition">
+          <i data-lucide="copy" class="w-4 h-4"></i> Copy Text
+        </button>
+        <button onclick="shareOnWhatsApp()" class="flex-1 py-2.5 bg-emerald-600 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 hover:bg-emerald-700 transition">
+          <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800 mt-16">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <p class="font-bold text-white mb-2">RedDrop Emergency Blood SOS Network</p>
+      <p class="text-slate-500 text-[11px]">Direct voluntary donor matchmaking. No monetary transactions involved.</p>
+    </div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="nav-footer.js"></script>
+  <script>
+    let activeUrgency = "ALL";
+    let currentShareText = "";
+
+    document.addEventListener('DOMContentLoaded', () => {
+      RedDropStore.init();
+      renderRequestsGrid();
+      if (window.lucide) lucide.createIcons();
+    });
+
+    function setUrgencyFilter(urgency) {
+      activeUrgency = urgency;
+      document.querySelectorAll('.urgency-tab').forEach(b => {
+        if (b.innerText.toLowerCase().includes(urgency.toLowerCase()) || (urgency === 'ALL' && b.innerText.includes('All'))) {
+          b.className = 'urgency-tab px-4 py-2 rounded-xl font-bold bg-red-600 text-white shadow';
+        } else {
+          b.className = 'urgency-tab px-4 py-2 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+        }
+      });
+      renderRequestsGrid();
+    }
+
+    function renderRequestsGrid() {
+      const grid = document.getElementById('requests-grid');
+      const blood = document.getElementById('filter-blood').value;
+      const district = document.getElementById('filter-district').value;
+
+      const requests = RedDropStore.getRequests();
+      const filtered = requests.filter(r => {
+        if (activeUrgency !== "ALL" && r.urgency !== activeUrgency) return false;
+        if (blood !== "ALL" && r.bloodGroup !== blood) return false;
+        if (district !== "ALL" && r.district !== district) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 text-center bg-white rounded-3xl border border-slate-200 p-8">
+            <i data-lucide="check-circle-2" class="w-12 h-12 text-emerald-500 mx-auto mb-2"></i>
+            <h3 class="font-bold text-slate-800 text-base">No Active Requests Matching Filters</h3>
+            <p class="text-xs text-slate-500 mt-1">All urgent blood needs under this category have been fulfilled.</p>
+          </div>
+        `;
+        if (window.lucide) lucide.createIcons();
+        return;
+      }
+
+      grid.innerHTML = filtered.map(r => {
+        const isCritical = r.urgency === 'CRITICAL';
+        const isFulfilled = r.status === 'FULFILLED';
+        const percent = Math.min(100, Math.round((r.bagsFulfilled / r.bagsNeeded) * 100));
+
+        return `
+          <div class="bg-white rounded-3xl p-5 border ${isCritical ? 'border-red-300 ring-1 ring-red-200 shadow-xl shadow-red-500/5' : 'border-slate-200/80 shadow-md'} flex flex-col justify-between relative overflow-hidden">
+            ${isCritical ? '<div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-red-600 via-rose-500 to-red-600"></div>' : ''}
+            
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-extrabold px-3 py-1 rounded-full ${isCritical ? 'bg-red-100 text-red-700 animate-pulse' : 'bg-amber-100 text-amber-800'}">
+                  ${isCritical ? '🚨 ' : ''}${r.timeLimit}
+                </span>
+                <span class="text-[11px] text-slate-400 font-medium">${r.postedAgo}</span>
+              </div>
+
+              <div class="flex items-start gap-3.5 mb-4">
+                <div class="w-14 h-14 rounded-2xl bg-red-600 text-white font-display font-black text-2xl flex items-center justify-center shadow-lg shadow-red-200 flex-shrink-0">
+                  ${r.bloodGroup}
+                </div>
+                <div>
+                  <h3 class="font-bold text-slate-900 text-base leading-tight">${r.patientName}</h3>
+                  <p class="text-xs text-red-600 font-bold mt-0.5">${r.bagsNeeded} Bags Required (${r.bagsFulfilled} Pledged)</p>
+                </div>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="mb-4 bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                <div class="bg-emerald-500 h-full transition-all duration-500" style="width: ${percent}%"></div>
+              </div>
+
+              <div class="space-y-1.5 text-xs text-slate-600 mb-4 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                <p class="flex items-center gap-1.5"><i data-lucide="hospital" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i> <strong>Hospital:</strong> ${r.hospital}</p>
+                <p class="flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i> <strong>Location:</strong> ${r.bedLocation || 'Ward/Bed details with attendant'}</p>
+                <p class="flex items-center gap-1.5"><i data-lucide="activity" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i> <strong>Case:</strong> ${r.reason}</p>
+                <p class="flex items-center gap-1.5"><i data-lucide="user" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i> <strong>Attendant:</strong> ${r.attendantName}</p>
+              </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 space-y-2">
+              <div class="flex items-center gap-2">
+                <a href="tel:${r.attendantPhone}" class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black shadow transition flex items-center justify-center gap-1.5">
+                  <i data-lucide="phone" class="w-3.5 h-3.5"></i> Call (${r.attendantPhone})
+                </a>
+                <button onclick="handlePledge('${r.id}')" class="px-4 py-2.5 rounded-xl border border-emerald-400 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 text-xs font-bold transition">
+                  ${isFulfilled ? 'Fulfilled ✓' : 'I Can Donate'}
+                </button>
+              </div>
+              <button onclick="openShareModal('${r.id}')" class="w-full py-1.5 text-[11px] text-slate-500 hover:text-slate-800 font-semibold flex items-center justify-center gap-1">
+                <i data-lucide="share-2" class="w-3.5 h-3.5"></i> Share with Facebook / WhatsApp Group
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function handlePledge(reqId) {
+      const res = RedDropStore.pledgeDonation(reqId, "Tanvir Ahmed");
+      if (res.success) {
+        showToast("Thank you for pledging 1 bag of blood! The patient attendant has been updated.", "success");
+        renderRequestsGrid();
+      } else {
+        showToast(res.message, "warning");
+      }
+    }
+
+    function openShareModal(reqId) {
+      const req = RedDropStore.getRequests().find(r => r.id == reqId);
+      if (!req) return;
+
+      currentShareText = `🚨 *EMERGENCY BLOOD REQUIRED (${req.bloodGroup})* 🚨\n\n` +
+        `👤 Patient: ${req.patientName}\n` +
+        `🩸 Blood Group: ${req.bloodGroup} (${req.bagsNeeded} Bags Required)\n` +
+        `🏥 Hospital: ${req.hospital}, ${req.district}\n` +
+        `⏰ Time: ${req.timeLimit}\n` +
+        `🩺 Reason: ${req.reason}\n` +
+        `📞 Attendant Phone: ${req.attendantPhone} (${req.attendantName})\n\n` +
+        `Please share with all donors in ${req.district}. Powered by RedDrop Bangladesh (https://reddrop.org)`;
+
+      document.getElementById('share-text-box').value = currentShareText;
+      document.getElementById('share-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeShareModal() {
+      document.getElementById('share-modal').classList.add('hidden');
+    }
+
+    function copyShareText() {
+      const box = document.getElementById('share-text-box');
+      box.select();
+      navigator.clipboard.writeText(box.value).then(() => {
+        showToast("Emergency blood request text copied to clipboard!", "success");
+        closeShareModal();
+      });
+    }
+
+    function shareOnWhatsApp() {
+      const url = `https://wa.me/?text=${encodeURIComponent(currentShareText)}`;
+      window.open(url, '_blank');
+    }
+  </script>
+</body>
+</html>
