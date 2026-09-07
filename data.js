@@ -571,7 +571,7 @@ window.showToast = function(message, type = 'success') {
   }, 4000);
 };
 
-// Bangladeshi Districts categorized by Division
+// Bangladeshi Districts categorized by Division (All 64 Districts)
 const BD_DISTRICTS = [
   "Dhaka", "Gazipur", "Narayanganj", "Narsingdi", "Tangail", "Faridpur", "Manikganj", "Munshiganj", "Gopalganj", "Madaripur", "Rajbari", "Shariatpur", "Kishoreganj",
   "Chattogram", "Cox's Bazar", "Cumilla", "Feni", "Brahmanbaria", "Noakhali", "Chandpur", "Lakshmipur", "Rangamati", "Khagrachhari", "Bandarban",
@@ -582,3 +582,52 @@ const BD_DISTRICTS = [
   "Rangpur", "Dinajpur", "Gaibandha", "Kurigram", "Lalmonirhat", "Nilphamari", "Panchagarh", "Thakurgaon",
   "Mymensingh", "Jamalpur", "Netrokona", "Sherpur"
 ];
+
+// Automatically populate all 64 districts across all filter and registration dropdowns
+function populateAllDistrictSelects() {
+  if (typeof BD_DISTRICTS === 'undefined') return;
+
+  const districtSelects = [
+    'hero-district',
+    'filter-district',
+    'donor-district',
+    'add-donor-district',
+    'req-district',
+    'reg-district'
+  ];
+
+  const sortedDistricts = [...BD_DISTRICTS].sort((a, b) => a.localeCompare(b));
+
+  districtSelects.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    if (el.options.length >= 64) return; // already fully populated with 64 districts
+
+    const currentVal = el.value;
+    const hasAllOption = el.querySelector('option[value="ALL"]');
+
+    let html = '';
+    if (hasAllOption) {
+      html += `<option value="ALL">All Districts (64)</option>`;
+    } else {
+      html += `<option value="" disabled ${!currentVal ? 'selected' : ''}>Select District (64)</option>`;
+    }
+
+    sortedDistricts.forEach(dist => {
+      html += `<option value="${dist}">${dist}</option>`;
+    });
+
+    el.innerHTML = html;
+    if (currentVal && currentVal !== 'ALL') {
+      el.value = currentVal;
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  populateAllDistrictSelects();
+});
+
+window.BD_DISTRICTS = BD_DISTRICTS;
+window.populateAllDistrictSelects = populateAllDistrictSelects;

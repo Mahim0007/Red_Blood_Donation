@@ -5,8 +5,42 @@
 document.addEventListener('DOMContentLoaded', () => {
   renderSharedModals();
   setupEmergencyTicker();
+  applyRoleBasedVisibility();
   if (window.lucide) lucide.createIcons();
 });
+
+function applyRoleBasedVisibility() {
+  try {
+    const session = JSON.parse(localStorage.getItem('reddrop_auth_session') || 'null');
+    const isAdmin = !!(session && session.isLoggedIn && session.role === 'admin');
+
+    // Select all DBMS Studio / admin links
+    const adminElements = document.querySelectorAll('[data-role="admin-only"], a[href="admin.html"], a[href*="admin.html"]');
+    adminElements.forEach(el => {
+      // Do not hide back buttons on admin.html page itself
+      if (window.location.pathname.endsWith('admin.html')) return;
+
+      if (!isAdmin) {
+        el.style.display = 'none';
+        el.classList.add('hidden');
+        if (el.parentElement && el.parentElement.tagName === 'LI') {
+          el.parentElement.style.display = 'none';
+          el.parentElement.classList.add('hidden');
+        }
+      } else {
+        el.style.display = '';
+        el.classList.remove('hidden');
+        if (el.parentElement && el.parentElement.tagName === 'LI') {
+          el.parentElement.style.display = '';
+          el.parentElement.classList.remove('hidden');
+        }
+      }
+    });
+  } catch (e) {
+    console.error('Error applying role visibility', e);
+  }
+}
+window.applyRoleBasedVisibility = applyRoleBasedVisibility;
 
 function setupEmergencyTicker() {
   const tickerEl = document.getElementById('emergency-ticker-content');
@@ -73,17 +107,70 @@ function renderSharedModals() {
             <div>
               <label class="block font-bold text-slate-700 mb-1">District *</label>
               <select id="req-district" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500 font-medium bg-white">
-                <option value="Dhaka">Dhaka</option>
-                <option value="Chattogram">Chattogram</option>
-                <option value="Sylhet">Sylhet</option>
-                <option value="Rajshahi">Rajshahi</option>
-                <option value="Khulna">Khulna</option>
+                <option value="Dhaka" selected>Dhaka</option>
+                <option value="Bagerhat">Bagerhat</option>
+                <option value="Bandarban">Bandarban</option>
+                <option value="Barguna">Barguna</option>
                 <option value="Barishal">Barishal</option>
-                <option value="Rangpur">Rangpur</option>
-                <option value="Mymensingh">Mymensingh</option>
-                <option value="Cumilla">Cumilla</option>
-                <option value="Gazipur">Gazipur</option>
+                <option value="Bhola">Bhola</option>
                 <option value="Bogura">Bogura</option>
+                <option value="Brahmanbaria">Brahmanbaria</option>
+                <option value="Chandpur">Chandpur</option>
+                <option value="Chapai Nawabganj">Chapai Nawabganj</option>
+                <option value="Chattogram">Chattogram</option>
+                <option value="Chuadanga">Chuadanga</option>
+                <option value="Cox's Bazar">Cox's Bazar</option>
+                <option value="Cumilla">Cumilla</option>
+                <option value="Dinajpur">Dinajpur</option>
+                <option value="Faridpur">Faridpur</option>
+                <option value="Feni">Feni</option>
+                <option value="Gaibandha">Gaibandha</option>
+                <option value="Gazipur">Gazipur</option>
+                <option value="Gopalganj">Gopalganj</option>
+                <option value="Habiganj">Habiganj</option>
+                <option value="Jamalpur">Jamalpur</option>
+                <option value="Jashore">Jashore</option>
+                <option value="Jhalokati">Jhalokati</option>
+                <option value="Jhenaidah">Jhenaidah</option>
+                <option value="Joypurhat">Joypurhat</option>
+                <option value="Khagrachhari">Khagrachhari</option>
+                <option value="Khulna">Khulna</option>
+                <option value="Kishoreganj">Kishoreganj</option>
+                <option value="Kurigram">Kurigram</option>
+                <option value="Kushtia">Kushtia</option>
+                <option value="Lakshmipur">Lakshmipur</option>
+                <option value="Lalmonirhat">Lalmonirhat</option>
+                <option value="Madaripur">Madaripur</option>
+                <option value="Magura">Magura</option>
+                <option value="Manikganj">Manikganj</option>
+                <option value="Meherpur">Meherpur</option>
+                <option value="Moulvibazar">Moulvibazar</option>
+                <option value="Munshiganj">Munshiganj</option>
+                <option value="Mymensingh">Mymensingh</option>
+                <option value="Naogaon">Naogaon</option>
+                <option value="Narail">Narail</option>
+                <option value="Narayanganj">Narayanganj</option>
+                <option value="Narsingdi">Narsingdi</option>
+                <option value="Natore">Natore</option>
+                <option value="Netrokona">Netrokona</option>
+                <option value="Nilphamari">Nilphamari</option>
+                <option value="Noakhali">Noakhali</option>
+                <option value="Pabna">Pabna</option>
+                <option value="Panchagarh">Panchagarh</option>
+                <option value="Patuakhali">Patuakhali</option>
+                <option value="Pirojpur">Pirojpur</option>
+                <option value="Rajbari">Rajbari</option>
+                <option value="Rajshahi">Rajshahi</option>
+                <option value="Rangamati">Rangamati</option>
+                <option value="Rangpur">Rangpur</option>
+                <option value="Satkhira">Satkhira</option>
+                <option value="Shariatpur">Shariatpur</option>
+                <option value="Sherpur">Sherpur</option>
+                <option value="Sirajganj">Sirajganj</option>
+                <option value="Sunamganj">Sunamganj</option>
+                <option value="Sylhet">Sylhet</option>
+                <option value="Tangail">Tangail</option>
+                <option value="Thakurgaon">Thakurgaon</option>
               </select>
             </div>
             <div>

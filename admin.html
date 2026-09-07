@@ -12,9 +12,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script>
-    if (!localStorage.getItem('reddrop_auth_session')) {
-      window.location.replace('login.html');
-    }
+    (function() {
+      try {
+        const session = JSON.parse(localStorage.getItem('reddrop_auth_session') || 'null');
+        if (!session || !session.isLoggedIn) {
+          window.location.replace('login.html');
+        } else if (session.role !== 'admin') {
+          window.location.replace('index.html');
+        }
+      } catch (e) {
+        window.location.replace('login.html');
+      }
+    })();
   </script>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen">
