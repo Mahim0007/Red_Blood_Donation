@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Access - RedDrop Bangladesh</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="tailwind-config.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background-color: #120407;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(225, 29, 72, 0.18) 0px, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(159, 18, 57, 0.22) 0px, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(76, 5, 25, 0.3) 0px, transparent 65%);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-10 text-slate-100 relative overflow-x-hidden">
+
+  <!-- Ambient background glow spheres -->
+  <div class="fixed inset-0 pointer-events-none z-0">
+    <div class="absolute -top-32 -left-32 w-80 h-80 bg-red-600/15 rounded-full blur-[110px]"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-rose-700/20 rounded-full blur-[130px]"></div>
+  </div>
+
+  <!-- Main Card Window (Matches reference layout in rich Red Blood theme) -->
+  <div class="relative z-10 max-w-5xl w-full bg-[#170509] rounded-3xl p-3 sm:p-4 shadow-2xl border border-[#3b111a] grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 items-stretch shadow-red-950/60">
+
+    <!-- Left Side: Scenic Blood Twilight Banner with Overlay Branding & Back Button -->
+    <div class="lg:col-span-5 relative rounded-2xl overflow-hidden min-h-[260px] sm:min-h-[380px] lg:min-h-[580px] bg-slate-950 flex flex-col justify-between p-6">
+      
+      <!-- Background Authentic Blood Donation Lifesaver Image -->
+      <img 
+        src="https://images.unsplash.com/photo-1615461066841-6116e61058f4?w=1000&auto=format&fit=crop&q=80" 
+        alt="Voluntary Blood Donation Lifesaver" 
+        class="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.78] contrast-[1.15]"
+      >
+      
+      <!-- Blood Red & Deep Crimson Gradient Overlay -->
+      <div class="absolute inset-0 bg-gradient-to-b from-[#3d0511]/80 via-[#1a0408]/40 to-[#0e0204]/90 pointer-events-none"></div>
+
+      <!-- Top Row inside image: Logo -->
+      <div class="relative z-10 flex items-center justify-between w-full">
+        <!-- Minimalist Logo with Glowing Blood Drop -->
+        <a href="index.html" class="flex items-center gap-2 group">
+          <div class="w-9 h-9 rounded-xl bg-red-600/30 backdrop-blur-md border border-red-500/40 flex items-center justify-center text-white shadow-lg shadow-red-600/30">
+            <i data-lucide="droplet" class="w-4 h-4 fill-red-500 text-red-500 pulse-glow"></i>
+          </div>
+          <span class="font-display font-black text-xl tracking-tight text-white flex items-center drop-shadow-sm">
+            Red<span class="text-red-500 font-extrabold">Drop</span>
+          </span>
+        </a>
+      </div>
+
+      <!-- Bottom Caption inside image -->
+      <div class="relative z-10 text-xs text-white/90 space-y-1.5">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-600/30 backdrop-blur-sm text-[11px] font-extrabold text-red-200 border border-red-500/40 shadow-inner">
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+          Live Bangladesh Blood Network
+        </div>
+        <p class="text-rose-100/80 text-[11px] leading-relaxed pt-1 font-medium">
+          Connecting verified voluntary blood donors with emergency patients across 64 districts in real-time.
+        </p>
+      </div>
+    </div>
+
+    <!-- Right Side: Form Area -->
+    <div class="lg:col-span-7 flex flex-col justify-center px-4 py-6 sm:px-8 lg:px-10">
+
+      <!-- ================= LOGIN VIEW (Default) ================= -->
+      <div id="view-login">
+        <!-- Heading & Switcher -->
+        <div class="mb-6">
+          <h1 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2 font-display">
+            Log in to <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-rose-400">RedDrop</span>
+          </h1>
+          <p class="text-xs text-[#b88590]">
+            Don't have an account? 
+            <button type="button" onclick="switchAuthMode('register')" class="text-red-400 hover:text-red-300 underline font-semibold transition ml-1">
+              Create an account
+            </button>
+          </p>
+        </div>
+
+        <!-- Role Pills (Donor vs Admin) in Blood Theme -->
+        <div class="grid grid-cols-2 gap-2 p-1 bg-[#1e090e] rounded-xl border border-[#3d121b] mb-5 text-xs font-semibold">
+          <button type="button" id="role-btn-donor" onclick="setRole('donor')" class="py-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-600/30 transition">
+            Donor / Lifesaver
+          </button>
+          <button type="button" id="role-btn-admin" onclick="setRole('admin')" class="py-2 rounded-lg text-[#b88590] hover:text-white transition">
+            Hospital / Admin
+          </button>
+        </div>
+
+        <!-- Login Form -->
+        <form onsubmit="handleLoginSubmit(event)" class="space-y-4 text-xs">
+          <div>
+            <label id="lbl-login-id" class="block text-rose-100/90 font-semibold mb-1.5">Phone Number or Email</label>
+            <input 
+              type="text" 
+              id="login-identifier" 
+              required 
+              placeholder="e.g. 01711223344 or tanvir.ahmed"
+              class="w-full px-4 py-3 rounded-xl custom-input text-xs font-medium"
+            >
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="text-rose-100/90 font-semibold">Password</label>
+              <button type="button" onclick="showResetHelp()" class="text-[11px] text-red-400 hover:text-red-300 hover:underline">Forgot password?</button>
+            </div>
+            <div class="relative">
+              <input 
+                type="password" 
+                id="login-password" 
+                required 
+                placeholder="Enter your password"
+                class="w-full px-4 pr-11 py-3 rounded-xl custom-input text-xs font-medium font-mono"
+              >
+              <button 
+                type="button" 
+                onclick="togglePasswordVisibility('login-password', 'login-eye-icon')"
+                class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9f6774] hover:text-white transition"
+              >
+                <i id="login-eye-icon" data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Checkbox -->
+          <div class="flex items-center gap-2 pt-1">
+            <input 
+              type="checkbox" 
+              id="login-remember" 
+              checked 
+              class="w-4 h-4 rounded bg-[#1e090e] border-[#3d121b] text-red-600 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+            >
+            <label for="login-remember" class="text-xs text-[#b88590] select-none cursor-pointer">
+              Remember my session
+            </label>
+          </div>
+
+          <!-- Submit Button in Rich Blood Gradient -->
+          <button 
+            type="submit" 
+            id="login-submit-btn"
+            class="w-full py-3.5 rounded-xl btn-blood text-white font-bold text-xs tracking-wide transition flex items-center justify-center gap-2 mt-2"
+          >
+            <span>Log in to RedDrop</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </form>
+
+        <!-- 1-Click Quick Demo Login (Blood Styled Pills) -->
+        <div class="mt-6 pt-5 border-t border-[#331018]">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-[11px] font-bold text-rose-300/70 uppercase tracking-wider flex items-center gap-1">
+              <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i> Quick 1-Click Demo Accounts
+            </span>
+            <span class="text-[10px] text-emerald-400 font-mono">Instant test</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="quickFill('tanvir')" class="p-2.5 rounded-xl bg-[#1e090e] hover:bg-[#2b0e15] border border-[#3d121b] hover:border-red-500/50 text-[#fecdd3] text-[11px] font-semibold transition truncate text-center shadow-sm">
+              🩸 Tanvir (A+)
+            </button>
+            <button type="button" onclick="quickFill('sadia')" class="p-2.5 rounded-xl bg-[#1e090e] hover:bg-[#2b0e15] border border-[#3d121b] hover:border-red-500/50 text-[#fecdd3] text-[11px] font-semibold transition truncate text-center shadow-sm">
+              🩸 Dr. Sadia (O-)
+            </button>
+            <button type="button" onclick="quickFill('admin')" class="p-2.5 rounded-xl bg-[#1e090e] hover:bg-[#2b0e15] border border-[#3d121b] hover:border-amber-500/50 text-[#fef08a] text-[11px] font-semibold transition truncate text-center shadow-sm">
+              🛡️ DBMS Admin
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= CREATE AN ACCOUNT VIEW (Blood Styled Form) ================= -->
+      <div id="view-register" class="hidden">
+        <!-- Heading & Switcher -->
+        <div class="mb-6">
+          <h1 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2 font-display">
+            Create an <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-rose-400">account</span>
+          </h1>
+          <p class="text-xs text-[#b88590]">
+            Already have an account? 
+            <button type="button" onclick="switchAuthMode('login')" class="text-red-400 hover:text-red-300 underline font-semibold transition ml-1">
+              Log in
+            </button>
+          </p>
+        </div>
+
+        <!-- Registration Form (Layout matches screenshot) -->
+        <form onsubmit="handleRegisterSubmit(event)" class="space-y-3.5 text-xs">
+          <!-- First name & Last name (2 cols like screenshot) -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-rose-100/90 font-medium mb-1">First name</label>
+              <input 
+                type="text" 
+                id="reg-firstname" 
+                required 
+                placeholder="Fletcher"
+                class="w-full px-4 py-3 rounded-xl custom-input text-xs"
+              >
+            </div>
+            <div>
+              <label class="block text-rose-100/90 font-medium mb-1">Last name</label>
+              <input 
+                type="text" 
+                id="reg-lastname" 
+                required 
+                placeholder="Last name"
+                class="w-full px-4 py-3 rounded-xl custom-input text-xs"
+              >
+            </div>
+          </div>
+
+          <!-- Email / Phone -->
+          <div>
+            <label class="block text-rose-100/90 font-medium mb-1">Email or Phone Number</label>
+            <input 
+              type="text" 
+              id="reg-contact" 
+              required 
+              placeholder="name@domain.com or 01711223344"
+              class="w-full px-4 py-3 rounded-xl custom-input text-xs"
+            >
+          </div>
+
+          <!-- Blood Group & District (2 cols) -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-rose-100/90 font-medium mb-1">Blood Group</label>
+              <select id="reg-blood" class="w-full px-3 py-3 rounded-xl custom-input text-xs font-bold text-red-400">
+                <option value="A+">A+ (A Positive)</option>
+                <option value="A-">A- (A Negative)</option>
+                <option value="B+">B+ (B Positive)</option>
+                <option value="B-">B- (B Negative)</option>
+                <option value="O+">O+ (O Positive)</option>
+                <option value="O-">O- (O Negative)</option>
+                <option value="AB+">AB+ (AB Positive)</option>
+                <option value="AB-">AB- (AB Negative)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-rose-100/90 font-medium mb-1">District</label>
+              <select id="reg-district" class="w-full px-3 py-3 rounded-xl custom-input text-xs">
+                <option value="Dhaka">Dhaka</option>
+                <option value="Chattogram">Chattogram</option>
+                <option value="Sylhet">Sylhet</option>
+                <option value="Rajshahi">Rajshahi</option>
+                <option value="Khulna">Khulna</option>
+                <option value="Barishal">Barishal</option>
+                <option value="Rangpur">Rangpur</option>
+                <option value="Mymensingh">Mymensingh</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Password with eye icon -->
+          <div>
+            <label class="block text-rose-100/90 font-medium mb-1">Enter your password</label>
+            <div class="relative">
+              <input 
+                type="password" 
+                id="reg-password" 
+                required 
+                placeholder="Enter your password"
+                class="w-full px-4 pr-11 py-3 rounded-xl custom-input text-xs font-mono"
+              >
+              <button 
+                type="button" 
+                onclick="togglePasswordVisibility('reg-password', 'reg-eye-icon')"
+                class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9f6774] hover:text-white transition"
+              >
+                <i id="reg-eye-icon" data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Checkbox: Terms & Conditions (exact wording as screenshot) -->
+          <div class="flex items-center gap-2 pt-1">
+            <input 
+              type="checkbox" 
+              id="reg-terms" 
+              required 
+              checked
+              class="w-4 h-4 rounded bg-[#1e090e] border-[#3d121b] text-red-600 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+            >
+            <label for="reg-terms" class="text-xs text-[#b88590] select-none cursor-pointer">
+              I agree to the <a href="#" class="text-rose-200 underline hover:text-white">Terms & Conditions</a>
+            </label>
+          </div>
+
+          <!-- Submit Button in Rich Blood Gradient -->
+          <button 
+            type="submit" 
+            id="reg-submit-btn"
+            class="w-full py-3.5 rounded-xl btn-blood text-white font-bold text-xs tracking-wide transition flex items-center justify-center gap-2 mt-2"
+          >
+            <span>Create account</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script>
+    let activeRole = 'donor'; // 'donor' or 'admin'
+
+    document.addEventListener('DOMContentLoaded', () => {
+      RedDropStore.init();
+      if (window.lucide) lucide.createIcons();
+
+      // Check URL params for mode=register or mode=login
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('mode') === 'register') {
+        switchAuthMode('register');
+      } else {
+        // Preset demo values for fast testing
+        document.getElementById('login-identifier').value = '01711223344';
+        document.getElementById('login-password').value = '123456';
+      }
+    });
+
+    // Switch between Login and Register views
+    function switchAuthMode(mode) {
+      const loginView = document.getElementById('view-login');
+      const registerView = document.getElementById('view-register');
+      if (mode === 'register') {
+        loginView.classList.add('hidden');
+        registerView.classList.remove('hidden');
+      } else {
+        registerView.classList.add('hidden');
+        loginView.classList.remove('hidden');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // Role switcher (Donor vs Admin)
+    function setRole(role) {
+      activeRole = role;
+      const donorBtn = document.getElementById('role-btn-donor');
+      const adminBtn = document.getElementById('role-btn-admin');
+      const lbl = document.getElementById('lbl-login-id');
+      const inputId = document.getElementById('login-identifier');
+      const inputPwd = document.getElementById('login-password');
+
+      if (role === 'donor') {
+        donorBtn.className = 'py-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-600/30 transition';
+        adminBtn.className = 'py-2 rounded-lg text-[#b88590] hover:text-white transition';
+        lbl.innerText = 'Phone Number or Email';
+        inputId.placeholder = 'e.g. 01711223344 or tanvir.ahmed';
+        inputId.value = '01711223344';
+        inputPwd.value = '123456';
+      } else {
+        adminBtn.className = 'py-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-600/30 transition';
+        donorBtn.className = 'py-2 rounded-lg text-[#b88590] hover:text-white transition';
+        lbl.innerText = 'Admin Username';
+        inputId.placeholder = 'e.g. admin or dbms_admin';
+        inputId.value = 'admin';
+        inputPwd.value = 'admin123';
+      }
+    }
+
+    // Toggle Password Visibility
+    function togglePasswordVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.setAttribute('data-lucide', 'eye-off');
+      } else {
+        input.type = 'password';
+        icon.setAttribute('data-lucide', 'eye');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // Quick Fill demo credentials
+    function quickFill(userKey) {
+      const idInput = document.getElementById('login-identifier');
+      const pwdInput = document.getElementById('login-password');
+      if (userKey === 'tanvir') {
+        setRole('donor');
+        idInput.value = '01711223344';
+        pwdInput.value = '123456';
+        showToast('Loaded demo credentials for Tanvir Ahmed (A+)', 'success');
+      } else if (userKey === 'sadia') {
+        setRole('donor');
+        idInput.value = '01822334455';
+        pwdInput.value = '123456';
+        showToast('Loaded demo credentials for Dr. Sadia (O-)', 'success');
+      } else if (userKey === 'admin') {
+        setRole('admin');
+        idInput.value = 'admin';
+        pwdInput.value = 'admin123';
+        showToast('Loaded credentials for DBMS Admin', 'warning');
+      }
+    }
+
+    // Handle Login Submit
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      const identifier = document.getElementById('login-identifier').value.trim();
+      const password = document.getElementById('login-password').value.trim();
+
+      const btn = document.getElementById('login-submit-btn');
+      btn.disabled = true;
+      btn.innerHTML = `
+        <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+        <span>Signing in...</span>
+      `;
+
+      setTimeout(() => {
+        if (activeRole === 'admin') {
+          if ((identifier.toLowerCase() === 'admin' || identifier.toLowerCase() === 'dbms') && (password === 'admin123' || password === 'admin')) {
+            RedDropAuth.login({
+              name: "DBMS Administrator",
+              phone: "01700000000",
+              role: "admin",
+              donorId: "ADMIN-ROOT"
+            }, 'admin');
+            showToast('Admin logged in! Redirecting to Home...', 'success');
+            setTimeout(() => { window.location.href = 'index.html'; }, 600);
+          } else {
+            btn.disabled = false;
+            btn.innerHTML = `<span>Log in to RedDrop</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+            if (window.lucide) lucide.createIcons();
+            showToast('Invalid admin credentials! (Use: admin / admin123)', 'error');
+          }
+        } else {
+          // Donor authentication
+          const donors = RedDropStore.getDonors();
+          const matched = donors.find(d => 
+            d.phone === identifier || 
+            (d.email && d.email.toLowerCase() === identifier.toLowerCase()) || 
+            String(d.id) === identifier ||
+            d.name.toLowerCase().includes(identifier.toLowerCase())
+          );
+
+          const profile = matched ? {
+            id: matched.id,
+            name: matched.name,
+            bloodGroup: matched.bloodGroup,
+            phone: matched.phone,
+            email: matched.email,
+            district: matched.district,
+            area: matched.area,
+            avatar: matched.avatar,
+            donorId: `RD-BD-2026-${matched.id}`
+          } : {
+            name: identifier.includes('@') ? identifier.split('@')[0] : identifier,
+            phone: identifier,
+            bloodGroup: "O+",
+            avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80",
+            donorId: "RD-BD-2026-USER"
+          };
+
+          RedDropAuth.login(profile, 'donor');
+          showToast(`Welcome back, ${profile.name}! Redirecting to Home...`, 'success');
+          setTimeout(() => { window.location.href = 'index.html'; }, 600);
+        }
+      }, 500);
+    }
+
+    // Handle Register Submit
+    function handleRegisterSubmit(e) {
+      e.preventDefault();
+      const firstName = document.getElementById('reg-firstname').value.trim();
+      const lastName = document.getElementById('reg-lastname').value.trim();
+      const contact = document.getElementById('reg-contact').value.trim();
+      const blood = document.getElementById('reg-blood').value;
+      const district = document.getElementById('reg-district').value;
+
+      const fullName = `${firstName} ${lastName}`.trim();
+      const newDonor = RedDropStore.addDonor({
+        name: fullName,
+        phone: contact,
+        bloodGroup: blood,
+        district: district,
+        area: `${district} Sadar`,
+        status: "AVAILABLE",
+        totalDonations: 0,
+        age: 22,
+        weight: 65,
+        gender: "Male"
+      });
+
+      RedDropAuth.login(newDonor, 'donor');
+      showToast(`Account created successfully! Welcome, ${fullName}`, 'success');
+      setTimeout(() => { window.location.href = 'index.html'; }, 700);
+    }
+
+    function showResetHelp() {
+      showToast('Demo PIN is 123456. Or use 1-click demo accounts below!', 'info');
+      document.getElementById('login-password').value = '123456';
+    }
+  </script>
+</body>
+</html>

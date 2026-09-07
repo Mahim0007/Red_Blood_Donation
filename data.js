@@ -9,7 +9,8 @@ const STORAGE_KEYS = {
   INVENTORY: 'reddrop_inventory',
   HOSPITALS: 'reddrop_hospitals',
   USER_PROFILE: 'reddrop_current_user',
-  SQL_LOGS: 'reddrop_sql_history'
+  SQL_LOGS: 'reddrop_sql_history',
+  AUTH_SESSION: 'reddrop_auth_session'
 };
 
 // Initial realistic Bangladeshi Seed Data
@@ -491,6 +492,50 @@ const RedDropStore = {
     return true;
   }
 };
+
+// Central Authentication & Route Protection Manager
+const RedDropAuth = {
+  getSession() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.AUTH_SESSION);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  },
+
+  isLoggedIn() {
+    const session = this.getSession();
+    return !!(session && session.isLoggedIn);
+  },
+
+  login(user, role = 'donor') {
+    const session = {
+      isLoggedIn: true,
+      role: role,
+      user: user,
+      loginTime: new Date().toISOString()
+    };
+    localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, JSON.stringify(session));
+    if (user) {
+      localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(user));
+    }
+    return session;
+  },
+
+  logout() {
+    localStorage.removeItem(STORAGE_KEYS.AUTH_SESSION);
+    window.location.replace('login.html');
+  },
+
+  requireAuth() {
+    if (!this.isLoggedIn()) {
+      window.location.replace('login.html');
+    }
+  }
+};
+window.RedDropAuth = RedDropAuth;
+window.STORAGE_KEYS = STORAGE_KEYS;
 
 // Global Toast UI Alert Helper
 window.showToast = function(message, type = 'success') {

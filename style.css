@@ -1,0 +1,101 @@
+/**
+ * RedDrop - Central Stylesheet (style.css)
+ * Defines global theme tokens, custom typography, animations, scrollbars, and input components.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=Fira+Code:wght@400;500;600;700&display=swap');
+
+:root {
+  --blood-50: #fff1f2;
+  --blood-100: #ffe4e6;
+  --blood-200: #fecdd3;
+  --blood-300: #fda4af;
+  --blood-400: #fb7185;
+  --blood-500: #f43f5e;
+  --blood-600: #e11d48;
+  --blood-700: #be123c;
+  --blood-800: #9f1239;
+  --blood-900: #881337;
+  --blood-950: #4c0519;
+  --blood-gradient: linear-gradient(135deg, #e11d48 0%, #be123c 50%, #9f1239 100%);
+}
+
+/* Global Reset & Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #e11d48;
+}
+
+/* Custom Input Controls (Dark & Blood Forms) */
+.custom-input {
+  background-color: #1e090e;
+  border: 1px solid #3d121b;
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+.custom-input:focus {
+  outline: none;
+  border-color: #e11d48;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.25);
+  background-color: #240b11;
+}
+.custom-input::placeholder {
+  color: #8f5865;
+}
+
+/* Primary Blood Action Button */
+.btn-blood {
+  background: linear-gradient(135deg, #e11d48 0%, #be123c 50%, #9f1239 100%);
+  box-shadow: 0 8px 24px -4px rgba(225, 29, 72, 0.45);
+  transition: all 0.2s ease;
+}
+.btn-blood:hover {
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 50%, #be123c 100%);
+  box-shadow: 0 12px 30px -4px rgba(225, 29, 72, 0.65);
+  transform: translateY(-1px);
+}
+
+/* Blood Droplet Pulse Glow Animation */
+.pulse-glow {
+  animation: bloodPulse 2.5s infinite ease-in-out;
+}
+@keyframes bloodPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 0 18px rgba(225, 29, 72, 0.95));
+  }
+}
+
+/* Glassmorphism Helper Classes */
+.glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-card-dark {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
