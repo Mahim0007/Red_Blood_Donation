@@ -1,0 +1,63 @@
+/**
+ * RedDrop - Donor Profile & Digital ID Card Stylesheet (donor-dashboard.css)
+ * Defines digital donor identity card, metallic sheen effects, badges, and print media rules.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;700&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+
+/* Smooth Scrolling & Typography */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #e11d48;
+}
+
+/* Digital Donor ID Card 3D Sheen */
+#printable-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#printable-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 35px -10px rgba(225, 29, 72, 0.3);
+}
+
+/* Print Optimization for Physical Card */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-card, #printable-card * {
+    visibility: visible;
+  }
+  #printable-card {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 3.375in;
+    height: 2.125in;
+    margin: 0;
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+}

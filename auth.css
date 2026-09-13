@@ -1,0 +1,57 @@
+/**
+ * RedDrop - Authentication & Registration Stylesheet (auth.css)
+ * Defines voluntary donor registration layout, inputs, form focus states, and gradient buttons.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+
+:root {
+  --blood-gradient: linear-gradient(135deg, #e11d48 0%, #be123c 50%, #9f1239 100%);
+  --blood-glow: rgba(225, 29, 72, 0.4);
+}
+
+/* Global Reset & Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #e11d48;
+}
+
+/* Form Input Focus & Highlights */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #e11d48 !important;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15) !important;
+}
+
+/* Form Submit Button */
+.btn-blood {
+  background: linear-gradient(135deg, #e11d48 0%, #be123c 50%, #9f1239 100%);
+  box-shadow: 0 4px 14px 0 rgba(225, 29, 72, 0.35);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-blood:hover {
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 50%, #be123c 100%);
+  box-shadow: 0 6px 20px 0 rgba(225, 29, 72, 0.45);
+  transform: translateY(-1px);
+}

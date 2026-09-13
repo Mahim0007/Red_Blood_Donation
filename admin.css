@@ -1,0 +1,69 @@
+/**
+ * RedDrop - DBMS Lab Studio Stylesheet (admin.css)
+ * Defines dark studio environment, code typography, interactive SQL console, and table data grids.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+
+:root {
+  --admin-bg: #090d16;
+  --admin-card: #0f172a;
+  --admin-border: #1e293b;
+  --admin-accent: #e11d48;
+}
+
+/* Global Reset & Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: var(--admin-bg);
+}
+
+/* Dark Terminal & Code Font */
+code, pre, .font-mono {
+  font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Sleek Dark Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #090d16;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #e11d48;
+}
+
+/* SQL Console & Query Editor */
+.sql-editor {
+  background-color: #020617;
+  border: 1px solid #1e293b;
+  color: #38bdf8;
+  transition: all 0.2s ease;
+}
+
+.sql-editor:focus {
+  outline: none;
+  border-color: #e11d48;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.2);
+}
+
+/* Data Table Custom Styling */
+.table-container {
+  scrollbar-width: thin;
+  scrollbar-color: #334155 #0f172a;
+}
+
+.table-row-hover:hover {
+  background-color: rgba(225, 29, 72, 0.08);
+}

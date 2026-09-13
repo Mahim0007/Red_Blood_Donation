@@ -1,0 +1,58 @@
+/**
+ * RedDrop - Blood Bank Inventory & Live Stock Stylesheet (inventory.css)
+ * Defines real-time stock meter gauges, liquid blood status, and distribution data tables.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+
+/* Smooth Scrolling & Typography */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #e11d48;
+}
+
+/* Critical Stock Alert Pulse */
+.stock-critical {
+  animation: stockBlink 1.8s infinite ease-in-out;
+}
+
+@keyframes stockBlink {
+  0%, 100% {
+    opacity: 1;
+    border-color: rgba(225, 29, 72, 0.4);
+  }
+  50% {
+    opacity: 0.8;
+    border-color: rgba(225, 29, 72, 0.9);
+  }
+}
+
+/* Inventory Card Hover Elevations */
+.inventory-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.inventory-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.06);
+}
