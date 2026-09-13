@@ -15,16 +15,16 @@
     }
   </script>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+<body>
 
   <!-- Top Hotline Bar -->
-  <div class="bg-red-700 text-white text-xs py-2 px-4 shadow-inner">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
-        <span class="font-bold text-[11px]">Emergency Live SOS Broadcast: Patient attendants are waiting for donors</span>
+  <div class="hotline-sos-bar">
+    <div class="hotline-sos-container">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span class="ping-white"></span>
+        <span style="font-weight: 700; font-size: 0.6875rem;">Emergency Live SOS Broadcast: Patient attendants are waiting for donors</span>
       </div>
-      <div class="hidden sm:flex items-center gap-4 text-[11px] font-bold">
+      <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.6875rem; font-weight: 700;">
         <span>Ambulance: 999</span>
         <span>RedDrop 24/7 Dispatch: 10678</span>
       </div>
@@ -32,69 +32,67 @@
   </div>
 
   <!-- Navigation -->
-  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-      <a href="index.html" class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-blood-gradient text-white flex items-center justify-center shadow-lg shadow-red-500/25">
-          <i data-lucide="droplet" class="w-5 h-5 fill-current"></i>
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">
+          <i data-lucide="droplet"></i>
         </div>
         <div>
-          <span class="font-display font-black text-2xl tracking-tight text-slate-900">Red<span class="text-red-600">Drop</span></span>
-          <p class="text-[10px] font-semibold text-slate-500">Live Emergency SOS</p>
+          <span class="brand-name">Red<span>Drop</span></span>
+          <p class="brand-tagline">Live Emergency SOS</p>
         </div>
       </a>
 
-      <nav class="hidden lg:flex items-center gap-1 text-xs font-bold text-slate-600">
-        <a href="index.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">Home</a>
-        <a href="donors.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">Find Donors</a>
-        <a href="requests.html" class="px-3.5 py-2 rounded-xl text-red-600 bg-red-50 font-extrabold transition">Emergency SOS</a>
-        <a href="inventory.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">Blood Inventory</a>
-        <a href="admin.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">DBMS Studio</a>
-        <a href="donor-dashboard.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">My Donor ID</a>
+      <nav class="main-nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="donors.html" class="nav-link">Find Donors</a>
+        <a href="requests.html" class="nav-link active">Emergency SOS</a>
+        <a href="inventory.html" class="nav-link">Blood Inventory</a>
+        <a href="admin.html" class="nav-link">DBMS Studio</a>
+        <a href="donor-dashboard.html" class="nav-link">My Donor ID</a>
       </nav>
 
-      <div class="flex items-center gap-2.5">
-        <button onclick="openRequestModal()" class="px-4 py-2.5 rounded-xl bg-blood-gradient text-white text-xs font-black shadow-lg shadow-red-500/25 hover:opacity-95 transition flex items-center gap-1.5">
-          <i data-lucide="plus-circle" class="w-4 h-4"></i> Post Request
+      <div>
+        <button onclick="openRequestModal()" class="btn-post">
+          <i data-lucide="plus-circle" style="width: 1rem; height: 1rem;"></i> Post Request
         </button>
       </div>
     </div>
   </header>
 
   <!-- Page Header -->
-  <section class="bg-gradient-to-b from-red-50 to-slate-50 pt-10 pb-8 px-4 sm:px-6 lg:px-8 border-b border-slate-100">
-    <div class="max-w-7xl mx-auto">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div class="inline-flex items-center gap-1.5 text-xs font-extrabold text-red-700 bg-red-100 px-3 py-1 rounded-full mb-2">
-            <span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span> Real-Time Urgent Queue
-          </div>
-          <h1 class="font-display text-3xl sm:text-4xl font-black text-slate-900">Live Emergency Blood Requests</h1>
-          <p class="text-slate-600 text-xs sm:text-sm mt-1">Patients in hospitals needing urgent blood transfusion. Every second counts.</p>
+  <section class="sos-page-header">
+    <div class="sos-header-wrapper">
+      <div>
+        <div class="sos-badge">
+          <span style="width: 0.5rem; height: 0.5rem; border-radius: 9999px; background-color: #dc2626; display: inline-block;"></span> Real-Time Urgent Queue
         </div>
-        <button onclick="openRequestModal()" class="self-start md:self-auto px-5 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-lg shadow-red-200 transition flex items-center gap-2">
-          <i data-lucide="bell-ring" class="w-4 h-4"></i> Post Urgent Blood Need
-        </button>
+        <h1 class="sos-title">Live Emergency Blood Requests</h1>
+        <p class="sos-subtitle">Patients in hospitals needing urgent blood transfusion. Every second counts.</p>
       </div>
+      <button onclick="openRequestModal()" class="btn-post-urgent">
+        <i data-lucide="bell-ring" style="width: 1rem; height: 1rem;"></i> Post Urgent Blood Need
+      </button>
     </div>
   </section>
 
   <!-- Filter & Requests List -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <main class="requests-main">
     
     <!-- Filter Toolbar -->
-    <div class="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-sm mb-8 flex flex-wrap items-center justify-between gap-4 text-xs">
+    <div class="filter-toolbar">
       <!-- Urgency Tabs -->
-      <div class="flex flex-wrap gap-1.5" id="urgency-tabs">
-        <button onclick="setUrgencyFilter('ALL')" class="urgency-tab px-4 py-2 rounded-xl font-bold bg-red-600 text-white shadow">All Requests</button>
-        <button onclick="setUrgencyFilter('CRITICAL')" class="urgency-tab px-4 py-2 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Critical (&lt; 2-4 hrs)</button>
-        <button onclick="setUrgencyFilter('URGENT')" class="urgency-tab px-4 py-2 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Urgent (Today)</button>
-        <button onclick="setUrgencyFilter('SCHEDULED')" class="urgency-tab px-4 py-2 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Scheduled</button>
+      <div class="urgency-tabs" id="urgency-tabs">
+        <button onclick="setUrgencyFilter('ALL')" class="urgency-tab active">All Requests</button>
+        <button onclick="setUrgencyFilter('CRITICAL')" class="urgency-tab">Critical (&lt; 2-4 hrs)</button>
+        <button onclick="setUrgencyFilter('URGENT')" class="urgency-tab">Urgent (Today)</button>
+        <button onclick="setUrgencyFilter('SCHEDULED')" class="urgency-tab">Scheduled</button>
       </div>
 
       <!-- Quick Group & District Filter -->
-      <div class="flex flex-wrap items-center gap-3">
-        <select id="filter-blood" onchange="renderRequestsGrid()" class="bg-slate-50 border border-slate-200 rounded-xl p-2 font-bold text-slate-800">
+      <div class="filter-controls">
+        <select id="filter-blood" onchange="renderRequestsGrid()" class="select-filter">
           <option value="ALL">All Blood Groups</option>
           <option value="A+">A+</option>
           <option value="A-">A-</option>
@@ -106,7 +104,7 @@
           <option value="AB-">AB-</option>
         </select>
 
-        <select id="filter-district" onchange="renderRequestsGrid()" class="bg-slate-50 border border-slate-200 rounded-xl p-2 font-medium text-slate-800">
+        <select id="filter-district" onchange="renderRequestsGrid()" class="select-filter" style="font-weight: 500;">
           <option value="ALL">All Districts (64)</option>
           <option value="Bagerhat">Bagerhat</option>
           <option value="Bandarban">Bandarban</option>
@@ -177,7 +175,7 @@
     </div>
 
     <!-- Requests Cards Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="requests-grid">
+    <div class="requests-grid" id="requests-grid">
       <!-- Rendered by JS -->
     </div>
 
@@ -210,10 +208,10 @@
   </div>
 
   <!-- Footer -->
-  <footer class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800 mt-16">
-    <div class="max-w-7xl mx-auto px-4 text-center">
-      <p class="font-bold text-white mb-2">RedDrop Emergency Blood SOS Network</p>
-      <p class="text-slate-500 text-[11px]">Direct voluntary donor matchmaking. No monetary transactions involved.</p>
+  <footer class="requests-footer">
+    <div style="max-width: 80rem; margin: 0 auto; padding: 0 1rem;">
+      <p style="font-weight: 700; color: #ffffff; margin-bottom: 0.5rem;">RedDrop Emergency Blood SOS Network</p>
+      <p style="color: #64748b; font-size: 0.6875rem;">Direct voluntary donor matchmaking. No monetary transactions involved.</p>
     </div>
   </footer>
 
@@ -233,9 +231,9 @@
       activeUrgency = urgency;
       document.querySelectorAll('.urgency-tab').forEach(b => {
         if (b.innerText.toLowerCase().includes(urgency.toLowerCase()) || (urgency === 'ALL' && b.innerText.includes('All'))) {
-          b.className = 'urgency-tab px-4 py-2 rounded-xl font-bold bg-red-600 text-white shadow';
+          b.className = 'urgency-tab active';
         } else {
-          b.className = 'urgency-tab px-4 py-2 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+          b.className = 'urgency-tab';
         }
       });
       renderRequestsGrid();
@@ -256,10 +254,10 @@
 
       if (filtered.length === 0) {
         grid.innerHTML = `
-          <div class="col-span-full py-12 text-center bg-white rounded-3xl border border-slate-200 p-8">
-            <i data-lucide="check-circle-2" class="w-12 h-12 text-emerald-500 mx-auto mb-2"></i>
-            <h3 class="font-bold text-slate-800 text-base">No Active Requests Matching Filters</h3>
-            <p class="text-xs text-slate-500 mt-1">All urgent blood needs under this category have been fulfilled.</p>
+          <div style="grid-column: 1 / -1; padding: 3rem 1rem; text-align: center; background-color: #ffffff; border-radius: 1.5rem; border: 1px solid #e2e8f0;">
+            <i data-lucide="check-circle-2" style="width: 3rem; height: 3rem; color: #10b981; margin: 0 auto 0.5rem auto;"></i>
+            <h3 style="font-weight: 700; color: #1e293b; font-size: 1rem;">No Active Requests Matching Filters</h3>
+            <p style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">All urgent blood needs under this category have been fulfilled.</p>
           </div>
         `;
         if (window.lucide) lucide.createIcons();
@@ -272,51 +270,51 @@
         const percent = Math.min(100, Math.round((r.bagsFulfilled / r.bagsNeeded) * 100));
 
         return `
-          <div class="bg-white rounded-3xl p-5 border ${isCritical ? 'border-red-300 ring-1 ring-red-200 shadow-xl shadow-red-500/5' : 'border-slate-200/80 shadow-md'} flex flex-col justify-between relative overflow-hidden">
-            ${isCritical ? '<div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-red-600 via-rose-500 to-red-600"></div>' : ''}
+          <div class="request-card ${isCritical ? 'critical' : ''}">
+            ${isCritical ? '<div class="request-accent-bar"></div>' : ''}
             
             <div>
-              <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-extrabold px-3 py-1 rounded-full ${isCritical ? 'bg-red-100 text-red-700 animate-pulse' : 'bg-amber-100 text-amber-800'}">
+              <div class="card-top-meta">
+                <span class="urgency-pill ${isCritical ? 'urgency-critical' : 'urgency-normal'}">
                   ${isCritical ? '🚨 ' : ''}${r.timeLimit}
                 </span>
-                <span class="text-[11px] text-slate-400 font-medium">${r.postedAgo}</span>
+                <span class="time-ago">${r.postedAgo}</span>
               </div>
 
-              <div class="flex items-start gap-3.5 mb-4">
-                <div class="w-14 h-14 rounded-2xl bg-red-600 text-white font-display font-black text-2xl flex items-center justify-center shadow-lg shadow-red-200 flex-shrink-0">
+              <div class="card-patient-row">
+                <div class="blood-avatar">
                   ${r.bloodGroup}
                 </div>
                 <div>
-                  <h3 class="font-bold text-slate-900 text-base leading-tight">${r.patientName}</h3>
-                  <p class="text-xs text-red-600 font-bold mt-0.5">${r.bagsNeeded} Bags Required (${r.bagsFulfilled} Pledged)</p>
+                  <h3 class="patient-name">${r.patientName}</h3>
+                  <p class="requirement-highlight">${r.bagsNeeded} Bags Required (${r.bagsFulfilled} Pledged)</p>
                 </div>
               </div>
 
               <!-- Progress Bar -->
-              <div class="mb-4 bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                <div class="bg-emerald-500 h-full transition-all duration-500" style="width: ${percent}%"></div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" style="width: ${percent}%"></div>
               </div>
 
-              <div class="space-y-1.5 text-xs text-slate-600 mb-4 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-                <p class="flex items-center gap-1.5"><i data-lucide="hospital" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i> <strong>Hospital:</strong> ${r.hospital}</p>
-                <p class="flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i> <strong>Location:</strong> ${r.bedLocation || 'Ward/Bed details with attendant'}</p>
-                <p class="flex items-center gap-1.5"><i data-lucide="activity" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i> <strong>Case:</strong> ${r.reason}</p>
-                <p class="flex items-center gap-1.5"><i data-lucide="user" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i> <strong>Attendant:</strong> ${r.attendantName}</p>
+              <div class="patient-details-box">
+                <p class="detail-line"><i data-lucide="hospital" style="width: 0.875rem; height: 0.875rem; color: #94a3b8; flex-shrink: 0;"></i> <strong>Hospital:</strong> ${r.hospital}</p>
+                <p class="detail-line"><i data-lucide="map-pin" style="width: 0.875rem; height: 0.875rem; color: #94a3b8; flex-shrink: 0;"></i> <strong>Location:</strong> ${r.bedLocation || 'Ward/Bed details with attendant'}</p>
+                <p class="detail-line"><i data-lucide="activity" style="width: 0.875rem; height: 0.875rem; color: #94a3b8; flex-shrink: 0;"></i> <strong>Case:</strong> ${r.reason}</p>
+                <p class="detail-line"><i data-lucide="user" style="width: 0.875rem; height: 0.875rem; color: #94a3b8; flex-shrink: 0;"></i> <strong>Attendant:</strong> ${r.attendantName}</p>
               </div>
             </div>
 
-            <div class="pt-3 border-t border-slate-100 space-y-2">
-              <div class="flex items-center gap-2">
-                <a href="tel:${r.attendantPhone}" class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black shadow transition flex items-center justify-center gap-1.5">
-                  <i data-lucide="phone" class="w-3.5 h-3.5"></i> Call (${r.attendantPhone})
+            <div class="card-actions">
+              <div class="actions-row">
+                <a href="tel:${r.attendantPhone}" class="btn-call">
+                  <i data-lucide="phone" style="width: 0.875rem; height: 0.875rem;"></i> Call (${r.attendantPhone})
                 </a>
-                <button onclick="handlePledge('${r.id}')" class="px-4 py-2.5 rounded-xl border border-emerald-400 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 text-xs font-bold transition">
+                <button onclick="handlePledge('${r.id}')" class="btn-pledge">
                   ${isFulfilled ? 'Fulfilled ✓' : 'I Can Donate'}
                 </button>
               </div>
-              <button onclick="openShareModal('${r.id}')" class="w-full py-1.5 text-[11px] text-slate-500 hover:text-slate-800 font-semibold flex items-center justify-center gap-1">
-                <i data-lucide="share-2" class="w-3.5 h-3.5"></i> Share with Facebook / WhatsApp Group
+              <button onclick="openShareModal('${r.id}')" class="btn-share-trigger">
+                <i data-lucide="share-2" style="width: 0.875rem; height: 0.875rem;"></i> Share with Facebook / WhatsApp Group
               </button>
             </div>
           </div>

@@ -27,79 +27,78 @@
 <body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-red-500 selection:text-white">
 
   <!-- Top Emergency Alert Ticker -->
-  <div class="bg-gradient-to-r from-red-700 via-rose-700 to-red-800 text-white text-xs py-2 px-4 shadow-inner">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-      <div class="flex items-center gap-2 overflow-hidden">
-        <span class="bg-white text-red-700 font-extrabold px-2 py-0.5 rounded-full text-[10px] tracking-wider uppercase flex items-center gap-1 shadow-sm">
-          <span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping"></span> Live SOS
+  <div class="alert-ticker-bar">
+    <div class="alert-ticker-container">
+      <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden;">
+        <span class="sos-badge-sm">
+          <span style="width: 0.375rem; height: 0.375rem; border-radius: 9999px; background-color: #dc2626; display: inline-block;"></span> Live SOS
         </span>
-        <div id="emergency-ticker-content" class="text-xs truncate font-medium text-red-50">
+        <div id="emergency-ticker-content" style="font-size: 0.75rem; font-weight: 500; color: #fff1f2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
           Loading live emergency blood requests across Bangladesh...
         </div>
       </div>
-      <div class="hidden sm:flex items-center gap-4 text-[11px] font-bold">
-        <span><i data-lucide="phone-call" class="w-3.5 h-3.5 inline mr-1 text-red-300"></i> Hotline: <a href="tel:10678" class="underline hover:text-red-200">10678</a></span>
-        <span><i data-lucide="shield-alert" class="w-3.5 h-3.5 inline mr-1 text-red-300"></i> Govt Health: <a href="tel:16263" class="underline hover:text-red-200">16263</a></span>
+      <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.6875rem; font-weight: 700;">
+        <span><i data-lucide="phone-call" style="width: 0.875rem; height: 0.875rem; display: inline-block; vertical-align: middle; margin-right: 0.25rem;"></i> Hotline: <a href="tel:10678" style="text-decoration: underline; color: #ffffff;">10678</a></span>
+        <span><i data-lucide="shield-alert" style="width: 0.875rem; height: 0.875rem; display: inline-block; vertical-align: middle; margin-right: 0.25rem;"></i> Govt Health: <a href="tel:16263" style="text-decoration: underline; color: #ffffff;">16263</a></span>
       </div>
     </div>
   </div>
 
   <!-- Main Navigation Header -->
-  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm transition-all">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+  <header class="site-header">
+    <div class="nav-container">
       
       <!-- Brand Logo -->
-      <a href="index.html" class="flex items-center gap-3 group">
-        <div class="w-11 h-11 rounded-2xl bg-blood-gradient text-white flex items-center justify-center shadow-lg shadow-red-500/25 group-hover:scale-105 transition duration-300">
-          <i data-lucide="droplet" class="w-6 h-6 fill-current animate-pulse-slow"></i>
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">
+          <i data-lucide="droplet" style="width: 1.5rem; height: 1.5rem; fill: currentColor;"></i>
         </div>
         <div>
-          <span class="font-display font-black text-2xl tracking-tight text-slate-900 flex items-center gap-1">
-            Red<span class="text-red-600">Drop</span>
-            <span class="text-[10px] uppercase tracking-widest bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded-md ml-1">BD</span>
+          <span class="brand-name">
+            Red<span>Drop</span>
+            <span class="brand-country-badge">BD</span>
           </span>
-          <p class="text-[10px] font-semibold text-slate-500 tracking-wide">Live Donor & Blood Matching</p>
+          <p class="brand-tagline">Live Donor & Blood Matching</p>
         </div>
       </a>
 
       <!-- Desktop Nav Links -->
-      <nav class="hidden lg:flex items-center gap-1 text-xs font-bold text-slate-600">
-        <a href="index.html" class="px-3.5 py-2 rounded-xl text-red-600 bg-red-50 font-extrabold flex items-center gap-1.5 transition">
-          <i data-lucide="home" class="w-4 h-4"></i> Home
+      <nav class="main-nav">
+        <a href="index.html" class="nav-link active">
+          <i data-lucide="home" style="width: 1rem; height: 1rem;"></i> Home
         </a>
-        <a href="donors.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 flex items-center gap-1.5 transition">
-          <i data-lucide="users" class="w-4 h-4"></i> Find Donors
+        <a href="donors.html" class="nav-link">
+          <i data-lucide="users" style="width: 1rem; height: 1rem;"></i> Find Donors
         </a>
-        <a href="requests.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 flex items-center gap-1.5 transition relative">
-          <i data-lucide="alert-circle" class="w-4 h-4 text-rose-500"></i> Emergency SOS
-          <span class="w-2 h-2 rounded-full bg-red-600 animate-ping absolute top-2 right-1.5"></span>
+        <a href="requests.html" class="nav-link" style="position: relative;">
+          <i data-lucide="alert-circle" style="width: 1rem; height: 1rem; color: #f43f5e;"></i> Emergency SOS
         </a>
-        <a href="inventory.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 flex items-center gap-1.5 transition">
-          <i data-lucide="package" class="w-4 h-4"></i> Blood Inventory
+        <a href="inventory.html" class="nav-link">
+          <i data-lucide="package" style="width: 1rem; height: 1rem;"></i> Blood Inventory
         </a>
-        <a href="admin.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 flex items-center gap-1.5 transition">
-          <i data-lucide="database" class="w-4 h-4 text-amber-500"></i> DBMS Studio
+        <a href="admin.html" class="nav-link">
+          <i data-lucide="database" style="width: 1rem; height: 1rem; color: #f59e0b;"></i> DBMS Studio
         </a>
-        <a href="donor-dashboard.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 flex items-center gap-1.5 transition">
-          <i data-lucide="user-check" class="w-4 h-4 text-emerald-600"></i> My Donor ID
+        <a href="donor-dashboard.html" class="nav-link">
+          <i data-lucide="user-check" style="width: 1rem; height: 1rem; color: #10b981;"></i> My Donor ID
         </a>
       </nav>
 
       <!-- Action Buttons & Logged-In User Controls -->
-      <div class="hidden sm:flex items-center gap-2.5">
-        <button onclick="openRequestModal()" class="px-3.5 py-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-extrabold flex items-center gap-1.5 transition">
-          <i data-lucide="plus-circle" class="w-4 h-4"></i> Post Request
+      <div class="nav-actions">
+        <button onclick="openRequestModal()" class="btn-nav-request">
+          <i data-lucide="plus-circle" style="width: 1rem; height: 1rem;"></i> Post Request
         </button>
-        <a href="auth.html" class="px-4 py-2 rounded-xl bg-blood-gradient text-white text-xs font-black shadow hover:opacity-95 transition flex items-center gap-1.5">
-          <i data-lucide="heart-handshake" class="w-4 h-4"></i> Donate Now
+        <a href="auth.html" class="btn-nav-donate">
+          <i data-lucide="heart-handshake" style="width: 1rem; height: 1rem;"></i> Donate Now
         </a>
-        <div id="nav-user-badge" class="flex items-center gap-2 pl-2 border-l border-slate-200">
-          <a href="donor-dashboard.html" class="flex items-center gap-2 p-1.5 pr-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
-            <img id="nav-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80" class="w-6 h-6 rounded-lg object-cover border border-red-200">
-            <span id="nav-user-name" class="truncate max-w-[110px]">Tanvir Ahmed</span>
+        <div id="nav-user-badge" style="display: flex; align-items: center; gap: 0.5rem; padding-left: 0.5rem; border-left: 1px solid #e2e8f0;">
+          <a href="donor-dashboard.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem; border-radius: 0.75rem; background-color: #f1f5f9; text-decoration: none; color: #1e293b; font-size: 0.75rem; font-weight: 700;">
+            <img id="nav-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80" style="width: 1.5rem; height: 1.5rem; border-radius: 0.5rem; object-fit: cover; border: 1px solid #fecdd3;">
+            <span id="nav-user-name" style="max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Tanvir Ahmed</span>
           </a>
-          <button onclick="RedDropAuth.logout()" title="Logout from account" class="p-2 rounded-xl bg-slate-100 hover:bg-red-50 hover:text-red-600 text-slate-600 text-xs font-bold transition flex items-center justify-center">
-            <i data-lucide="log-out" class="w-4 h-4"></i>
+          <button onclick="RedDropAuth.logout()" title="Logout from account" style="padding: 0.5rem; border-radius: 0.75rem; background-color: #f1f5f9; border: none; cursor: pointer; color: #64748b;">
+            <i data-lucide="log-out" style="width: 1rem; height: 1rem;"></i>
           </button>
         </div>
       </div>
@@ -131,40 +130,31 @@
   </header>
 
   <!-- Hero Section -->
-  <section class="relative pt-12 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-b from-red-50/80 via-white to-slate-50">
-    <!-- Decorative background blobs -->
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full pointer-events-none overflow-hidden">
-      <div class="absolute -top-24 -left-20 w-96 h-96 bg-red-200/40 rounded-full blur-3xl"></div>
-      <div class="absolute top-32 -right-20 w-96 h-96 bg-rose-200/30 rounded-full blur-3xl"></div>
-    </div>
-
-    <div class="max-w-5xl mx-auto text-center relative z-10">
+  <section class="hero-section">
+    <div class="hero-wrapper">
       
       <!-- Trust Pill -->
-      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-red-100 shadow-sm mb-6 animate-fade-in">
-        <span class="flex h-2 w-2 relative">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
-        </span>
-        <span class="text-[11px] font-bold text-slate-700">Bangladesh's Smartest Real-Time Blood Matching Network</span>
+      <div class="trust-pill">
+        <span style="width: 0.5rem; height: 0.5rem; border-radius: 9999px; background-color: #dc2626; display: inline-block;"></span>
+        <span>Bangladesh's Smartest Real-Time Blood Matching Network</span>
       </div>
 
       <!-- Main Headline -->
-      <h1 class="font-display text-4xl sm:text-6xl font-black text-slate-950 tracking-tight leading-tight sm:leading-none mb-6">
+      <h1 class="hero-title">
         Save a Life in Minutes with <br class="hidden sm:inline"/>
-        <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-rose-600 to-red-700">Real-Time Blood Matching</span>
+        <span class="hero-title-highlight">Real-Time Blood Matching</span>
       </h1>
 
-      <p class="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto mb-10 leading-relaxed font-normal">
+      <p class="hero-desc">
         Connecting voluntary blood donors directly with critical patients across all 64 districts in Bangladesh. Zero middleman fees, 100% voluntary, instant SMS & call connectivity.
       </p>
 
       <!-- Search Box Card -->
-      <div class="bg-white/95 backdrop-blur-md p-4 sm:p-5 rounded-3xl shadow-2xl shadow-red-950/5 border border-red-100 max-w-3xl mx-auto mb-12">
-        <form onsubmit="handleHeroSearch(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-          <div>
-            <label class="block text-left text-[11px] font-extrabold text-slate-500 mb-1 ml-1">BLOOD GROUP</label>
-            <select id="hero-blood-group" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-3 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+      <div class="hero-search-card">
+        <form onsubmit="handleHeroSearch(event)" class="hero-search-form">
+          <div class="form-col">
+            <label class="form-label-hero">BLOOD GROUP</label>
+            <select id="hero-blood-group" class="form-select-hero">
               <option value="ALL">All Blood Groups</option>
               <option value="A+">A+ (Positive)</option>
               <option value="A-">A- (Negative)</option>
@@ -177,9 +167,9 @@
             </select>
           </div>
 
-          <div>
-            <label class="block text-left text-[11px] font-extrabold text-slate-500 mb-1 ml-1">DISTRICT / CITY</label>
-            <select id="hero-district" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+          <div class="form-col">
+            <label class="form-label-hero">DISTRICT / CITY</label>
+            <select id="hero-district" class="form-select-hero" style="font-weight: 500;">
               <option value="ALL">All Districts (64)</option>
               <option value="Bagerhat">Bagerhat</option>
               <option value="Bandarban">Bandarban</option>
@@ -248,46 +238,46 @@
             </select>
           </div>
 
-          <div>
-            <label class="block text-left text-[11px] font-extrabold text-slate-500 mb-1 ml-1">AVAILABILITY</label>
-            <select id="hero-status" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+          <div class="form-col">
+            <label class="form-label-hero">AVAILABILITY</label>
+            <select id="hero-status" class="form-select-hero">
               <option value="ALL">Any Status</option>
               <option value="AVAILABLE" selected>Available Now (90+ Days)</option>
               <option value="VERIFIED">Verified Donors Only</option>
             </select>
           </div>
 
-          <div class="flex items-end">
-            <button type="submit" class="w-full py-3 px-4 rounded-2xl bg-blood-gradient text-white font-extrabold shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:scale-[1.02] active:scale-[0.98] transition flex items-center justify-center gap-2">
-              <i data-lucide="search" class="w-4 h-4"></i> Search Donors
+          <div class="form-col" style="display: flex; align-items: flex-end;">
+            <button type="submit" class="hero-search-btn">
+              <i data-lucide="search" style="width: 1rem; height: 1rem;"></i> Search Donors
             </button>
           </div>
         </form>
 
-        <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between text-[11px] text-slate-500 px-1 gap-2">
-          <span class="flex items-center gap-1 font-medium"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i> Privacy Protected Contacts</span>
-          <span class="flex items-center gap-1 font-medium"><i data-lucide="clock" class="w-3.5 h-3.5 text-rose-500"></i> Average response time: <strong>8 minutes</strong></span>
-          <button onclick="openEligibilityModal()" class="text-red-600 font-bold hover:underline">Check if you can donate blood &rarr;</button>
+        <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; font-size: 0.6875rem; color: #64748b; gap: 0.5rem;">
+          <span style="display: flex; align-items: center; gap: 0.25rem;"><i data-lucide="shield-check" style="width: 0.875rem; height: 0.875rem; color: #10b981;"></i> Privacy Protected Contacts</span>
+          <span style="display: flex; align-items: center; gap: 0.25rem;"><i data-lucide="clock" style="width: 0.875rem; height: 0.875rem; color: #f43f5e;"></i> Average response time: <strong style="color: #0f172a;">8 minutes</strong></span>
+          <button onclick="openEligibilityModal()" style="color: #e11d48; font-weight: 700; background: none; border: none; cursor: pointer;">Check if you can donate blood &rarr;</button>
         </div>
       </div>
 
       <!-- Quick Metrics Counters -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm text-center">
-          <p class="font-display text-2xl sm:text-3xl font-black text-slate-900" id="stat-donors">2,450+</p>
-          <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-1">Verified Donors</p>
+      <div class="hero-stats-grid">
+        <div class="stat-counter-card">
+          <p class="stat-number" id="stat-donors">2,450+</p>
+          <p class="stat-caption">Verified Donors</p>
         </div>
-        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm text-center">
-          <p class="font-display text-2xl sm:text-3xl font-black text-red-600" id="stat-saved">7,820+</p>
-          <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-1">Lives Saved</p>
+        <div class="stat-counter-card">
+          <p class="stat-number" style="color: #e11d48;" id="stat-saved">7,820+</p>
+          <p class="stat-caption">Lives Saved</p>
         </div>
-        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm text-center">
-          <p class="font-display text-2xl sm:text-3xl font-black text-slate-900">64 / 64</p>
-          <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-1">Districts Active</p>
+        <div class="stat-counter-card">
+          <p class="stat-number">64 / 64</p>
+          <p class="stat-caption">Districts Active</p>
         </div>
-        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm text-center">
-          <p class="font-display text-2xl sm:text-3xl font-black text-emerald-600">100%</p>
-          <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-1">Free & Volunteer</p>
+        <div class="stat-counter-card">
+          <p class="stat-number" style="color: #10b981;">100%</p>
+          <p class="stat-caption">Free & Volunteer</p>
         </div>
       </div>
 

@@ -15,45 +15,45 @@
     }
   </script>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+<body>
 
   <!-- Top Hotline Bar -->
-  <div class="bg-slate-900 text-slate-300 text-xs py-2 px-4 border-b border-slate-800">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-        <span class="font-medium text-[11px]">Central Blood Bank Ingestion Synced with DGHS & Red Crescent</span>
+  <div class="top-hotline-bar">
+    <div class="hotline-content">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span style="width: 0.5rem; height: 0.5rem; border-radius: 9999px; background-color: #34d399; display: inline-block;"></span>
+        <span style="font-weight: 500; font-size: 0.6875rem;">Central Blood Bank Ingestion Synced with DGHS & Red Crescent</span>
       </div>
-      <div class="flex items-center gap-4 text-[11px] font-bold">
-        <span>Hospital Transfer Hotline: <strong class="text-white">10678</strong></span>
+      <div style="font-size: 0.6875rem; font-weight: 700;">
+        Hospital Transfer Hotline: <strong style="color: #ffffff;">10678</strong>
       </div>
     </div>
   </div>
 
   <!-- Navigation -->
-  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-      <a href="index.html" class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-blood-gradient text-white flex items-center justify-center shadow-lg shadow-red-500/25">
-          <i data-lucide="droplet" class="w-5 h-5 fill-current"></i>
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">
+          <i data-lucide="droplet"></i>
         </div>
         <div>
-          <span class="font-display font-black text-2xl tracking-tight text-slate-900">Red<span class="text-red-600">Drop</span></span>
-          <p class="text-[10px] font-semibold text-slate-500">Live Inventory Tracker</p>
+          <span class="brand-name">Red<span>Drop</span></span>
+          <p class="brand-tagline">Live Inventory Tracker</p>
         </div>
       </a>
 
-      <nav class="hidden lg:flex items-center gap-1 text-xs font-bold text-slate-600">
-        <a href="index.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">Home</a>
-        <a href="donors.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">Find Donors</a>
-        <a href="requests.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">Emergency SOS</a>
-        <a href="inventory.html" class="px-3.5 py-2 rounded-xl text-red-600 bg-red-50 font-extrabold transition">Blood Inventory</a>
-        <a href="admin.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">DBMS Studio</a>
-        <a href="donor-dashboard.html" class="px-3.5 py-2 rounded-xl hover:text-red-600 hover:bg-slate-50 transition">My Donor ID</a>
+      <nav class="main-nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="donors.html" class="nav-link">Find Donors</a>
+        <a href="requests.html" class="nav-link">Emergency SOS</a>
+        <a href="inventory.html" class="nav-link active">Blood Inventory</a>
+        <a href="admin.html" class="nav-link">DBMS Studio</a>
+        <a href="donor-dashboard.html" class="nav-link">My Donor ID</a>
       </nav>
 
-      <div class="flex items-center gap-2.5">
-        <button onclick="openRequestModal()" class="px-4 py-2.5 rounded-xl bg-blood-gradient text-white text-xs font-black shadow-lg shadow-red-500/25 hover:opacity-95 transition">
+      <div>
+        <button onclick="openRequestModal()" class="btn-post">
           Post Request
         </button>
       </div>
@@ -61,84 +61,82 @@
   </header>
 
   <!-- Page Header -->
-  <section class="bg-gradient-to-b from-red-50 to-slate-50 pt-10 pb-8 px-4 sm:px-6 lg:px-8 border-b border-slate-100">
-    <div class="max-w-7xl mx-auto">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div class="inline-flex items-center gap-1.5 text-xs font-extrabold text-red-600 bg-red-100/70 px-3 py-1 rounded-full mb-2">
-            <i data-lucide="activity" class="w-3.5 h-3.5"></i> Multi-Center Blood Storage Units
-          </div>
-          <h1 class="font-display text-3xl sm:text-4xl font-black text-slate-900">Live Blood Bank Inventory</h1>
-          <p class="text-slate-600 text-xs sm:text-sm mt-1">Real-time stock of Whole Blood, PRBC, Platelets, and FFP units across affiliated blood banks.</p>
+  <section class="page-header-banner">
+    <div class="banner-wrapper">
+      <div>
+        <div class="badge-pill-header">
+          <i data-lucide="activity" style="width: 0.875rem; height: 0.875rem;"></i> Multi-Center Blood Storage Units
         </div>
-        
-        <!-- Hospital Switcher -->
-        <div class="bg-white p-2 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-2 text-xs">
-          <span class="font-bold text-slate-500 pl-2">Select Center:</span>
-          <select id="hospital-select" onchange="renderInventory()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-500">
-            <option value="H1">Central Red Crescent Blood Bank (Dhaka)</option>
-            <option value="H2">Dhaka Medical College Hospital (DMCH)</option>
-            <option value="H3">Chattogram Medical College Hospital (CMCH)</option>
-          </select>
-        </div>
+        <h1 class="page-title">Live Blood Bank Inventory</h1>
+        <p class="page-subtitle">Real-time stock of Whole Blood, PRBC, Platelets, and FFP units across affiliated blood banks.</p>
+      </div>
+      
+      <!-- Hospital Switcher -->
+      <div class="hospital-picker-box">
+        <span style="font-weight: 700; color: #64748b; padding-left: 0.5rem;">Select Center:</span>
+        <select id="hospital-select" onchange="renderInventory()" class="hospital-select">
+          <option value="H1">Central Red Crescent Blood Bank (Dhaka)</option>
+          <option value="H2">Dhaka Medical College Hospital (DMCH)</option>
+          <option value="H3">Chattogram Medical College Hospital (CMCH)</option>
+        </select>
       </div>
     </div>
   </section>
 
   <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <main class="inventory-main">
     
     <!-- Top Summary Metrics -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
-        <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider">Total Units in Stock</p>
-        <h3 class="font-display text-3xl font-black text-slate-900 mt-1" id="metric-total-bags">198 Bags</h3>
-        <p class="text-[11px] text-emerald-600 font-semibold mt-1">Available for emergency release</p>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <p class="metric-label">Total Units in Stock</p>
+        <h3 class="metric-value" id="metric-total-bags">198 Bags</h3>
+        <p class="metric-sub" style="color: #059669;">Available for emergency release</p>
       </div>
 
-      <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
-        <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider">Critical Shortage Groups</p>
-        <h3 class="font-display text-3xl font-black text-rose-600 mt-1" id="metric-critical-groups">O-, AB-</h3>
-        <p class="text-[11px] text-rose-500 font-semibold mt-1">Requires immediate voluntary donors</p>
+      <div class="metric-card">
+        <p class="metric-label">Critical Shortage Groups</p>
+        <h3 class="metric-value" style="color: #e11d48;" id="metric-critical-groups">O-, AB-</h3>
+        <p class="metric-sub" style="color: #f43f5e;">Requires immediate voluntary donors</p>
       </div>
 
-      <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
-        <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider">Platelet Apheresis Units</p>
-        <h3 class="font-display text-3xl font-black text-amber-600 mt-1" id="metric-platelets">38 Units</h3>
-        <p class="text-[11px] text-slate-500 font-semibold mt-1">Dengue & Oncology priority</p>
+      <div class="metric-card">
+        <p class="metric-label">Platelet Apheresis Units</p>
+        <h3 class="metric-value" style="color: #d97706;" id="metric-platelets">38 Units</h3>
+        <p class="metric-sub" style="color: #64748b;">Dengue & Oncology priority</p>
       </div>
 
-      <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
-        <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider">Center Status</p>
-        <h3 class="font-display text-2xl font-black text-emerald-600 mt-1 flex items-center gap-1.5">
-          <span class="w-3 h-3 rounded-full bg-emerald-500"></span> Online (24/7)
+      <div class="metric-card">
+        <p class="metric-label">Center Status</p>
+        <h3 class="metric-value" style="color: #059669; font-size: 1.5rem; display: flex; align-items: center; gap: 0.375rem;">
+          <span style="width: 0.75rem; height: 0.75rem; border-radius: 9999px; background-color: #10b981; display: inline-block;"></span> Online (24/7)
         </h3>
-        <p class="text-[11px] text-slate-500 font-semibold mt-1">Crossmatch facility operational</p>
+        <p class="metric-sub" style="color: #64748b;">Crossmatch facility operational</p>
       </div>
     </div>
 
     <!-- Inventory Cards Grid -->
-    <h2 class="font-display text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-      <i data-lucide="layers" class="w-5 h-5 text-red-600"></i> Stock by Blood Group & Component
+    <h2 class="inventory-section-title">
+      <i data-lucide="layers" style="color: #e11d48;"></i> Stock by Blood Group & Component
     </h2>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12" id="inventory-grid">
+    <div class="inventory-grid" id="inventory-grid">
       <!-- Rendered by JS -->
     </div>
 
     <!-- Hospital Dispatch & Info Card -->
-    <div class="bg-gradient-to-br from-slate-900 to-slate-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-        <div class="md:col-span-2 space-y-2">
-          <span class="bg-red-600 text-white text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full">Emergency Dispatch Protocol</span>
-          <h3 class="font-display text-2xl font-black">Need Blood Bag Transfer between Hospitals?</h3>
-          <p class="text-slate-400 text-xs leading-relaxed">
+    <div class="dispatch-banner">
+      <div class="dispatch-grid">
+        <div>
+          <span class="dispatch-badge">Emergency Dispatch Protocol</span>
+          <h3 class="dispatch-title">Need Blood Bag Transfer between Hospitals?</h3>
+          <p class="dispatch-desc">
             Verified doctors and hospital ICU coordinators can request emergency blood bag transfers with rapid cold-chain transport assistance.
           </p>
         </div>
-        <div class="text-left md:text-right">
-          <button onclick="openTransferModal()" class="px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-black text-xs rounded-2xl shadow-lg shadow-red-600/30 transition inline-flex items-center gap-2">
-            <i data-lucide="truck" class="w-4 h-4"></i> Request Hospital Transfer
+        <div style="text-align: right;">
+          <button onclick="openTransferModal()" class="btn-dispatch-modal">
+            <i data-lucide="truck"></i> Request Hospital Transfer
           </button>
         </div>
       </div>
@@ -203,10 +201,10 @@
   </div>
 
   <!-- Footer -->
-  <footer class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800 mt-16">
-    <div class="max-w-7xl mx-auto px-4 text-center">
-      <p class="font-bold text-white mb-2">RedDrop Blood Bank Central Inventory Monitoring</p>
-      <p class="text-slate-500 text-[11px]">Direct integration with national blood transfusion centers.</p>
+  <footer class="inventory-footer">
+    <div style="max-w-7xl mx-auto px-4;">
+      <p style="font-weight: 700; color: #ffffff; margin-bottom: 0.5rem;">RedDrop Blood Bank Central Inventory Monitoring</p>
+      <p style="color: #64748b; font-size: 0.6875rem;">Direct integration with national blood transfusion centers.</p>
     </div>
   </footer>
 
@@ -237,40 +235,42 @@
         const isCrit = item.status === 'CRITICAL';
         const isLow = item.status === 'LOW';
 
+        const statusClass = isCrit ? 'inv-status-critical' : isLow ? 'inv-status-low' : 'inv-status-optimal';
+
         return `
-          <div class="bg-white rounded-3xl p-5 border ${isCrit ? 'border-rose-300 ring-1 ring-rose-200 shadow-lg shadow-rose-500/5' : 'border-slate-200/80 shadow-md'} flex flex-col justify-between">
+          <div class="inv-card ${isCrit ? 'critical' : ''}">
             <div>
-              <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 rounded-2xl bg-red-600 text-white font-display font-black text-2xl flex items-center justify-center shadow-md shadow-red-200">
+              <div class="inv-card-header">
+                <div class="inv-blood-badge">
                   ${item.group}
                 </div>
-                <span class="text-xs font-black px-2.5 py-1 rounded-full ${isCrit ? 'bg-rose-100 text-rose-700 animate-pulse' : isLow ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
+                <span class="inv-status-pill ${statusClass}">
                   ${item.status}
                 </span>
               </div>
 
-              <div class="space-y-2 text-xs mb-4">
-                <div class="flex justify-between items-center bg-slate-50 p-2 rounded-xl">
-                  <span class="text-slate-600 font-medium">Whole Blood:</span>
-                  <span class="font-bold text-slate-900">${item.wholeBlood} Bags</span>
+              <div class="inv-components-list">
+                <div class="inv-component-row">
+                  <span style="color: #475569; font-weight: 500;">Whole Blood:</span>
+                  <span style="font-weight: 700; color: #0f172a;">${item.wholeBlood} Bags</span>
                 </div>
-                <div class="flex justify-between items-center bg-slate-50 p-2 rounded-xl">
-                  <span class="text-slate-600 font-medium">PRBC (Red Cells):</span>
-                  <span class="font-bold text-slate-900">${item.prbc} Bags</span>
+                <div class="inv-component-row">
+                  <span style="color: #475569; font-weight: 500;">PRBC (Red Cells):</span>
+                  <span style="font-weight: 700; color: #0f172a;">${item.prbc} Bags</span>
                 </div>
-                <div class="flex justify-between items-center bg-slate-50 p-2 rounded-xl">
-                  <span class="text-slate-600 font-medium">Platelets:</span>
-                  <span class="font-bold text-amber-600">${item.platelets} Units</span>
+                <div class="inv-component-row">
+                  <span style="color: #475569; font-weight: 500;">Platelets:</span>
+                  <span style="font-weight: 700; color: #d97706;">${item.platelets} Units</span>
                 </div>
-                <div class="flex justify-between items-center bg-slate-50 p-2 rounded-xl">
-                  <span class="text-slate-600 font-medium">Plasma (FFP):</span>
-                  <span class="font-bold text-slate-900">${item.ffp} Bags</span>
+                <div class="inv-component-row">
+                  <span style="color: #475569; font-weight: 500;">Plasma (FFP):</span>
+                  <span style="font-weight: 700; color: #0f172a;">${item.ffp} Bags</span>
                 </div>
               </div>
             </div>
 
-            <button onclick="quickReserveBag('${item.hospitalId}', '${item.group}')" class="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow">
-              <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Reserve 1 Bag
+            <button onclick="quickReserveBag('${item.hospitalId}', '${item.group}')" class="btn-reserve-bag">
+              <i data-lucide="check" style="width: 0.875rem; height: 0.875rem; color: #34d399;"></i> Reserve 1 Bag
             </button>
           </div>
         `;
