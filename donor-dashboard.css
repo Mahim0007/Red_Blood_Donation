@@ -462,6 +462,7 @@ body {
   padding: 0.75rem;
   border-radius: 1rem;
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .countdown-number {

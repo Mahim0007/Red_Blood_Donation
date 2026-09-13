@@ -255,16 +255,18 @@
     });
 
     function loadProfileData() {
-      const user = RedDropStore.getUserProfile();
-      document.getElementById('card-name').innerText = user.name;
-      document.getElementById('card-district').innerText = user.area;
-      document.getElementById('card-blood').innerText = user.bloodGroup;
-      document.getElementById('card-donor-id').innerText = user.donorId;
-      document.getElementById('card-total').innerText = `${user.totalDonations} Times (${user.livesSaved} Lives)`;
+      const user = RedDropStore.getUserProfile() || {};
+      document.getElementById('card-name').innerText = user.name || 'Voluntary Donor';
+      document.getElementById('card-district').innerText = user.area || user.district || 'Dhaka, Bangladesh';
+      document.getElementById('card-blood').innerText = user.bloodGroup || 'A+';
+      document.getElementById('card-donor-id').innerText = user.donorId || 'RD-BD-2026-0001';
+      const total = user.totalDonations != null ? user.totalDonations : 0;
+      const lives = user.livesSaved != null ? user.livesSaved : (total * 3);
+      document.getElementById('card-total').innerText = `${total} Times (${lives} Lives)`;
     }
 
     function toggleStatus() {
-      const user = RedDropStore.getUserProfile();
+      const user = RedDropStore.getUserProfile() || {};
       const newStatus = user.status === 'AVAILABLE' ? 'COOLDOWN' : 'AVAILABLE';
       RedDropStore.updateUserProfile({ status: newStatus });
       const btn = document.getElementById('status-toggle-btn');
@@ -280,27 +282,39 @@
     }
 
     function renderHistory() {
-      const user = RedDropStore.getUserProfile();
+      const user = RedDropStore.getUserProfile() || {};
       const container = document.getElementById('history-timeline');
-      container.innerHTML = user.history.map(h => `
+      const list = (user.history && Array.isArray(user.history) && user.history.length > 0)
+        ? user.history
+        : (typeof INITIAL_USER_PROFILE !== 'undefined' && Array.isArray(INITIAL_USER_PROFILE.history) ? INITIAL_USER_PROFILE.history : []);
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div style="padding: 1.5rem; text-align: center; color: #64748b; font-size: 0.75rem;">
+            No donation records logged yet. Your upcoming donations will appear here!
+          </div>
+        `;
+        return;
+      }
+      container.innerHTML = list.map(h => `
         <div class="history-item">
           <div style="display: flex; align-items: center; gap: 0.75rem;">
             <div class="history-icon">
               <i data-lucide="droplet" style="width: 1.25rem; height: 1.25rem; fill: currentColor;"></i>
             </div>
             <div>
-              <h4 style="font-weight: 700; color: #0f172a;">${h.hospital}</h4>
-              <p style="font-size: 0.6875rem; color: #64748b;">${h.recipient} • ${h.bags} Bag Donated</p>
+              <h4 style="font-weight: 700; color: #0f172a;">${h.hospital || 'Hospital'}</h4>
+              <p style="font-size: 0.6875rem; color: #64748b;">${h.recipient || 'Emergency Patient'} • ${h.bags || 1} Bag Donated</p>
             </div>
           </div>
           <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <span style="font-family: 'Fira Code', monospace; color: #64748b; font-size: 0.6875rem;">${h.date}</span>
-            <button onclick="openCertModal('${h.certificateId}', '${h.date}', '${h.hospital}')" class="btn-cert">
+            <span style="font-family: 'Fira Code', monospace; color: #64748b; font-size: 0.6875rem;">${h.date || 'Recent'}</span>
+            <button onclick="openCertModal('${h.certificateId || 'CERT-000'}', '${h.date || '2026'}', '${h.hospital || 'Hospital'}')" class="btn-cert">
               <i data-lucide="award" style="width: 0.875rem; height: 0.875rem; color: #d97706;"></i> Certificate
             </button>
           </div>
         </div>
       `).join('');
+      if (window.lucide) lucide.createIcons();
     }
 
     function startCountdown() {

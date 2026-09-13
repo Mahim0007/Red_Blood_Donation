@@ -276,7 +276,9 @@ body {
 .hero-title-highlight {
   background: linear-gradient(135deg, #e11d48 0%, #be123c 50%, #9f1239 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 .hero-desc {
@@ -296,6 +298,7 @@ body {
 .hero-search-card {
   background-color: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   padding: 1.25rem;
   border-radius: 1.5rem;
   box-shadow: 0 25px 50px -12px rgba(225, 29, 72, 0.08);
