@@ -1,6 +1,6 @@
 /**
- * RedDrop - Central Stylesheet (style.css)
- * Defines global theme tokens, custom typography, animations, scrollbars, and input components.
+ * RedDrop - Login Stylesheet (login_style.css)
+ * Defines theme tokens, custom typography, animations, scrollbars, input components, and login page styles.
  */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=Fira+Code:wght@400;500;600;700&display=swap');
@@ -27,6 +27,11 @@ html {
 
 body {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: #120407;
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(225, 29, 72, 0.18) 0px, transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(159, 18, 57, 0.22) 0px, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(76, 5, 25, 0.3) 0px, transparent 65%);
 }
 
 /* Custom Sleek Scrollbar */
