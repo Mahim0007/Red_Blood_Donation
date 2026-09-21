@@ -20,13 +20,13 @@
   <!-- Top Hotline Bar -->
   <div class="top-hotline-bar">
     <div class="hotline-content">
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <span style="width: 0.5rem; height: 0.5rem; border-radius: 9999px; background-color: #34d399; display: inline-block;"></span>
-        <span style="font-weight: 500; font-size: 0.6875rem;">Database connected: Direct phone connectivity enabled for emergencies</span>
+      <div class="hotline-left">
+        <span class="hotline-dot-green"></span>
+        <span class="hotline-text">Database connected: Direct phone connectivity enabled for emergencies</span>
       </div>
-      <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.6875rem; font-weight: 700;">
-        <span>Emergency Ambulance: <strong style="color: #ffffff;">999</strong></span>
-        <span>RedDrop Helpline: <strong style="color: #f87171;">10678</strong></span>
+      <div class="hotline-right">
+        <span>Emergency Ambulance: <strong class="hotline-num-white">999</strong></span>
+        <span>RedDrop Helpline: <strong class="hotline-num-red">10678</strong></span>
       </div>
     </div>
   </div>
@@ -53,9 +53,9 @@
         <a href="donor-dashboard.html" class="nav-link">My Donor ID</a>
       </nav>
 
-      <div style="display: flex; align-items: center; gap: 0.625rem;">
+      <div class="nav-actions-wrap">
         <button onclick="openAddDonorModal()" class="btn-register-donor">
-          <i data-lucide="user-plus" style="width: 1rem; height: 1rem; color: #34d399;"></i> Register as Donor
+          <i data-lucide="user-plus" class="icon-user-plus"></i> Register as Donor
         </button>
         <button onclick="openRequestModal()" class="btn-post">
           Post Request
@@ -69,12 +69,12 @@
     <div class="banner-container">
       <div>
         <div class="badge-pill-verified">
-          <i data-lucide="shield-check" style="width: 0.875rem; height: 0.875rem;"></i> Verified Voluntary Lifesavers
+          <i data-lucide="shield-check" class="icon-shield-check"></i> Verified Voluntary Lifesavers
         </div>
         <h1 class="banner-title">Find Blood Donors Near You</h1>
         <p class="banner-desc">Search and filter active donors across Bangladesh by blood group, district, and readiness status.</p>
       </div>
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <div class="banner-actions-wrap">
         <button onclick="resetFilters()" class="btn-reset-filters">
           Reset Filters
         </button>
@@ -216,13 +216,13 @@
     <!-- Empty State -->
     <div id="no-donors-state" class="empty-donors-state hidden">
       <div class="empty-icon-wrap">
-        <i data-lucide="users" style="width: 2rem; height: 2rem;"></i>
+        <i data-lucide="users"></i>
       </div>
       <h3 class="empty-title">No Donors Found Matching Your Criteria</h3>
       <p class="empty-desc">Try clearing some filters, selecting 'All Blood Groups', or post an Emergency Request so our volunteers can reach out to you.</p>
       <div class="empty-actions">
         <button onclick="resetFilters()" class="btn-reset-filters">Reset Filters</button>
-        <button onclick="openRequestModal()" class="btn-post" style="padding: 0.5rem 1rem;">Post Urgent Request</button>
+        <button onclick="openRequestModal()" class="btn-post btn-post-compact">Post Urgent Request</button>
       </div>
     </div>
 
@@ -398,9 +398,9 @@
 
   <!-- Footer -->
   <footer class="donors-footer">
-    <div style="max-width: 80rem; margin: 0 auto; padding: 0 1rem;">
-      <p style="font-weight: 700; color: #ffffff; margin-bottom: 0.5rem;">RedDrop Bangladesh - Voluntary Blood Donation Network</p>
-      <p style="color: #64748b; font-size: 0.6875rem;">All donors listed have voluntarily opted-in to be contacted during emergency medical situations.</p>
+    <div class="footer-container">
+      <p class="footer-title">RedDrop Bangladesh - Voluntary Blood Donation Network</p>
+      <p class="footer-desc">All donors listed have voluntarily opted-in to be contacted during emergency medical situations.</p>
     </div>
   </footer>
 
@@ -502,7 +502,7 @@
                   <div>
                     <div class="donor-name-row">
                       <h3 class="donor-full-name">${d.name}</h3>
-                      ${d.verified ? '<i data-lucide="badge-check" style="width: 1rem; height: 1rem; color: #10b981;" title="Verified Donor"></i>' : ''}
+                      ${d.verified ? '<i data-lucide="badge-check" class="icon-verified" title="Verified Donor"></i>' : ''}
                     </div>
                     <p class="donor-location-tag">${d.area || d.district}</p>
                     <span class="donor-tier-badge">${d.tier || 'Volunteer'}</span>
@@ -533,10 +533,10 @@
 
             <div class="donor-card-actions">
               <button onclick="openContactModal('${d.name}', '${d.phone}')" class="btn-contact-donor">
-                <i data-lucide="phone" style="width: 0.875rem; height: 0.875rem;"></i> Contact Donor
+                <i data-lucide="phone"></i> Contact Donor
               </button>
               <a href="https://wa.me/88${d.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello ' + d.name + ', I found your contact on RedDrop Blood Network for emergency blood requirement.')}" target="_blank" class="btn-wa-icon" title="Message on WhatsApp">
-                <i data-lucide="message-circle" style="width: 1rem; height: 1rem;"></i>
+                <i data-lucide="message-circle"></i>
               </a>
             </div>
           </div>

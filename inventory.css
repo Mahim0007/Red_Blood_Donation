@@ -504,3 +504,129 @@ body {
   margin-top: 4rem;
   text-align: center;
 }
+
+/* Hotline Bar Helpers */
+.hotline-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hotline-dot-green {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: #34d399;
+  display: inline-block;
+}
+
+.hotline-text {
+  font-weight: 500;
+  font-size: 0.6875rem;
+}
+
+.hotline-right {
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.hotline-num-white {
+  color: #ffffff;
+}
+
+/* Page Header & Badges */
+.badge-icon-activity {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.hospital-picker-label {
+  font-weight: 700;
+  color: #64748b;
+  padding-left: 0.5rem;
+}
+
+/* Metric Colors */
+.metric-sub-green {
+  color: #059669;
+}
+
+.metric-val-rose {
+  color: #e11d48;
+}
+
+.metric-sub-rose {
+  color: #f43f5e;
+}
+
+.metric-val-amber {
+  color: #d97706;
+}
+
+.metric-sub-muted {
+  color: #64748b;
+}
+
+.metric-status-online {
+  color: #059669;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.metric-dot-green {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+  background-color: #10b981;
+  display: inline-block;
+}
+
+.section-title-icon {
+  color: #e11d48;
+}
+
+.dispatch-action-wrap {
+  text-align: right;
+}
+
+/* Footer Container */
+.footer-container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.footer-title {
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.footer-desc {
+  color: #64748b;
+  font-size: 0.6875rem;
+}
+
+/* Component Row Styles */
+.component-label {
+  color: #475569;
+  font-weight: 500;
+}
+
+.component-val-dark {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.component-val-amber {
+  font-weight: 700;
+  color: #d97706;
+}
+
+.icon-reserve-check {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: #34d399;
+}

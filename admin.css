@@ -210,10 +210,25 @@ code, pre, .font-mono, .code-font {
   color: #ffffff;
 }
 
+.schema-panel-title {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon-gold {
+  color: #fbbf24;
+}
+
 .panel-subtitle {
   font-size: 0.75rem;
   color: var(--admin-muted);
   font-family: 'Fira Code', monospace;
+}
+
+.schema-panel-subtitle {
+  margin-bottom: 1.5rem;
 }
 
 /* Console Top Bar */

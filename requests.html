@@ -20,11 +20,11 @@
   <!-- Top Hotline Bar -->
   <div class="hotline-sos-bar">
     <div class="hotline-sos-container">
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <div class="hotline-sos-left">
         <span class="ping-white"></span>
-        <span style="font-weight: 700; font-size: 0.6875rem;">Emergency Live SOS Broadcast: Patient attendants are waiting for donors</span>
+        <span class="hotline-sos-text">Emergency Live SOS Broadcast: Patient attendants are waiting for donors</span>
       </div>
-      <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.6875rem; font-weight: 700;">
+      <div class="hotline-sos-right">
         <span>Ambulance: 999</span>
         <span>RedDrop 24/7 Dispatch: 10678</span>
       </div>
@@ -55,7 +55,7 @@
 
       <div>
         <button onclick="openRequestModal()" class="btn-post">
-          <i data-lucide="plus-circle" style="width: 1rem; height: 1rem;"></i> Post Request
+          <i data-lucide="plus-circle"></i> Post Request
         </button>
       </div>
     </div>
@@ -66,13 +66,13 @@
     <div class="sos-header-wrapper">
       <div>
         <div class="sos-badge">
-          <span style="width: 0.5rem; height: 0.5rem; border-radius: 9999px; background-color: #dc2626; display: inline-block;"></span> Real-Time Urgent Queue
+          <span class="sos-dot-red"></span> Real-Time Urgent Queue
         </div>
         <h1 class="sos-title">Live Emergency Blood Requests</h1>
         <p class="sos-subtitle">Patients in hospitals needing urgent blood transfusion. Every second counts.</p>
       </div>
       <button onclick="openRequestModal()" class="btn-post-urgent">
-        <i data-lucide="bell-ring" style="width: 1rem; height: 1rem;"></i> Post Urgent Blood Need
+        <i data-lucide="bell-ring"></i> Post Urgent Blood Need
       </button>
     </div>
   </section>
@@ -104,7 +104,7 @@
           <option value="AB-">AB-</option>
         </select>
 
-        <select id="filter-district" onchange="renderRequestsGrid()" class="select-filter" style="font-weight: 500;">
+        <select id="filter-district" onchange="renderRequestsGrid()" class="select-filter font-medium">
           <option value="ALL">All Districts (64)</option>
           <option value="Bagerhat">Bagerhat</option>
           <option value="Bandarban">Bandarban</option>
@@ -209,9 +209,9 @@
 
   <!-- Footer -->
   <footer class="requests-footer">
-    <div style="max-width: 80rem; margin: 0 auto; padding: 0 1rem;">
-      <p style="font-weight: 700; color: #ffffff; margin-bottom: 0.5rem;">RedDrop Emergency Blood SOS Network</p>
-      <p style="color: #64748b; font-size: 0.6875rem;">Direct voluntary donor matchmaking. No monetary transactions involved.</p>
+    <div class="footer-container">
+      <p class="footer-title">RedDrop Emergency Blood SOS Network</p>
+      <p class="footer-desc">Direct voluntary donor matchmaking. No monetary transactions involved.</p>
     </div>
   </footer>
 
@@ -254,10 +254,10 @@
 
       if (filtered.length === 0) {
         grid.innerHTML = `
-          <div style="grid-column: 1 / -1; padding: 3rem 1rem; text-align: center; background-color: #ffffff; border-radius: 1.5rem; border: 1px solid #e2e8f0;">
-            <i data-lucide="check-circle-2" style="width: 3rem; height: 3rem; color: #10b981; margin: 0 auto 0.5rem auto;"></i>
-            <h3 style="font-weight: 700; color: #1e293b; font-size: 1rem;">No Active Requests Matching Filters</h3>
-            <p style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">All urgent blood needs under this category have been fulfilled.</p>
+          <div class="requests-empty-state">
+            <i data-lucide="check-circle-2" class="empty-check-icon"></i>
+            <h3 class="empty-state-title">No Active Requests Matching Filters</h3>
+            <p class="empty-state-desc">All urgent blood needs under this category have been fulfilled.</p>
           </div>
         `;
         if (window.lucide) lucide.createIcons();
@@ -293,33 +293,37 @@
 
               <!-- Progress Bar -->
               <div class="progress-bar-wrap">
-                <div class="progress-bar-fill" style="width: ${percent}%"></div>
+                <div class="progress-bar-fill" data-percent="${percent}"></div>
               </div>
 
               <div class="patient-details-box">
-                <p class="detail-line"><i data-lucide="hospital" style="width: 0.875rem; height: 0.875rem; color: #94a3b8; flex-shrink: 0;"></i> <strong>Hospital:</strong> ${r.hospital}</p>
-                <p class="detail-line"><i data-lucide="map-pin" style="width: 0.875rem; height: 0.875rem; color: #94a3b8; flex-shrink: 0;"></i> <strong>Location:</strong> ${r.bedLocation || 'Ward/Bed details with attendant'}</p>
-                <p class="detail-line"><i data-lucide="activity" style="width: 0.875rem; height: 0.875rem; color: #94a3b8; flex-shrink: 0;"></i> <strong>Case:</strong> ${r.reason}</p>
-                <p class="detail-line"><i data-lucide="user" style="width: 0.875rem; height: 0.875rem; color: #94a3b8; flex-shrink: 0;"></i> <strong>Attendant:</strong> ${r.attendantName}</p>
+                <p class="detail-line"><i data-lucide="hospital"></i> <strong>Hospital:</strong> ${r.hospital}</p>
+                <p class="detail-line"><i data-lucide="map-pin"></i> <strong>Location:</strong> ${r.bedLocation || 'Ward/Bed details with attendant'}</p>
+                <p class="detail-line"><i data-lucide="activity"></i> <strong>Case:</strong> ${r.reason}</p>
+                <p class="detail-line"><i data-lucide="user"></i> <strong>Attendant:</strong> ${r.attendantName}</p>
               </div>
             </div>
 
             <div class="card-actions">
               <div class="actions-row">
                 <a href="tel:${r.attendantPhone}" class="btn-call">
-                  <i data-lucide="phone" style="width: 0.875rem; height: 0.875rem;"></i> Call (${r.attendantPhone})
+                  <i data-lucide="phone"></i> Call (${r.attendantPhone})
                 </a>
                 <button onclick="handlePledge('${r.id}')" class="btn-pledge">
                   ${isFulfilled ? 'Fulfilled ✓' : 'I Can Donate'}
                 </button>
               </div>
               <button onclick="openShareModal('${r.id}')" class="btn-share-trigger">
-                <i data-lucide="share-2" style="width: 0.875rem; height: 0.875rem;"></i> Share with Facebook / WhatsApp Group
+                <i data-lucide="share-2"></i> Share with Facebook / WhatsApp Group
               </button>
             </div>
           </div>
         `;
       }).join('');
+
+      grid.querySelectorAll('.progress-bar-fill').forEach(el => {
+        el.style.width = el.getAttribute('data-percent') + '%';
+      });
 
       if (window.lucide) lucide.createIcons();
     }

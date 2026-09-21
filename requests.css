@@ -536,3 +536,111 @@ body {
   margin-top: 4rem;
   text-align: center;
 }
+
+/* Hotline Bar Helpers */
+.hotline-sos-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hotline-sos-text {
+  font-weight: 700;
+  font-size: 0.6875rem;
+}
+
+.hotline-sos-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+/* Header & Banner Helpers */
+.btn-post i {
+  width: 1rem;
+  height: 1rem;
+}
+
+.sos-dot-red {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: #dc2626;
+  display: inline-block;
+}
+
+.btn-post-urgent i {
+  width: 1rem;
+  height: 1rem;
+}
+
+.select-filter.font-medium {
+  font-weight: 500;
+}
+
+/* Footer Container */
+.footer-container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.footer-title {
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.footer-desc {
+  color: #64748b;
+  font-size: 0.6875rem;
+}
+
+/* Empty State */
+.requests-empty-state {
+  grid-column: 1 / -1;
+  padding: 3rem 1rem;
+  text-align: center;
+  background-color: #ffffff;
+  border-radius: 1.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+.empty-check-icon {
+  width: 3rem;
+  height: 3rem;
+  color: #10b981;
+  margin: 0 auto 0.5rem auto;
+}
+
+.empty-state-title {
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 1rem;
+}
+
+.empty-state-desc {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+/* Detail Box & Card Action Icons */
+.detail-line i {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.btn-call i {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.btn-share-trigger i {
+  width: 0.875rem;
+  height: 0.875rem;
+}

@@ -619,6 +619,96 @@ body {
   background-color: #fef3c7;
 }
 
+.dashboard-col-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dashboard-col-vitals {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.icon-credit-card {
+  color: #e11d48;
+}
+
+.card-watermark i {
+  width: 12rem;
+  height: 12rem;
+  fill: currentColor;
+}
+
+.card-icon i {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+}
+
+.card-footer-mono {
+  font-family: 'Fira Code', monospace;
+  color: #cbd5e1;
+}
+
+.vitals-title {
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+}
+
+.icon-vitals {
+  color: #f43f5e;
+}
+
+.history-subtitle {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+.history-empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.history-item-left,
+.history-item-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.history-icon i {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: currentColor;
+}
+
+.history-hospital {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.history-meta {
+  font-size: 0.6875rem;
+  color: #64748b;
+}
+
+.history-date {
+  font-family: 'Fira Code', monospace;
+  color: #64748b;
+  font-size: 0.6875rem;
+}
+
+.cert-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: #d97706;
+}
+
 /* Print Optimization for Physical Card */
 @media print {
   body * {

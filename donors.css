@@ -54,6 +54,41 @@ body {
   justify-content: space-between;
 }
 
+.hotline-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hotline-dot-green {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: #34d399;
+  display: inline-block;
+}
+
+.hotline-text {
+  font-weight: 500;
+  font-size: 0.6875rem;
+}
+
+.hotline-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.hotline-num-white {
+  color: #ffffff;
+}
+
+.hotline-num-red {
+  color: #f87171;
+}
+
 /* Header & Nav */
 .site-header {
   position: sticky;
@@ -142,6 +177,18 @@ body {
   font-weight: 800;
 }
 
+.nav-actions-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.icon-user-plus {
+  width: 1rem;
+  height: 1rem;
+  color: #34d399;
+}
+
 .btn-register-donor {
   padding: 0.625rem 1rem;
   border-radius: 0.75rem;
@@ -210,6 +257,17 @@ body {
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   margin-bottom: 0.5rem;
+}
+
+.icon-shield-check {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.banner-actions-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .banner-title {
@@ -577,6 +635,22 @@ body {
   background-color: #ecfdf5;
 }
 
+.btn-contact-donor i {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.btn-wa-icon i {
+  width: 1rem;
+  height: 1rem;
+}
+
+.icon-verified {
+  width: 1rem;
+  height: 1rem;
+  color: #10b981;
+}
+
 /* Empty State */
 .empty-donors-state {
   text-align: center;
@@ -598,6 +672,11 @@ body {
   margin: 0 auto 0.75rem auto;
 }
 
+.empty-icon-wrap i {
+  width: 2rem;
+  height: 2rem;
+}
+
 .empty-title {
   font-weight: 700;
   color: #1e293b;
@@ -617,6 +696,10 @@ body {
   gap: 0.75rem;
 }
 
+.btn-post-compact {
+  padding: 0.5rem 1rem;
+}
+
 /* Footer */
 .donors-footer {
   background-color: #0f172a;
@@ -626,4 +709,21 @@ body {
   border-top: 1px solid #1e293b;
   margin-top: 4rem;
   text-align: center;
+}
+
+.footer-container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.footer-title {
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.footer-desc {
+  color: #64748b;
+  font-size: 0.6875rem;
 }

@@ -20,12 +20,12 @@
   <!-- Top Hotline Bar -->
   <div class="top-hotline-bar">
     <div class="hotline-content">
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <span style="width: 0.5rem; height: 0.5rem; border-radius: 9999px; background-color: #34d399; display: inline-block;"></span>
-        <span style="font-weight: 500; font-size: 0.6875rem;">Central Blood Bank Ingestion Synced with DGHS & Red Crescent</span>
+      <div class="hotline-left">
+        <span class="hotline-dot-green"></span>
+        <span class="hotline-text">Central Blood Bank Ingestion Synced with DGHS & Red Crescent</span>
       </div>
-      <div style="font-size: 0.6875rem; font-weight: 700;">
-        Hospital Transfer Hotline: <strong style="color: #ffffff;">10678</strong>
+      <div class="hotline-right">
+        Hospital Transfer Hotline: <strong class="hotline-num-white">10678</strong>
       </div>
     </div>
   </div>
@@ -65,7 +65,7 @@
     <div class="banner-wrapper">
       <div>
         <div class="badge-pill-header">
-          <i data-lucide="activity" style="width: 0.875rem; height: 0.875rem;"></i> Multi-Center Blood Storage Units
+          <i data-lucide="activity" class="badge-icon-activity"></i> Multi-Center Blood Storage Units
         </div>
         <h1 class="page-title">Live Blood Bank Inventory</h1>
         <p class="page-subtitle">Real-time stock of Whole Blood, PRBC, Platelets, and FFP units across affiliated blood banks.</p>
@@ -73,7 +73,7 @@
       
       <!-- Hospital Switcher -->
       <div class="hospital-picker-box">
-        <span style="font-weight: 700; color: #64748b; padding-left: 0.5rem;">Select Center:</span>
+        <span class="hospital-picker-label">Select Center:</span>
         <select id="hospital-select" onchange="renderInventory()" class="hospital-select">
           <option value="H1">Central Red Crescent Blood Bank (Dhaka)</option>
           <option value="H2">Dhaka Medical College Hospital (DMCH)</option>
@@ -91,33 +91,33 @@
       <div class="metric-card">
         <p class="metric-label">Total Units in Stock</p>
         <h3 class="metric-value" id="metric-total-bags">198 Bags</h3>
-        <p class="metric-sub" style="color: #059669;">Available for emergency release</p>
+        <p class="metric-sub metric-sub-green">Available for emergency release</p>
       </div>
 
       <div class="metric-card">
         <p class="metric-label">Critical Shortage Groups</p>
-        <h3 class="metric-value" style="color: #e11d48;" id="metric-critical-groups">O-, AB-</h3>
-        <p class="metric-sub" style="color: #f43f5e;">Requires immediate voluntary donors</p>
+        <h3 class="metric-value metric-val-rose" id="metric-critical-groups">O-, AB-</h3>
+        <p class="metric-sub metric-sub-rose">Requires immediate voluntary donors</p>
       </div>
 
       <div class="metric-card">
         <p class="metric-label">Platelet Apheresis Units</p>
-        <h3 class="metric-value" style="color: #d97706;" id="metric-platelets">38 Units</h3>
-        <p class="metric-sub" style="color: #64748b;">Dengue & Oncology priority</p>
+        <h3 class="metric-value metric-val-amber" id="metric-platelets">38 Units</h3>
+        <p class="metric-sub metric-sub-muted">Dengue & Oncology priority</p>
       </div>
 
       <div class="metric-card">
         <p class="metric-label">Center Status</p>
-        <h3 class="metric-value" style="color: #059669; font-size: 1.5rem; display: flex; align-items: center; gap: 0.375rem;">
-          <span style="width: 0.75rem; height: 0.75rem; border-radius: 9999px; background-color: #10b981; display: inline-block;"></span> Online (24/7)
+        <h3 class="metric-value metric-status-online">
+          <span class="metric-dot-green"></span> Online (24/7)
         </h3>
-        <p class="metric-sub" style="color: #64748b;">Crossmatch facility operational</p>
+        <p class="metric-sub metric-sub-muted">Crossmatch facility operational</p>
       </div>
     </div>
 
     <!-- Inventory Cards Grid -->
     <h2 class="inventory-section-title">
-      <i data-lucide="layers" style="color: #e11d48;"></i> Stock by Blood Group & Component
+      <i data-lucide="layers" class="section-title-icon"></i> Stock by Blood Group & Component
     </h2>
 
     <div class="inventory-grid" id="inventory-grid">
@@ -134,7 +134,7 @@
             Verified doctors and hospital ICU coordinators can request emergency blood bag transfers with rapid cold-chain transport assistance.
           </p>
         </div>
-        <div style="text-align: right;">
+        <div class="dispatch-action-wrap">
           <button onclick="openTransferModal()" class="btn-dispatch-modal">
             <i data-lucide="truck"></i> Request Hospital Transfer
           </button>
@@ -202,9 +202,9 @@
 
   <!-- Footer -->
   <footer class="inventory-footer">
-    <div style="max-w-7xl mx-auto px-4;">
-      <p style="font-weight: 700; color: #ffffff; margin-bottom: 0.5rem;">RedDrop Blood Bank Central Inventory Monitoring</p>
-      <p style="color: #64748b; font-size: 0.6875rem;">Direct integration with national blood transfusion centers.</p>
+    <div class="footer-container">
+      <p class="footer-title">RedDrop Blood Bank Central Inventory Monitoring</p>
+      <p class="footer-desc">Direct integration with national blood transfusion centers.</p>
     </div>
   </footer>
 
@@ -251,26 +251,26 @@
 
               <div class="inv-components-list">
                 <div class="inv-component-row">
-                  <span style="color: #475569; font-weight: 500;">Whole Blood:</span>
-                  <span style="font-weight: 700; color: #0f172a;">${item.wholeBlood} Bags</span>
+                  <span class="component-label">Whole Blood:</span>
+                  <span class="component-val-dark">${item.wholeBlood} Bags</span>
                 </div>
                 <div class="inv-component-row">
-                  <span style="color: #475569; font-weight: 500;">PRBC (Red Cells):</span>
-                  <span style="font-weight: 700; color: #0f172a;">${item.prbc} Bags</span>
+                  <span class="component-label">PRBC (Red Cells):</span>
+                  <span class="component-val-dark">${item.prbc} Bags</span>
                 </div>
                 <div class="inv-component-row">
-                  <span style="color: #475569; font-weight: 500;">Platelets:</span>
-                  <span style="font-weight: 700; color: #d97706;">${item.platelets} Units</span>
+                  <span class="component-label">Platelets:</span>
+                  <span class="component-val-amber">${item.platelets} Units</span>
                 </div>
                 <div class="inv-component-row">
-                  <span style="color: #475569; font-weight: 500;">Plasma (FFP):</span>
-                  <span style="font-weight: 700; color: #0f172a;">${item.ffp} Bags</span>
+                  <span class="component-label">Plasma (FFP):</span>
+                  <span class="component-val-dark">${item.ffp} Bags</span>
                 </div>
               </div>
             </div>
 
             <button onclick="quickReserveBag('${item.hospitalId}', '${item.group}')" class="btn-reserve-bag">
-              <i data-lucide="check" style="width: 0.875rem; height: 0.875rem; color: #34d399;"></i> Reserve 1 Bag
+              <i data-lucide="check" class="icon-reserve-check"></i> Reserve 1 Bag
             </button>
           </div>
         `;

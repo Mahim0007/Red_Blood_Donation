@@ -53,10 +53,10 @@
     <div class="dashboard-grid">
       
       <!-- Digital Donor Card Column -->
-      <div style="display: flex; flex-direction: column; gap: 1rem;">
+      <div class="dashboard-col-card">
         <div class="section-header">
           <h2 class="section-title">
-            <i data-lucide="credit-card" style="color: #e11d48;"></i> Digital Donor ID Card
+            <i data-lucide="credit-card" class="icon-credit-card"></i> Digital Donor ID Card
           </h2>
           <button onclick="window.print()" class="btn-print">
             <i data-lucide="printer"></i> Print Card
@@ -67,13 +67,13 @@
         <div id="printable-card" class="donor-card">
           <!-- Background Watermark -->
           <div class="card-watermark">
-            <i data-lucide="droplet" style="width: 12rem; height: 12rem; fill: currentColor;"></i>
+            <i data-lucide="droplet"></i>
           </div>
 
           <div class="card-header">
             <div class="card-brand">
               <div class="card-icon">
-                <i data-lucide="droplet" style="width: 1rem; height: 1rem; fill: currentColor;"></i>
+                <i data-lucide="droplet"></i>
               </div>
               <div>
                 <h3 class="card-brand-title">RedDrop Bangladesh</h3>
@@ -109,7 +109,7 @@
 
           <div class="card-footer">
             <span>Verified Lifesaver • 24/7 SOS</span>
-            <span style="font-family: 'Fira Code', monospace; color: #cbd5e1;">Valid Nationwide</span>
+            <span class="card-footer-mono">Valid Nationwide</span>
           </div>
         </div>
 
@@ -126,7 +126,7 @@
       </div>
 
       <!-- Eligibility & Vitals Column -->
-      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <div class="dashboard-col-vitals">
         
         <!-- Next Donation Countdown Box -->
         <div class="countdown-banner">
@@ -165,8 +165,8 @@
 
         <!-- Health & Vitals Snapshot -->
         <div class="vitals-card">
-          <h3 class="section-title" style="margin-bottom: 1rem; font-size: 1.125rem;">
-            <i data-lucide="heart-pulse" style="color: #f43f5e;"></i> Health & Medical Vitals Log
+          <h3 class="section-title vitals-title">
+            <i data-lucide="heart-pulse" class="icon-vitals"></i> Health & Medical Vitals Log
           </h3>
 
           <div class="vitals-grid">
@@ -205,7 +205,7 @@
       <div class="section-header">
         <div>
           <h3 class="section-title">Donation History & Recognition</h3>
-          <p style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">Official recorded donations and downloadable Lifesaver certificates</p>
+          <p class="history-subtitle">Official recorded donations and downloadable Lifesaver certificates</p>
         </div>
         <span class="badge-total">
           Total 12 Units Given
@@ -289,7 +289,7 @@
         : (typeof INITIAL_USER_PROFILE !== 'undefined' && Array.isArray(INITIAL_USER_PROFILE.history) ? INITIAL_USER_PROFILE.history : []);
       if (list.length === 0) {
         container.innerHTML = `
-          <div style="padding: 1.5rem; text-align: center; color: #64748b; font-size: 0.75rem;">
+          <div class="history-empty">
             No donation records logged yet. Your upcoming donations will appear here!
           </div>
         `;
@@ -297,19 +297,19 @@
       }
       container.innerHTML = list.map(h => `
         <div class="history-item">
-          <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div class="history-item-left">
             <div class="history-icon">
-              <i data-lucide="droplet" style="width: 1.25rem; height: 1.25rem; fill: currentColor;"></i>
+              <i data-lucide="droplet"></i>
             </div>
             <div>
-              <h4 style="font-weight: 700; color: #0f172a;">${h.hospital || 'Hospital'}</h4>
-              <p style="font-size: 0.6875rem; color: #64748b;">${h.recipient || 'Emergency Patient'} • ${h.bags || 1} Bag Donated</p>
+              <h4 class="history-hospital">${h.hospital || 'Hospital'}</h4>
+              <p class="history-meta">${h.recipient || 'Emergency Patient'} • ${h.bags || 1} Bag Donated</p>
             </div>
           </div>
-          <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <span style="font-family: 'Fira Code', monospace; color: #64748b; font-size: 0.6875rem;">${h.date || 'Recent'}</span>
+          <div class="history-item-right">
+            <span class="history-date">${h.date || 'Recent'}</span>
             <button onclick="openCertModal('${h.certificateId || 'CERT-000'}', '${h.date || '2026'}', '${h.hospital || 'Hospital'}')" class="btn-cert">
-              <i data-lucide="award" style="width: 0.875rem; height: 0.875rem; color: #d97706;"></i> Certificate
+              <i data-lucide="award" class="cert-icon"></i> Certificate
             </button>
           </div>
         </div>

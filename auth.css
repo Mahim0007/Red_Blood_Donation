@@ -240,6 +240,10 @@ body, .auth-body {
   color: var(--blood-primary);
 }
 
+#reg-phone {
+  font-weight: 700;
+}
+
 .compliance-box {
   padding: 0.75rem;
   background-color: #f8fafc;
