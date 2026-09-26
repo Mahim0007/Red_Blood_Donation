@@ -225,6 +225,11 @@
       RedDropStore.init();
       renderRequestsGrid();
       if (window.lucide) lucide.createIcons();
+
+      window.addEventListener('reddrop_data_synced', () => {
+        renderRequestsGrid();
+        if (window.lucide) lucide.createIcons();
+      });
     });
 
     function setUrgencyFilter(urgency) {

@@ -378,6 +378,9 @@ const BLOOD_COMPATIBILITY = {
 
 // Data Store Manager
 const RedDropStore = {
+  isBackendConnected: false,
+  _syncPromise: null,
+
   init() {
     if (!localStorage.getItem(STORAGE_KEYS.DONORS)) {
       localStorage.setItem(STORAGE_KEYS.DONORS, JSON.stringify(INITIAL_DONORS));
@@ -394,6 +397,81 @@ const RedDropStore = {
     if (!localStorage.getItem(STORAGE_KEYS.USER_PROFILE)) {
       localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(INITIAL_USER_PROFILE));
     }
+
+    // Auto-sync with PHP MySQL API if reachable
+    this.syncWithBackend();
+  },
+
+  async syncWithBackend() {
+    if (this._syncPromise) return this._syncPromise;
+
+    this._syncPromise = (async () => {
+      try {
+        const testRes = await fetch('api/donors.php', { method: 'GET', cache: 'no-store' });
+        if (testRes.ok) {
+          const json = await testRes.json();
+          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+            localStorage.setItem(STORAGE_KEYS.DONORS, JSON.stringify(json.data));
+            this.isBackendConnected = true;
+
+            // Fetch live requests from MySQL
+            try {
+              const reqRes = await fetch('api/requests.php', { cache: 'no-store' });
+              if (reqRes.ok) {
+                const reqJson = await reqRes.json();
+                if (reqJson.success && Array.isArray(reqJson.data)) {
+                  localStorage.setItem(STORAGE_KEYS.REQUESTS, JSON.stringify(reqJson.data));
+                }
+              }
+            } catch(e) {}
+
+            // Fetch live inventory from MySQL
+            try {
+              const invRes = await fetch('api/inventory.php', { cache: 'no-store' });
+              if (invRes.ok) {
+                const invJson = await invRes.json();
+                if (invJson.success && Array.isArray(invJson.data)) {
+                  localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(invJson.data));
+                }
+              }
+            } catch(e) {}
+
+            // Fetch live hospitals from MySQL
+            try {
+              const hospRes = await fetch('api/hospitals.php', { cache: 'no-store' });
+              if (hospRes.ok) {
+                const hospJson = await hospRes.json();
+                if (hospJson.success && Array.isArray(hospJson.data)) {
+                  localStorage.setItem(STORAGE_KEYS.HOSPITALS, JSON.stringify(hospJson.data));
+                }
+              }
+            } catch(e) {}
+
+            this.updateBadges(true);
+            window.dispatchEvent(new CustomEvent('reddrop_data_synced', { detail: { source: 'MySQL' } }));
+            return true;
+          }
+        }
+      } catch (err) {
+        // Offline / file protocol fallback to LocalStorage
+        this.isBackendConnected = false;
+        this.updateBadges(false);
+      }
+      return false;
+    })();
+
+    return this._syncPromise;
+  },
+
+  updateBadges(connected) {
+    document.querySelectorAll('.dbms-status-badge').forEach(el => {
+      if (connected) {
+        el.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> MySQL Connected (XAMPP)';
+        el.classList.add('badge-connected-mysql');
+      } else {
+        el.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400"></span> Local Storage Mode';
+      }
+    });
   },
 
   getDonors() {
@@ -403,7 +481,7 @@ const RedDropStore = {
 
   addDonor(donor) {
     const donors = this.getDonors();
-    donor.id = Date.now();
+    donor.id = donor.id || Date.now();
     donor.totalDonations = donor.totalDonations || 0;
     donor.verified = true;
     donor.tier = donor.totalDonations >= 10 ? 'Gold Lifesaver' : donor.totalDonations >= 5 ? 'Silver Lifesaver' : 'Bronze Lifesaver';
@@ -411,6 +489,22 @@ const RedDropStore = {
     donor.avatar = donor.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${donor.name}`;
     donors.unshift(donor);
     localStorage.setItem(STORAGE_KEYS.DONORS, JSON.stringify(donors));
+
+    // Also persist directly into MySQL via PHP API
+    if (window.fetch) {
+      fetch('api/donors.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(donor)
+      }).then(r => r.json()).then(res => {
+        if (res.success && res.donor_id) {
+          donor.id = res.donor_id;
+          localStorage.setItem(STORAGE_KEYS.DONORS, JSON.stringify(donors));
+          console.log('✅ Donor saved in XAMPP MySQL with ID:', res.donor_id);
+        }
+      }).catch(e => console.log('Stored in LocalStorage'));
+    }
+
     return donor;
   },
 
@@ -421,13 +515,29 @@ const RedDropStore = {
 
   addRequest(req) {
     const requests = this.getRequests();
-    req.id = Date.now();
+    req.id = req.id || Date.now();
     req.bagsFulfilled = 0;
     req.status = 'ACTIVE';
     req.postedAgo = 'Just now';
     req.donorsCommitted = [];
     requests.unshift(req);
     localStorage.setItem(STORAGE_KEYS.REQUESTS, JSON.stringify(requests));
+
+    // Also persist directly into MySQL via PHP API
+    if (window.fetch) {
+      fetch('api/requests.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(req)
+      }).then(r => r.json()).then(res => {
+        if (res.success && res.request_id) {
+          req.id = res.request_id;
+          localStorage.setItem(STORAGE_KEYS.REQUESTS, JSON.stringify(requests));
+          console.log('✅ Blood Request saved in XAMPP MySQL with ID:', res.request_id);
+        }
+      }).catch(e => console.log('Stored in LocalStorage'));
+    }
+
     return req;
   },
 

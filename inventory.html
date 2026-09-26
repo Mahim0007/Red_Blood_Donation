@@ -215,6 +215,11 @@
       RedDropStore.init();
       renderInventory();
       if (window.lucide) lucide.createIcons();
+
+      window.addEventListener('reddrop_data_synced', () => {
+        renderInventory();
+        if (window.lucide) lucide.createIcons();
+      });
     });
 
     function renderInventory() {

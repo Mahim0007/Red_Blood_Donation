@@ -21,8 +21,9 @@
   <div class="top-hotline-bar">
     <div class="hotline-content">
       <div class="hotline-left">
-        <span class="hotline-dot-green"></span>
-        <span class="hotline-text">Database connected: Direct phone connectivity enabled for emergencies</span>
+        <span class="dbms-status-badge inline-flex items-center gap-1.5 font-bold text-emerald-400">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Live MySQL Connected (XAMPP: red_blood_donation_db)
+        </span>
       </div>
       <div class="hotline-right">
         <span>Emergency Ambulance: <strong class="hotline-num-white">999</strong></span>
@@ -425,6 +426,11 @@
       renderBloodPillFilters();
       applyFilters();
       if (window.lucide) lucide.createIcons();
+
+      window.addEventListener('reddrop_data_synced', () => {
+        applyFilters();
+        if (window.lucide) lucide.createIcons();
+      });
     });
 
     function renderBloodPillFilters() {
