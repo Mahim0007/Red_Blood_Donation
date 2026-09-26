@@ -503,20 +503,44 @@
             district: matched.district,
             area: matched.area,
             avatar: matched.avatar,
-            donorId: `RD-BD-2026-${matched.id}`
-          } : {
-            name: identifier.includes('@') ? identifier.split('@')[0] : identifier,
-            phone: identifier,
-            bloodGroup: "O+",
-            avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80",
-            donorId: "RD-BD-2026-USER"
-          };
+          } : null;
+
+          if (!profile) {
+            // New user logging in -> automatically add to Donors list and MySQL!
+            const newName = identifier.includes('@') ? identifier.split('@')[0] : identifier;
+            const newPhone = identifier.includes('@') ? '017' + Math.floor(10000000 + Math.random() * 90000000) : identifier;
+            const registeredDonor = RedDropStore.addDonor({
+              name: newName,
+              phone: newPhone,
+              email: identifier.includes('@') ? identifier : `${newName.toLowerCase().replace(/\s+/g, '')}@gmail.com`,
+              bloodGroup: "O+",
+              district: "Dhaka",
+              area: "Dhaka Sadar",
+              status: "AVAILABLE",
+              totalDonations: 1,
+              age: 23,
+              weight: 62,
+              gender: "Male"
+            });
+
+            profile = {
+              id: registeredDonor.id,
+              name: registeredDonor.name,
+              bloodGroup: registeredDonor.bloodGroup,
+              phone: registeredDonor.phone,
+              email: registeredDonor.email,
+              district: registeredDonor.district,
+              area: registeredDonor.area,
+              avatar: registeredDonor.avatar,
+              donorId: `RD-BD-2026-${registeredDonor.id}`
+            };
+          }
 
           RedDropAuth.login(profile, 'donor');
-          showToast(`Welcome back, ${profile.name}! Redirecting to Home...`, 'success');
-          setTimeout(() => { window.location.href = 'index.html'; }, 600);
+          showToast(`Welcome ${profile.name}! Added to Donors & Database.`, 'success');
+          setTimeout(() => { window.location.href = 'donors.html'; }, 700);
         }
-      }, 500);
+      }, 400);
     }
 
     // Handle Register Submit
@@ -536,15 +560,15 @@
         district: district,
         area: `${district} Sadar`,
         status: "AVAILABLE",
-        totalDonations: 0,
+        totalDonations: 1,
         age: 22,
         weight: 65,
         gender: "Male"
       });
 
       RedDropAuth.login(newDonor, 'donor');
-      showToast(`Account created successfully! Welcome, ${fullName}`, 'success');
-      setTimeout(() => { window.location.href = 'index.html'; }, 700);
+      showToast(`Account created & added to Donors! Welcome, ${fullName}`, 'success');
+      setTimeout(() => { window.location.href = 'donors.html'; }, 800);
     }
 
     function showResetHelp() {

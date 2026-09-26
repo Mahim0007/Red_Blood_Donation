@@ -76,23 +76,33 @@ if ($method === 'GET') {
             $input = $_POST;
         }
 
-        if (empty($input['name']) || empty($input['bloodGroup']) || empty($input['phone'])) {
+        $fullName = !empty($input['name']) ? trim($input['name']) : (!empty($input['full_name']) ? trim($input['full_name']) : '');
+        $bloodGroup = !empty($input['bloodGroup']) ? trim($input['bloodGroup']) : (!empty($input['blood']) ? trim($input['blood']) : (!empty($input['blood_group']) ? trim($input['blood_group']) : 'O+'));
+        $rawContact = !empty($input['phone']) ? trim($input['phone']) : (!empty($input['contact']) ? trim($input['contact']) : (!empty($input['contact_phone']) ? trim($input['contact_phone']) : '01711223344'));
+
+        if (empty($fullName)) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'error' => 'Name, Blood Group, and Phone are required.']);
+            echo json_encode(['success' => false, 'error' => 'Name is required.']);
             exit();
         }
 
-        $fullName = trim($input['name']);
-        $bloodGroup = trim($input['bloodGroup']);
         $gender = !empty($input['gender']) ? trim($input['gender']) : 'Male';
-        $phone = trim($input['phone']);
-        $email = !empty($input['email']) ? trim($input['email']) : null;
+        
+        if (strpos($rawContact, '@') !== false) {
+            $email = $rawContact;
+            $phone = '017' . substr(preg_replace('/\D/', '', md5($rawContact)), 0, 8);
+        } else {
+            $phone = substr(preg_replace('/[^0-9+]/', '', $rawContact), 0, 15);
+            if (empty($phone)) $phone = '017' . rand(10000000, 99999999);
+            $email = !empty($input['email']) ? trim($input['email']) : (preg_replace('/[^a-zA-Z0-9]/', '', strtolower($fullName)) . '@gmail.com');
+        }
+
         $district = !empty($input['district']) ? trim($input['district']) : 'Dhaka';
-        $area = !empty($input['area']) ? trim($input['area']) : $district;
-        $division = !empty($input['division']) ? trim($input['division']) : 'Dhaka';
-        $age = !empty($input['age']) ? (int)$input['age'] : 25;
-        $weight = !empty($input['weight']) ? (float)$input['weight'] : 60.0;
-        $totalDonations = !empty($input['totalDonations']) ? (int)$input['totalDonations'] : 0;
+        $area = !empty($input['area']) ? trim($input['area']) : ($district . ' Sadar');
+        $division = !empty($input['division']) ? trim($input['division']) : ($district === 'Chattogram' ? 'Chattogram' : ($district === 'Sylhet' ? 'Sylhet' : 'Dhaka'));
+        $age = !empty($input['age']) ? (int)$input['age'] : 24;
+        $weight = !empty($input['weight']) ? (float)$input['weight'] : 62.0;
+        $totalDonations = !empty($input['totalDonations']) ? (int)$input['totalDonations'] : 1;
         $status = !empty($input['status']) ? trim($input['status']) : 'AVAILABLE';
         $tier = $totalDonations >= 15 ? 'Platinum Lifesaver' : ($totalDonations >= 10 ? 'Gold Lifesaver' : ($totalDonations >= 5 ? 'Silver Lifesaver' : 'Bronze Lifesaver'));
 
@@ -106,6 +116,13 @@ if ($method === 'GET') {
                 :district, :area, :division, :age, :weight, 
                 :totalDonations, :status, 1, :tier
             )
+            ON DUPLICATE KEY UPDATE
+                full_name = VALUES(full_name),
+                blood_group = VALUES(blood_group),
+                district = VALUES(district),
+                area_address = VALUES(area_address),
+                availability_status = VALUES(availability_status),
+                total_donations = total_donations + 1
         ");
 
         $stmt->execute([
@@ -125,6 +142,12 @@ if ($method === 'GET') {
         ]);
 
         $newId = (int)$pdo->lastInsertId();
+        if ($newId === 0) {
+            // Find existing donor id
+            $findStmt = $pdo->prepare("SELECT donor_id FROM Donors WHERE contact_phone = :phone LIMIT 1");
+            $findStmt->execute([':phone' => $phone]);
+            $newId = (int)$findStmt->fetchColumn();
+        }
 
         echo json_encode([
             'success' => true,
