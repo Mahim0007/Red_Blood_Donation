@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS Donors (
     full_name VARCHAR(100) NOT NULL,
     blood_group ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-') NOT NULL,
     gender ENUM('Male', 'Female', 'Other') NOT NULL,
-    contact_phone VARCHAR(15) UNIQUE NOT NULL,
+    contact_phone VARCHAR(15) NOT NULL,
     email VARCHAR(100),
     district VARCHAR(50) NOT NULL,
     area_address VARCHAR(150) NOT NULL,

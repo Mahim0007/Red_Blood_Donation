@@ -116,13 +116,6 @@ if ($method === 'GET') {
                 :district, :area, :division, :age, :weight, 
                 :totalDonations, :status, 1, :tier
             )
-            ON DUPLICATE KEY UPDATE
-                full_name = VALUES(full_name),
-                blood_group = VALUES(blood_group),
-                district = VALUES(district),
-                area_address = VALUES(area_address),
-                availability_status = VALUES(availability_status),
-                total_donations = total_donations + 1
         ");
 
         $stmt->execute([
@@ -142,12 +135,6 @@ if ($method === 'GET') {
         ]);
 
         $newId = (int)$pdo->lastInsertId();
-        if ($newId === 0) {
-            // Find existing donor id
-            $findStmt = $pdo->prepare("SELECT donor_id FROM Donors WHERE contact_phone = :phone LIMIT 1");
-            $findStmt->execute([':phone' => $phone]);
-            $newId = (int)$findStmt->fetchColumn();
-        }
 
         echo json_encode([
             'success' => true,
