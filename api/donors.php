@@ -76,6 +76,117 @@ if ($method === 'GET') {
             $input = $_POST;
         }
 
+        // Handle direct blood donation
+        if (!empty($input['action']) && $input['action'] === 'donate') {
+            $donorId = !empty($input['donor_id']) ? (int)$input['donor_id'] : null;
+            $donorName = !empty($input['donorName']) ? trim($input['donorName']) : (!empty($input['name']) ? trim($input['name']) : 'Voluntary Donor');
+            $donorPhone = !empty($input['donorPhone']) ? trim($input['donorPhone']) : (!empty($input['phone']) ? trim($input['phone']) : '');
+            $donorEmail = !empty($input['donorEmail']) ? trim($input['donorEmail']) : (!empty($input['email']) ? trim($input['email']) : '');
+
+            $donor = null;
+            if ($donorId) {
+                $dStmt = $pdo->prepare("SELECT * FROM Donors WHERE donor_id = :id LIMIT 1");
+                $dStmt->execute([':id' => $donorId]);
+                $donor = $dStmt->fetch();
+            }
+            if (!$donor && (!empty($donorPhone) || !empty($donorEmail) || !empty($donorName))) {
+                $dStmt = $pdo->prepare("
+                    SELECT * FROM Donors 
+                    WHERE contact_phone = :p 
+                       OR email = :e 
+                       OR LOWER(full_name) = LOWER(:n) 
+                    ORDER BY donor_id DESC 
+                    LIMIT 1
+                ");
+                $dStmt->execute([
+                    ':p' => $donorPhone ?: '---',
+                    ':e' => $donorEmail ?: '---',
+                    ':n' => $donorName
+                ]);
+                $donor = $dStmt->fetch();
+            }
+
+            if (!$donor) {
+                $insDonor = $pdo->prepare("
+                    INSERT INTO Donors (
+                        full_name, blood_group, gender, contact_phone, email,
+                        district, area_address, division, age, weight_kg,
+                        total_donations, availability_status, is_verified, tier
+                    ) VALUES (
+                        :name, 'O+', 'Male', :phone, :email,
+                        'Dhaka', 'Dhaka Sadar', 'Dhaka', 24, 62.00,
+                        0, 'AVAILABLE', 1, 'Bronze Lifesaver'
+                    )
+                ");
+                $insDonor->execute([
+                    ':name' => $donorName,
+                    ':phone' => $donorPhone ?: ('017' . rand(10000000, 99999999)),
+                    ':email' => $donorEmail ?: (preg_replace('/[^a-z0-9]/', '', strtolower($donorName)) . '@gmail.com')
+                ]);
+                $donorId = (int)$pdo->lastInsertId();
+            } else {
+                $donorId = (int)$donor['donor_id'];
+            }
+
+            // Increment total_donations and trigger 90-day health recovery cooldown
+            $updateDonor = $pdo->prepare("
+                UPDATE Donors 
+                SET total_donations = total_donations + 1,
+                    last_donated_date = CURDATE(),
+                    availability_status = 'COOLDOWN',
+                    tier = IF(total_donations + 1 >= 15, 'Platinum Lifesaver', IF(total_donations + 1 >= 10, 'Gold Lifesaver', IF(total_donations + 1 >= 5, 'Silver Lifesaver', 'Bronze Lifesaver')))
+                WHERE donor_id = :id
+            ");
+            $updateDonor->execute([':id' => $donorId]);
+
+            // Query updated total
+            $fetchUpdated = $pdo->prepare("SELECT total_donations, full_name, blood_group, district, tier FROM Donors WHERE donor_id = :id");
+            $fetchUpdated->execute([':id' => $donorId]);
+            $updatedDonor = $fetchUpdated->fetch();
+            $newTotal = (int)$updatedDonor['total_donations'];
+
+            // Insert into Donation_Logs
+            $certId = !empty($input['certificateId']) ? trim($input['certificateId']) : ('CERT-2026-' . rand(1000, 9999));
+            $hospName = !empty($input['hospital']) ? trim($input['hospital']) : 'Dhaka Medical College Hospital (DMCH)';
+
+            $hospStmt = $pdo->prepare("SELECT hospital_id FROM Hospitals WHERE :h LIKE CONCAT('%', name, '%') OR name LIKE CONCAT('%', :h2, '%') LIMIT 1");
+            $hospStmt->execute([':h' => $hospName, ':h2' => $hospName]);
+            $matchedHospId = $hospStmt->fetchColumn() ?: 'H1';
+
+            $logStmt = $pdo->prepare("
+                INSERT INTO Donation_Logs (
+                    donor_id, hospital_id, donation_date, bags_donated,
+                    blood_component, certificate_id, remarks
+                ) VALUES (
+                    :donor_id, :hospital_id, CURDATE(), 1,
+                    'Whole Blood', :cert_id, :remarks
+                )
+            ");
+            $logStmt->execute([
+                ':donor_id' => $donorId,
+                ':hospital_id' => $matchedHospId,
+                ':cert_id' => $certId,
+                ':remarks' => !empty($input['remarks']) ? $input['remarks'] : 'Voluntary Blood Transfusion Camp'
+            ]);
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Blood donation recorded successfully in MySQL database!',
+                'donor_id' => $donorId,
+                'donorId' => 'RD-BD-2026-' . str_pad($donorId, 4, '0', STR_PAD_LEFT),
+                'total_donations' => $newTotal,
+                'lives_saved' => $newTotal * 3,
+                'certificate_id' => $certId,
+                'hospital' => $hospName,
+                'date' => date('Y-m-d'),
+                'lastDonatedDate' => date('Y-m-d'),
+                'nextEligibleDate' => date('Y-m-d', strtotime('+90 days')),
+                'status' => 'COOLDOWN',
+                'tier' => $updatedDonor['tier']
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+
         $fullName = !empty($input['name']) ? trim($input['name']) : (!empty($input['full_name']) ? trim($input['full_name']) : '');
         $bloodGroup = !empty($input['bloodGroup']) ? trim($input['bloodGroup']) : (!empty($input['blood']) ? trim($input['blood']) : (!empty($input['blood_group']) ? trim($input['blood_group']) : 'O+'));
         $rawContact = !empty($input['phone']) ? trim($input['phone']) : (!empty($input['contact']) ? trim($input['contact']) : (!empty($input['contact_phone']) ? trim($input['contact_phone']) : '01711223344'));
@@ -102,7 +213,7 @@ if ($method === 'GET') {
         $division = !empty($input['division']) ? trim($input['division']) : ($district === 'Chattogram' ? 'Chattogram' : ($district === 'Sylhet' ? 'Sylhet' : 'Dhaka'));
         $age = !empty($input['age']) ? (int)$input['age'] : 24;
         $weight = !empty($input['weight']) ? (float)$input['weight'] : 62.0;
-        $totalDonations = !empty($input['totalDonations']) ? (int)$input['totalDonations'] : 1;
+        $totalDonations = isset($input['totalDonations']) ? (int)$input['totalDonations'] : 0;
         $status = !empty($input['status']) ? trim($input['status']) : 'AVAILABLE';
         $tier = $totalDonations >= 15 ? 'Platinum Lifesaver' : ($totalDonations >= 10 ? 'Gold Lifesaver' : ($totalDonations >= 5 ? 'Silver Lifesaver' : 'Bronze Lifesaver'));
 

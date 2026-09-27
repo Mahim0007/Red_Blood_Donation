@@ -75,6 +75,8 @@ if ($method === 'GET') {
         // Handle Pledge / Fulfill action
         if (!empty($input['action']) && $input['action'] === 'pledge' && !empty($input['request_id'])) {
             $reqId = (int)$input['request_id'];
+            
+            // 1. Update Blood_Requests
             $stmt = $pdo->prepare("
                 UPDATE Blood_Requests 
                 SET bags_fulfilled = LEAST(bags_needed, bags_fulfilled + 1),
@@ -83,11 +85,120 @@ if ($method === 'GET') {
             ");
             $stmt->execute([':id' => $reqId]);
 
+            // 2. Fetch request details
+            $reqStmt = $pdo->prepare("SELECT * FROM Blood_Requests WHERE request_id = :id LIMIT 1");
+            $reqStmt->execute([':id' => $reqId]);
+            $requestData = $reqStmt->fetch();
+
+            // 3. Find or create Donor record in Donors table
+            $donorId = !empty($input['donor_id']) ? (int)$input['donor_id'] : null;
+            $donorName = !empty($input['donorName']) ? trim($input['donorName']) : 'Voluntary Donor';
+            $donorPhone = !empty($input['donorPhone']) ? trim($input['donorPhone']) : '';
+            $donorEmail = !empty($input['donorEmail']) ? trim($input['donorEmail']) : '';
+
+            $donor = null;
+            if ($donorId) {
+                $dStmt = $pdo->prepare("SELECT * FROM Donors WHERE donor_id = :id LIMIT 1");
+                $dStmt->execute([':id' => $donorId]);
+                $donor = $dStmt->fetch();
+            }
+            if (!$donor && (!empty($donorPhone) || !empty($donorEmail) || !empty($donorName))) {
+                $dStmt = $pdo->prepare("
+                    SELECT * FROM Donors 
+                    WHERE contact_phone = :p 
+                       OR email = :e 
+                       OR LOWER(full_name) = LOWER(:n) 
+                    ORDER BY donor_id DESC 
+                    LIMIT 1
+                ");
+                $dStmt->execute([
+                    ':p' => $donorPhone ?: '---',
+                    ':e' => $donorEmail ?: '---',
+                    ':n' => $donorName
+                ]);
+                $donor = $dStmt->fetch();
+            }
+
+            if (!$donor) {
+                $insDonor = $pdo->prepare("
+                    INSERT INTO Donors (
+                        full_name, blood_group, gender, contact_phone, email,
+                        district, area_address, division, age, weight_kg,
+                        total_donations, availability_status, is_verified, tier
+                    ) VALUES (
+                        :name, :bg, 'Male', :phone, :email,
+                        :dist, 'Dhaka Sadar', 'Dhaka', 24, 62.00,
+                        0, 'AVAILABLE', 1, 'Bronze Lifesaver'
+                    )
+                ");
+                $insDonor->execute([
+                    ':name' => $donorName,
+                    ':bg' => ($requestData ? $requestData['blood_group'] : 'O+'),
+                    ':phone' => $donorPhone ?: ('017' . rand(10000000, 99999999)),
+                    ':email' => $donorEmail ?: (preg_replace('/[^a-z0-9]/', '', strtolower($donorName)) . '@gmail.com'),
+                    ':dist' => ($requestData ? $requestData['district'] : 'Dhaka')
+                ]);
+                $donorId = (int)$pdo->lastInsertId();
+            } else {
+                $donorId = (int)$donor['donor_id'];
+            }
+
+            // 4. Increment total_donations and trigger 90-day cooldown in Donors table
+            $updateDonor = $pdo->prepare("
+                UPDATE Donors 
+                SET total_donations = total_donations + 1,
+                    last_donated_date = CURDATE(),
+                    availability_status = 'COOLDOWN',
+                    tier = IF(total_donations + 1 >= 15, 'Platinum Lifesaver', IF(total_donations + 1 >= 10, 'Gold Lifesaver', IF(total_donations + 1 >= 5, 'Silver Lifesaver', 'Bronze Lifesaver')))
+                WHERE donor_id = :id
+            ");
+            $updateDonor->execute([':id' => $donorId]);
+
+            // Query updated total_donations
+            $fetchUpdated = $pdo->prepare("SELECT total_donations FROM Donors WHERE donor_id = :id");
+            $fetchUpdated->execute([':id' => $donorId]);
+            $newTotal = (int)$fetchUpdated->fetchColumn();
+
+            // 5. Insert record into Donation_Logs
+            $certId = !empty($input['certificateId']) ? trim($input['certificateId']) : ('CERT-2026-' . rand(1000, 9999));
+            $hospName = $requestData ? $requestData['hospital_name'] : (!empty($input['hospital']) ? $input['hospital'] : 'NICVD, Dhaka');
+            
+            // Try to match hospital_id from Hospitals table
+            $hospStmt = $pdo->prepare("SELECT hospital_id FROM Hospitals WHERE :h LIKE CONCAT('%', name, '%') OR name LIKE CONCAT('%', :h2, '%') LIMIT 1");
+            $hospStmt->execute([':h' => $hospName, ':h2' => $hospName]);
+            $matchedHospId = $hospStmt->fetchColumn() ?: 'H1';
+
+            $logStmt = $pdo->prepare("
+                INSERT INTO Donation_Logs (
+                    donor_id, hospital_id, donation_date, bags_donated,
+                    blood_component, certificate_id, remarks
+                ) VALUES (
+                    :donor_id, :hospital_id, CURDATE(), 1,
+                    'Whole Blood', :cert_id, :remarks
+                )
+            ");
+            $logStmt->execute([
+                ':donor_id' => $donorId,
+                ':hospital_id' => $matchedHospId,
+                ':cert_id' => $certId,
+                ':remarks' => 'Emergency SOS blood pledge for ' . ($requestData ? $requestData['patient_name'] : 'emergency patient')
+            ]);
+
             echo json_encode([
                 'success' => true,
-                'message' => 'Blood request pledge updated in MySQL!',
-                'request_id' => $reqId
-            ], JSON_PRETTY_PRINT);
+                'message' => 'Blood request pledge updated in MySQL! Total donations incremented.',
+                'request_id' => $reqId,
+                'donor_id' => $donorId,
+                'donorId' => 'RD-BD-2026-' . str_pad($donorId, 4, '0', STR_PAD_LEFT),
+                'total_donations' => $newTotal,
+                'lives_saved' => $newTotal * 3,
+                'certificate_id' => $certId,
+                'hospital' => $hospName,
+                'date' => date('Y-m-d'),
+                'lastDonatedDate' => date('Y-m-d'),
+                'nextEligibleDate' => date('Y-m-d', strtotime('+90 days')),
+                'status' => 'COOLDOWN'
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
             exit();
         }
 

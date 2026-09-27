@@ -334,9 +334,10 @@
     }
 
     function handlePledge(reqId) {
-      const res = RedDropStore.pledgeDonation(reqId, "Tanvir Ahmed");
+      const user = RedDropStore.getUserProfile() || {};
+      const res = RedDropStore.pledgeDonation(reqId, user);
       if (res.success) {
-        showToast("Thank you for pledging 1 bag of blood! The patient attendant has been updated.", "success");
+        showToast(`Thank you for pledging 1 bag of blood! Recorded in MySQL database (Total donations: ${res.totalDonations}).`, "success");
         renderRequestsGrid();
       } else {
         showToast(res.message, "warning");

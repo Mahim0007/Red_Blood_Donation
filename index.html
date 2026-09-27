@@ -679,9 +679,10 @@
     }
 
     function handlePledge(reqId) {
-      const res = RedDropStore.pledgeDonation(reqId, "Tanvir Ahmed");
+      const user = RedDropStore.getUserProfile() || {};
+      const res = RedDropStore.pledgeDonation(reqId, user);
       if (res.success) {
-        showToast(`Thank you! Your pledge for 1 bag was registered. Attendant notified.`, 'success');
+        showToast(`Thank you! Your donation pledge of 1 bag was recorded in MySQL database. Total donations: ${res.totalDonations}!`, 'success');
         renderHomeRequests();
       } else {
         showToast(res.message, 'warning');

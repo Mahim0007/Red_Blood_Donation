@@ -123,6 +123,19 @@
             ● Available
           </button>
         </div>
+
+        <!-- Voluntary Blood Donation Action Card (Direct MySQL Database Connection) -->
+        <div class="status-card" style="margin-top: 1rem; background: linear-gradient(135deg, rgba(225, 29, 72, 0.08), rgba(244, 63, 94, 0.03)); border: 1.5px solid rgba(225, 29, 72, 0.3);">
+          <div>
+            <span class="status-title" style="color: #9f1239; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+              <i data-lucide="droplet" class="w-4 h-4 text-red-600"></i> Donate Blood & Save Lives
+            </span>
+            <span class="status-desc">Record donation live in MySQL database</span>
+          </div>
+          <button onclick="recordVoluntaryDonation()" id="btn-donate-now" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold text-xs shadow-md shadow-red-600/30 transition flex items-center gap-2">
+            <i data-lucide="heart" class="w-4 h-4 fill-white"></i> Donate 1 Bag
+          </button>
+        </div>
       </div>
 
       <!-- Eligibility & Vitals Column -->
@@ -246,12 +259,24 @@
   <script src="data.js"></script>
   <script src="nav-footer.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       RedDropStore.init();
       loadProfileData();
       renderHistory();
       startCountdown();
       if (window.lucide) lucide.createIcons();
+
+      // Automatically sync live with MySQL database (updates Donor ID and Total Donations)
+      try {
+        const synced = await RedDropStore.syncUserWithDatabase();
+        if (synced) {
+          loadProfileData();
+          renderHistory();
+          if (window.lucide) lucide.createIcons();
+        }
+      } catch (e) {
+        console.log('MySQL sync error:', e);
+      }
     });
 
     function loadProfileData() {
@@ -259,21 +284,61 @@
       document.getElementById('card-name').innerText = user.name || 'Voluntary Donor';
       document.getElementById('card-district').innerText = user.area || user.district || 'Dhaka, Bangladesh';
       document.getElementById('card-blood').innerText = user.bloodGroup || 'A+';
-      document.getElementById('card-donor-id').innerText = user.donorId || 'RD-BD-2026-0001';
-      const total = user.totalDonations != null ? user.totalDonations : 0;
-      const tier = total >= 10 ? 'Gold' : total >= 5 ? 'Silver' : 'Bronze';
+
+      // Always display the official DB formatted donor ID
+      const officialId = user.donorId || (user.id ? ('RD-BD-2026-' + String(user.id).padStart(4, '0')) : 'RD-BD-2026-0101');
+      document.getElementById('card-donor-id').innerText = officialId;
+
+      const total = user.totalDonations != null ? parseInt(user.totalDonations) : 0;
+      const tier = total >= 15 ? 'Platinum' : (total >= 10 ? 'Gold' : (total >= 5 ? 'Silver' : 'Bronze'));
       const tierBadge = document.getElementById('card-tier');
-      tierBadge.innerText = `${tier} Tier`;
-      tierBadge.className = `badge-tier badge-tier-${tier.toLowerCase()}`;
-      const lives = user.livesSaved != null ? user.livesSaved : (total * 3);
+      if (tierBadge) {
+        tierBadge.innerText = `${tier} Tier`;
+        tierBadge.className = `badge-tier badge-tier-${tier.toLowerCase()}`;
+      }
+      const lives = user.livesSaved != null ? parseInt(user.livesSaved) : (total * 3);
       document.getElementById('card-total').innerText = `${total} Times (${lives} Lives)`;
 
-      const noteText = document.getElementById('banner-note-text');
-      if (noteText) {
-        if (total === 0) {
-          noteText.innerHTML = `You haven't made any blood donations yet. You are <strong>immediately eligible</strong> to donate blood and save up to 3 lives!`;
+      const statusBtn = document.getElementById('status-toggle-btn');
+      if (statusBtn) {
+        if (user.status === 'COOLDOWN' || (total > 0 && user.lastDonatedDate)) {
+          statusBtn.className = 'btn-status-toggle status-inactive';
+          statusBtn.innerText = '⏳ Cooldown (90 Days)';
         } else {
-          noteText.innerHTML = `Great job! You have completed <strong>${total}</strong> donation(s) and saved <strong>${lives}</strong> lives. Keep it up!`;
+          statusBtn.className = 'btn-status-toggle status-available';
+          statusBtn.innerText = '● Available';
+        }
+      }
+
+      if (typeof updateCountdown === 'function') {
+        updateCountdown();
+      }
+    }
+
+    async function recordVoluntaryDonation() {
+      const btn = document.getElementById('btn-donate-now');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span> Saving...`;
+      }
+      try {
+        const res = await RedDropStore.recordDirectDonation('Dhaka Medical College Hospital (DMCH)', 'Voluntary Lifesaver Blood Donation');
+        loadProfileData();
+        renderHistory();
+        if (window.lucide) lucide.createIcons();
+        showToast(`Congratulations! Donation #${res.totalDonations} recorded in MySQL (${res.livesSaved} lives saved)!`, 'success');
+        
+        // Open the newly generated certificate modal
+        setTimeout(() => {
+          openCertModal(res.certificateId, res.date || '2026-09-27', res.hospital || 'DMCH Blood Center');
+        }, 350);
+      } catch (err) {
+        showToast('Error recording donation: ' + err.message, 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<i data-lucide="heart" class="w-4 h-4 fill-white"></i> Donate 1 Bag`;
+          if (window.lucide) lucide.createIcons();
         }
       }
     }
@@ -346,27 +411,67 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    function startCountdown() {
-      let days = 13, hours = 8, mins = 42, secs = 19;
-      setInterval(() => {
-        if (secs > 0) secs--;
-        else {
-          secs = 59;
-          if (mins > 0) mins--;
-          else {
-            mins = 59;
-            if (hours > 0) hours--;
-            else {
-              hours = 23;
-              if (days > 0) days--;
-            }
-          }
+    let countdownInterval = null;
+
+    function updateCountdown() {
+      const user = RedDropStore.getUserProfile() || {};
+      const total = user.totalDonations != null ? parseInt(user.totalDonations) : 0;
+      
+      const cdDays = document.getElementById('cd-days');
+      const cdHours = document.getElementById('cd-hours');
+      const cdMins = document.getElementById('cd-mins');
+      const cdSecs = document.getElementById('cd-secs');
+      const noteText = document.getElementById('banner-note-text');
+
+      // If user has never donated: Immediately eligible (0 days remaining)
+      if (total === 0 || !user.lastDonatedDate) {
+        if (cdDays) cdDays.innerText = '00';
+        if (cdHours) cdHours.innerText = '00';
+        if (cdMins) cdMins.innerText = '00';
+        if (cdSecs) cdSecs.innerText = '00';
+        if (noteText) {
+          noteText.innerHTML = `You haven't made any blood donations yet. You are <strong>immediately eligible</strong> to donate blood and save up to 3 lives!`;
         }
-        document.getElementById('cd-days').innerText = String(days).padStart(2, '0');
-        document.getElementById('cd-hours').innerText = String(hours).padStart(2, '0');
-        document.getElementById('cd-mins').innerText = String(mins).padStart(2, '0');
-        document.getElementById('cd-secs').innerText = String(secs).padStart(2, '0');
-      }, 1000);
+        return;
+      }
+
+      // Calculate 90 days recovery cycle from database last_donated_date
+      const lastDonated = new Date(user.lastDonatedDate + 'T00:00:00');
+      // Target is 90 days after donation date
+      const targetTime = lastDonated.getTime() + (90 * 24 * 60 * 60 * 1000);
+      const now = Date.now();
+      const diff = targetTime - now;
+
+      if (diff <= 0) {
+        // Recovery cycle complete
+        if (cdDays) cdDays.innerText = '00';
+        if (cdHours) cdHours.innerText = '00';
+        if (cdMins) cdMins.innerText = '00';
+        if (cdSecs) cdSecs.innerText = '00';
+        if (noteText) {
+          noteText.innerHTML = `Great job! You completed <strong>${total}</strong> donation(s). Your <strong>90-day recovery cycle is complete</strong>. You are <strong>immediately eligible</strong> to donate blood again!`;
+        }
+      } else {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const mins = Math.floor((diff / (1000 * 60)) % 60);
+        const secs = Math.floor((diff / 1000) % 60);
+
+        if (cdDays) cdDays.innerText = String(days).padStart(2, '0');
+        if (cdHours) cdHours.innerText = String(hours).padStart(2, '0');
+        if (cdMins) cdMins.innerText = String(mins).padStart(2, '0');
+        if (cdSecs) cdSecs.innerText = String(secs).padStart(2, '0');
+
+        if (noteText) {
+          noteText.innerHTML = `Great job! You have completed <strong>${total}</strong> donation(s) and saved <strong>${(user.livesSaved || total * 3)}</strong> lives. In compliance with the <strong>90-day health recovery cycle</strong> (donated on ${user.lastDonatedDate}), your next eligible donation window opens in <strong>${days} Days ${hours} Hours</strong>!`;
+        }
+      }
+    }
+
+    function startCountdown() {
+      if (countdownInterval) clearInterval(countdownInterval);
+      updateCountdown();
+      countdownInterval = setInterval(updateCountdown, 1000);
     }
 
     function openCertModal(certId, date, hospital) {

@@ -414,7 +414,7 @@
 
 
     // Handle Login Submit
-    function handleLoginSubmit(e) {
+    async function handleLoginSubmit(e) {
       e.preventDefault();
       const identifier = document.getElementById('login-identifier').value.trim();
       const password = document.getElementById('login-password').value.trim();
@@ -426,38 +426,48 @@
         <span>Signing in...</span>
       `;
 
-      setTimeout(() => {
-        if (activeRole === 'admin') {
-          if ((identifier.toLowerCase() === 'admin' || identifier.toLowerCase() === 'dbms') && (password === 'admin123' || password === 'admin')) {
-            // Save login to MySQL Users table
-            fetch('api/login.php', {
+      if (activeRole === 'admin') {
+        if ((identifier.toLowerCase() === 'admin' || identifier.toLowerCase() === 'dbms') && (password === 'admin123' || password === 'admin')) {
+          try {
+            await fetch('api/login.php', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ username: identifier, role: 'Admin' })
-            }).catch(e => console.log('Login recorded offline'));
+            });
+          } catch(e) {}
 
-            RedDropAuth.login({
-              name: "DBMS Administrator",
-              phone: "01700000000",
-              role: "admin",
-              donorId: "ADMIN-ROOT"
-            }, 'admin');
-            showToast('Admin logged in! Redirecting to Home...', 'success');
-            setTimeout(() => { window.location.href = 'index.html'; }, 600);
-          } else {
-            btn.disabled = false;
-            btn.innerHTML = `<span>Log in to RedDrop</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
-            if (window.lucide) lucide.createIcons();
-            showToast('Invalid admin credentials! (Use: admin / admin123)', 'error');
-          }
+          RedDropAuth.login({
+            name: "DBMS Administrator",
+            phone: "01700000000",
+            role: "admin",
+            donorId: "ADMIN-ROOT"
+          }, 'admin');
+          showToast('Admin logged in! Redirecting to Home...', 'success');
+          setTimeout(() => { window.location.href = 'index.html'; }, 600);
         } else {
-          // Record login ONLY in MySQL Users table (does NOT touch Donors or Blood_Requests)
-          fetch('api/login.php', {
+          btn.disabled = false;
+          btn.innerHTML = `<span>Log in to RedDrop</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+          if (window.lucide) lucide.createIcons();
+          showToast('Invalid admin credentials! (Use: admin / admin123)', 'error');
+        }
+      } else {
+        // User login - connects with MySQL to get official DB donorId & total_donations
+        let profile = null;
+        try {
+          const res = await fetch('api/login.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: identifier, role: 'User' })
-          }).catch(e => console.log('Login recorded offline'));
+          });
+          const data = await res.json();
+          if (data.success && data.profile) {
+            profile = data.profile;
+          }
+        } catch (err) {
+          console.log('Login offline fallback', err);
+        }
 
+        if (!profile) {
           const donors = RedDropStore.getDonors();
           const matched = donors.find(d => 
             d.phone === identifier || 
@@ -466,35 +476,42 @@
             d.name.toLowerCase().includes(identifier.toLowerCase())
           );
 
-          const profile = matched ? {
+          const fallbackId = matched ? matched.id : Date.now();
+          profile = matched ? {
             id: matched.id,
+            donorId: matched.donorId || ('RD-BD-2026-' + String(matched.id).padStart(4, '0')),
             name: matched.name,
             bloodGroup: matched.bloodGroup,
             phone: matched.phone,
             email: matched.email,
             district: matched.district,
             area: matched.area,
+            totalDonations: matched.totalDonations || 0,
+            livesSaved: (matched.totalDonations || 0) * 3,
             avatar: matched.avatar,
           } : {
-            id: Date.now(),
+            id: fallbackId,
+            donorId: 'RD-BD-2026-' + String(fallbackId).slice(-4).padStart(4, '0'),
             name: identifier.includes('@') ? identifier.split('@')[0] : identifier,
             phone: identifier,
             email: identifier.includes('@') ? identifier : `${identifier}@gmail.com`,
             bloodGroup: "O+",
             district: "Dhaka",
             area: "Dhaka Sadar",
+            totalDonations: 0,
+            livesSaved: 0,
             avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${identifier}`
           };
-
-          RedDropAuth.login(profile, 'user');
-          showToast(`Welcome ${profile.name}! Logged in successfully.`, 'success');
-          setTimeout(() => { window.location.href = 'index.html'; }, 700);
         }
-      }, 400);
+
+        RedDropAuth.login(profile, 'user');
+        showToast(`Welcome ${profile.name}! Logged in successfully.`, 'success');
+        setTimeout(() => { window.location.href = 'donor-dashboard.html'; }, 700);
+      }
     }
 
     // Handle Register Submit
-    function handleRegisterSubmit(e) {
+    async function handleRegisterSubmit(e) {
       e.preventDefault();
       const firstName = document.getElementById('reg-firstname').value.trim();
       const lastName = document.getElementById('reg-lastname').value.trim();
@@ -503,22 +520,69 @@
       const district = document.getElementById('reg-district').value;
 
       const fullName = `${firstName} ${lastName}`.trim();
-      const newDonor = RedDropStore.addDonor({
-        name: fullName,
-        phone: contact,
-        bloodGroup: blood,
-        district: district,
-        area: `${district} Sadar`,
-        status: "AVAILABLE",
-        totalDonations: 1,
-        age: 22,
-        weight: 65,
-        gender: "Male"
-      });
+      let newDonor = null;
 
-      RedDropAuth.login(newDonor, 'donor');
-      showToast(`Account created & added to Donors! Welcome, ${fullName}`, 'success');
-      setTimeout(() => { window.location.href = 'index.html'; }, 800);
+      try {
+        const res = await fetch('api/donors.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: fullName,
+            phone: contact,
+            bloodGroup: blood,
+            district: district,
+            area: `${district} Sadar`,
+            status: "AVAILABLE",
+            totalDonations: 0
+          })
+        });
+        const data = await res.json();
+        if (data.success && data.donor_id) {
+          const donorIdFormatted = 'RD-BD-2026-' + String(data.donor_id).padStart(4, '0');
+          newDonor = {
+            id: data.donor_id,
+            donorId: donorIdFormatted,
+            name: fullName,
+            phone: contact,
+            email: `${fullName.toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com`,
+            bloodGroup: blood,
+            district: district,
+            area: `${district} Sadar`,
+            status: "AVAILABLE",
+            totalDonations: 0,
+            livesSaved: 0,
+            history: [],
+            avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(fullName)}`
+          };
+          fetch('api/login.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: contact, role: 'User' })
+          }).catch(e => {});
+        }
+      } catch (err) {
+        console.log('Register offline fallback', err);
+      }
+
+      if (!newDonor) {
+        newDonor = RedDropStore.addDonor({
+          name: fullName,
+          phone: contact,
+          bloodGroup: blood,
+          district: district,
+          area: `${district} Sadar`,
+          status: "AVAILABLE",
+          totalDonations: 0,
+          age: 22,
+          weight: 65,
+          gender: "Male"
+        });
+        newDonor.donorId = 'RD-BD-2026-' + String(newDonor.id).slice(-4).padStart(4, '0');
+      }
+
+      RedDropAuth.login(newDonor, 'user');
+      showToast(`Account created & synchronized! Welcome, ${fullName}`, 'success');
+      setTimeout(() => { window.location.href = 'donor-dashboard.html'; }, 800);
     }
 
     function showResetHelp() {

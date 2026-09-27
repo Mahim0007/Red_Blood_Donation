@@ -536,13 +536,20 @@ const RedDropStore = {
     return req;
   },
 
-  pledgeDonation(requestId, donorName = "Tanvir Ahmed") {
+  pledgeDonation(requestId, donorInfo = null) {
     const requests = this.getRequests();
     const target = requests.find(r => r.id == requestId);
     if (target) {
       if (target.bagsFulfilled < target.bagsNeeded) {
         target.bagsFulfilled += 1;
         target.donorsCommitted = target.donorsCommitted || [];
+        
+        let user = this.getUserProfile() || {};
+        let donorName = typeof donorInfo === 'string' ? donorInfo : (donorInfo?.name || user.name || "Voluntary Donor");
+        let donorId = typeof donorInfo === 'object' && donorInfo?.id ? donorInfo.id : user.id;
+        let donorPhone = typeof donorInfo === 'object' && donorInfo?.phone ? donorInfo.phone : user.phone;
+        let donorEmail = typeof donorInfo === 'object' && donorInfo?.email ? donorInfo.email : user.email;
+
         target.donorsCommitted.push(donorName);
         if (target.bagsFulfilled >= target.bagsNeeded) {
           target.status = 'FULFILLED';
@@ -551,7 +558,6 @@ const RedDropStore = {
 
         // Generate certificate for the donor when donating
         const certId = `CERT-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-        const user = this.getUserProfile() || {};
         user.history = user.history || [];
         user.history.unshift({
           date: new Date().toISOString().split('T')[0],
@@ -564,6 +570,13 @@ const RedDropStore = {
         user.livesSaved = (user.livesSaved || 0) + 3;
         this.updateUserProfile(user);
 
+        // Also sync auth session if logged in
+        const session = (typeof RedDropAuth !== 'undefined') ? RedDropAuth.getSession() : null;
+        if (session && session.user) {
+          session.user = { ...session.user, ...user };
+          localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, JSON.stringify(session));
+        }
+
         // Persist to MySQL database via PHP API
         if (window.fetch) {
           fetch('api/requests.php', {
@@ -572,18 +585,137 @@ const RedDropStore = {
             body: JSON.stringify({
               action: 'pledge',
               request_id: requestId,
+              donor_id: donorId,
               donorName: donorName,
-              certificateId: certId
+              donorPhone: donorPhone,
+              donorEmail: donorEmail,
+              certificateId: certId,
+              hospital: target.hospital,
+              patientName: target.patientName
             })
           }).then(r => r.json()).then(res => {
-            console.log('✅ Pledge/fulfillment saved in MySQL:', res);
+            if (res.success) {
+              console.log('✅ Pledge/fulfillment saved in MySQL:', res);
+              if (res.total_donations != null) {
+                const u = RedDropStore.getUserProfile() || {};
+                u.totalDonations = res.total_donations;
+                u.livesSaved = res.lives_saved || (res.total_donations * 3);
+                if (res.donorId) u.donorId = res.donorId;
+                if (res.donor_id) u.id = res.donor_id;
+                u.lastDonatedDate = res.lastDonatedDate || new Date().toISOString().split('T')[0];
+                u.status = res.status || 'COOLDOWN';
+                u.nextEligibleDate = res.nextEligibleDate;
+                RedDropStore.updateUserProfile(u);
+                
+                const s = (typeof RedDropAuth !== 'undefined') ? RedDropAuth.getSession() : null;
+                if (s && s.user) {
+                  s.user = { ...s.user, ...u };
+                  localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, JSON.stringify(s));
+                }
+              }
+            }
           }).catch(err => console.log('Saved in LocalStorage'));
         }
 
-        return { success: true, request: target, certificateId: certId };
+        return { success: true, request: target, certificateId: certId, totalDonations: user.totalDonations };
       }
     }
     return { success: false, message: 'Request already fully fulfilled or not found' };
+  },
+
+  async recordDirectDonation(hospitalName = 'Dhaka Medical College Hospital (DMCH)', remarks = 'Voluntary Blood Transfusion') {
+    const user = this.getUserProfile() || {};
+    const certId = `CERT-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+    const today = new Date().toISOString().split('T')[0];
+
+    // Local optimistic update
+    user.history = user.history || [];
+    user.history.unshift({
+      date: today,
+      hospital: hospitalName,
+      recipient: 'Emergency Patient',
+      bags: 1,
+      certificateId: certId
+    });
+    user.totalDonations = (user.totalDonations || 0) + 1;
+    user.livesSaved = (user.livesSaved || 0) + 3;
+    user.lastDonatedDate = today;
+    user.status = 'COOLDOWN';
+    this.updateUserProfile(user);
+
+    const session = (typeof RedDropAuth !== 'undefined') ? RedDropAuth.getSession() : null;
+    if (session && session.user) {
+      session.user = { ...session.user, ...user };
+      localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, JSON.stringify(session));
+    }
+
+    // Persist directly to MySQL
+    if (window.fetch) {
+      try {
+        const r = await fetch('api/donors.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'donate',
+            donor_id: user.id,
+            donorName: user.name,
+            donorPhone: user.phone,
+            donorEmail: user.email,
+            hospital: hospitalName,
+            remarks: remarks,
+            certificateId: certId
+          })
+        });
+        const res = await r.json();
+        if (res.success) {
+          user.totalDonations = res.total_donations;
+          user.livesSaved = res.lives_saved;
+          if (res.donorId) user.donorId = res.donorId;
+          if (res.donor_id) user.id = res.donor_id;
+          user.lastDonatedDate = res.lastDonatedDate || today;
+          user.status = res.status || 'COOLDOWN';
+          user.nextEligibleDate = res.nextEligibleDate;
+          this.updateUserProfile(user);
+
+          if (session && session.user) {
+            session.user = { ...session.user, ...user };
+            localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, JSON.stringify(session));
+          }
+          return { success: true, certificateId: certId, totalDonations: res.total_donations, livesSaved: res.lives_saved, hospital: res.hospital, date: res.date, lastDonatedDate: res.lastDonatedDate, nextEligibleDate: res.nextEligibleDate };
+        }
+      } catch (e) {
+        console.log('Recorded in local storage offline', e);
+      }
+    }
+
+    return { success: true, certificateId: certId, totalDonations: user.totalDonations, livesSaved: user.livesSaved, hospital: hospitalName, date: today };
+  },
+
+  async syncUserWithDatabase() {
+    const user = this.getUserProfile();
+    if (!user || (!user.email && !user.phone && !user.name && !user.id)) return user;
+    if (window.fetch) {
+      try {
+        const identifier = user.email || user.phone || user.name || user.id;
+        const res = await fetch(`api/login.php?action=sync&identifier=${encodeURIComponent(identifier)}&id=${encodeURIComponent(user.id || '')}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.profile) {
+            const updated = { ...user, ...data.profile };
+            this.updateUserProfile(updated);
+            const session = (typeof RedDropAuth !== 'undefined') ? RedDropAuth.getSession() : null;
+            if (session && session.user) {
+              session.user = { ...session.user, ...updated };
+              localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, JSON.stringify(session));
+            }
+            return updated;
+          }
+        }
+      } catch (e) {
+        console.log('Database sync offline, using local profile', e);
+      }
+    }
+    return user;
   },
 
   getInventory() {
