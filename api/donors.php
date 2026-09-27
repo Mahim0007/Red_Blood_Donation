@@ -57,6 +57,9 @@ if ($method === 'GET') {
         }
 
         $sql .= " ORDER BY total_donations DESC, donor_id DESC";
+        if (!empty($_GET['limit'])) {
+            $sql .= " LIMIT " . (int)$_GET['limit'];
+        }
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);

@@ -588,25 +588,87 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    function renderHomeLeaderboard() {
+    async function renderHomeLeaderboard() {
       const container = document.getElementById('home-donors-leaderboard');
-      const donors = RedDropStore.getDonors().slice(0, 3);
-      container.innerHTML = donors.map((d, idx) => `
-        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
-          <div class="relative">
-            <img src="${d.avatar}" alt="${d.name}" class="w-14 h-14 rounded-2xl object-cover border-2 border-red-100">
-            <span class="absolute -top-2 -left-2 w-6 h-6 rounded-full ${idx === 0 ? 'bg-amber-400 text-slate-900' : idx === 1 ? 'bg-slate-300 text-slate-900' : 'bg-amber-600 text-white'} text-[10px] font-black flex items-center justify-center shadow">#${idx + 1}</span>
-          </div>
-          <div class="flex-1">
-            <div class="flex items-center gap-1.5">
-              <h3 class="font-bold text-slate-900 text-sm">${d.name}</h3>
-              <span class="text-xs font-black text-red-600 bg-red-50 px-2 py-0.5 rounded-md">${d.bloodGroup}</span>
+      if (!container) return;
+
+      const rankThemes = [
+        {
+          badge: 'bg-amber-400 text-slate-900 border-amber-300',
+          avatarBg: 'background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #78350f; border: 2px solid #fcd34d;'
+        },
+        {
+          badge: 'bg-slate-300 text-slate-900 border-slate-200',
+          avatarBg: 'background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%); color: #1e293b; border: 2px solid #94a3b8;'
+        },
+        {
+          badge: 'bg-amber-600 text-white border-amber-500',
+          avatarBg: 'background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%); color: #7c2d12; border: 2px solid #fdba74;'
+        }
+      ];
+
+      function getInitials(name) {
+        if (!name) return 'D';
+        const parts = String(name).trim().split(/\s+/).filter(Boolean);
+        if (parts.length >= 2) {
+          return (parts[0][0] + parts[1][0]).toUpperCase();
+        }
+        return parts[0].slice(0, 2).toUpperCase();
+      }
+
+      function drawDonors(donorsList) {
+        if (!donorsList || donorsList.length === 0) return;
+        container.innerHTML = donorsList.slice(0, 3).map((d, idx) => {
+          const theme = rankThemes[idx] || rankThemes[2];
+          const initials = getInitials(d.name);
+          const location = d.area || d.district || 'Bangladesh';
+          const donations = Number(d.totalDonations) || 0;
+          const tier = d.tier || (donations >= 15 ? 'Platinum Lifesaver' : donations >= 10 ? 'Gold Lifesaver' : donations >= 5 ? 'Silver Lifesaver' : 'Dedicated Donor');
+
+          return `
+            <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
+              <div class="relative flex-shrink-0">
+                <div class="w-14 h-14 rounded-2xl flex items-center justify-center font-display font-black text-lg select-none shadow-sm" style="${theme.avatarBg}">
+                  ${initials}
+                </div>
+                <span class="absolute -top-2 -left-2 w-6 h-6 rounded-full ${theme.badge} border text-[10px] font-black flex items-center justify-center shadow">#${idx + 1}</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <h3 class="font-bold text-slate-900 text-sm truncate" title="${d.name}">${d.name}</h3>
+                  <span class="text-xs font-black text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded-md flex-shrink-0">${d.bloodGroup}</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5 truncate">${location}</p>
+                <p class="text-[11px] font-extrabold text-emerald-600 mt-1">${donations} Donations • ${tier}</p>
+              </div>
             </div>
-            <p class="text-xs text-slate-500 mt-0.5">${d.area}</p>
-            <p class="text-[11px] font-extrabold text-emerald-600 mt-1">${d.totalDonations} Donations • ${d.tier}</p>
-          </div>
-        </div>
-      `).join('');
+          `;
+        }).join('');
+      }
+
+      // Initial render from local cache sorted by totalDonations
+      const localDonors = (RedDropStore.getDonors() || [])
+        .slice()
+        .sort((a, b) => (Number(b.totalDonations) || 0) - (Number(a.totalDonations) || 0));
+      if (localDonors.length > 0) {
+        drawDonors(localDonors);
+      }
+
+      // Query live MySQL database API for top donors
+      try {
+        const response = await fetch('api/donors.php?limit=3', { cache: 'no-store' });
+        if (response.ok) {
+          const resJson = await response.json();
+          if (resJson.success && Array.isArray(resJson.data) && resJson.data.length > 0) {
+            const liveSorted = resJson.data
+              .slice()
+              .sort((a, b) => (Number(b.totalDonations) || 0) - (Number(a.totalDonations) || 0));
+            drawDonors(liveSorted);
+          }
+        }
+      } catch (e) {
+        // Fallback already rendered cached
+      }
     }
 
     function updateDynamicStats() {
