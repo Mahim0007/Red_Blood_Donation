@@ -588,6 +588,23 @@ const RedDropStore = {
       const total = item.wholeBlood + item.prbc;
       item.status = total <= 2 ? 'CRITICAL' : total <= 8 ? 'LOW' : 'OPTIMAL';
       localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(inv));
+
+      // Persist to MySQL database via PHP API
+      if (window.fetch) {
+        fetch('api/inventory.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            hospitalId: hospitalId,
+            group: group,
+            component: component,
+            delta: delta
+          })
+        }).then(r => r.json()).then(res => {
+          console.log('✅ Inventory updated in MySQL:', res);
+        }).catch(err => console.log('Saved in LocalStorage'));
+      }
+
       return { success: true, item };
     }
     return { success: false, message: 'Insufficient stock or item not found' };
