@@ -506,7 +506,7 @@
 
         RedDropAuth.login(profile, 'user');
         showToast(`Welcome ${profile.name}! Logged in successfully.`, 'success');
-        setTimeout(() => { window.location.href = 'donor-dashboard.html'; }, 700);
+        setTimeout(() => { window.location.href = 'index.html'; }, 700);
       }
     }
 
@@ -582,7 +582,7 @@
 
       RedDropAuth.login(newDonor, 'user');
       showToast(`Account created & synchronized! Welcome, ${fullName}`, 'success');
-      setTimeout(() => { window.location.href = 'donor-dashboard.html'; }, 800);
+      setTimeout(() => { window.location.href = 'index.html'; }, 800);
     }
 
     function showResetHelp() {
