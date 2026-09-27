@@ -72,6 +72,25 @@ if ($method === 'GET') {
             $input = $_POST;
         }
 
+        // Handle Pledge / Fulfill action
+        if (!empty($input['action']) && $input['action'] === 'pledge' && !empty($input['request_id'])) {
+            $reqId = (int)$input['request_id'];
+            $stmt = $pdo->prepare("
+                UPDATE Blood_Requests 
+                SET bags_fulfilled = LEAST(bags_needed, bags_fulfilled + 1),
+                    request_status = IF(bags_fulfilled + 1 >= bags_needed, 'FULFILLED', 'ACTIVE')
+                WHERE request_id = :id
+            ");
+            $stmt->execute([':id' => $reqId]);
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Blood request pledge updated in MySQL!',
+                'request_id' => $reqId
+            ], JSON_PRETTY_PRINT);
+            exit();
+        }
+
         if (empty($input['patientName']) || empty($input['bloodGroup']) || empty($input['hospital']) || empty($input['attendantPhone'])) {
             http_response_code(400);
             echo json_encode(['success' => false, 'error' => 'Patient Name, Blood Group, Hospital, and Attendant Phone are required.']);

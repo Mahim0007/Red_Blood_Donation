@@ -553,6 +553,22 @@ const RedDropStore = {
           target.status = 'FULFILLED';
         }
         localStorage.setItem(STORAGE_KEYS.REQUESTS, JSON.stringify(requests));
+
+        // Persist to MySQL database via PHP API
+        if (window.fetch) {
+          fetch('api/requests.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'pledge',
+              request_id: requestId,
+              donorName: donorName
+            })
+          }).then(r => r.json()).then(res => {
+            console.log('✅ Pledge/fulfillment saved in MySQL:', res);
+          }).catch(err => console.log('Saved in LocalStorage'));
+        }
+
         return { success: true, request: target };
       }
     }
