@@ -1,8 +1,7 @@
 CREATE DATABASE IF NOT EXISTS red_blood_donation_db;
 USE red_blood_donation_db;
 
-DROP VIEW IF EXISTS v_active_critical_sos;
-DROP VIEW IF EXISTS v_hospital_critical_inventory;
+
 DROP TABLE IF EXISTS Donation_Logs;
 DROP TABLE IF EXISTS Blood_Inventory;
 DROP TABLE IF EXISTS Blood_Requests;
@@ -161,31 +160,3 @@ INSERT INTO Donation_Logs (log_id, donor_id, hospital_id, donation_date, bags_do
 (5, 102, 'H3', '2026-08-01', 1, 'Whole Blood', 'CERT-2026-1144', 'Rare O- emergency support at BSMMU ICU'),
 (6, 105, 'H6', '2026-07-28', 1, 'Whole Blood', 'CERT-2026-1120', 'Sylhet MAG Osmani road accident emergency');
 
-CREATE OR REPLACE VIEW v_active_critical_sos AS
-SELECT 
-    request_id,
-    patient_name,
-    blood_group,
-    (bags_needed - bags_fulfilled) AS bags_pending,
-    urgency_level,
-    time_limit,
-    hospital_name,
-    district,
-    attendant_name,
-    attendant_phone
-FROM Blood_Requests
-WHERE request_status = 'ACTIVE' AND urgency_level = 'CRITICAL';
-
-CREATE OR REPLACE VIEW v_hospital_critical_inventory AS
-SELECT 
-    h.name AS hospital_name,
-    h.district,
-    h.hotline_phone,
-    i.blood_group,
-    i.whole_blood_bags,
-    i.prbc_red_cells_bags,
-    i.platelets_units,
-    i.stock_status
-FROM Hospitals h
-JOIN Blood_Inventory i ON h.hospital_id = i.hospital_id
-WHERE i.stock_status IN ('CRITICAL', 'LOW');
