@@ -124,81 +124,11 @@
       <!-- Rendered by JS -->
     </div>
 
-    <!-- Hospital Dispatch & Info Card -->
-    <div class="dispatch-banner">
-      <div class="dispatch-grid">
-        <div>
-          <span class="dispatch-badge">Emergency Dispatch Protocol</span>
-          <h3 class="dispatch-title">Need Blood Bag Transfer between Hospitals?</h3>
-          <p class="dispatch-desc">
-            Verified doctors and hospital ICU coordinators can request emergency blood bag transfers with rapid cold-chain transport assistance.
-          </p>
-        </div>
-        <div class="dispatch-action-wrap">
-          <button onclick="openTransferModal()" class="btn-dispatch-modal">
-            <i data-lucide="truck"></i> Request Hospital Transfer
-          </button>
-        </div>
-      </div>
-    </div>
+
 
   </main>
 
-  <!-- Hospital Transfer Modal -->
-  <div id="transfer-modal" class="fixed inset-0 z-[999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white max-w-md w-full rounded-3xl p-6 shadow-2xl border border-slate-100 text-xs">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-          <i data-lucide="truck" class="w-5 h-5 text-red-600"></i> Reserve / Dispatch Blood Bag
-        </h3>
-        <button onclick="closeTransferModal()" class="w-7 h-7 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
 
-      <form onsubmit="handleTransferSubmit(event)" class="space-y-3">
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Target Hospital / Recipient Unit *</label>
-          <input type="text" id="trans-hospital" required placeholder="e.g. NICVD CCU Bed 12" class="w-full p-2.5 rounded-xl border border-slate-200 font-medium">
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Blood Group *</label>
-            <select id="trans-group" class="w-full p-2.5 rounded-xl border border-slate-200 font-bold bg-white text-red-600">
-              <option value="A+">A+</option>
-              <option value="B+">B+</option>
-              <option value="O+">O+</option>
-              <option value="AB+">AB+</option>
-              <option value="O-">O-</option>
-              <option value="A-">A-</option>
-              <option value="B-">B-</option>
-              <option value="AB-">AB-</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Component *</label>
-            <select id="trans-comp" class="w-full p-2.5 rounded-xl border border-slate-200 font-medium bg-white">
-              <option value="wholeBlood">Whole Blood</option>
-              <option value="prbc">PRBC (Red Cells)</option>
-              <option value="platelets">Platelets</option>
-              <option value="ffp">FFP Plasma</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Requisition Officer Phone *</label>
-          <input type="tel" id="trans-phone" required placeholder="017XXXXXXXX" class="w-full p-2.5 rounded-xl border border-slate-200 font-medium">
-        </div>
-
-        <div class="pt-2 flex justify-end gap-2">
-          <button type="button" onclick="closeTransferModal()" class="px-4 py-2 border rounded-xl text-slate-600 font-bold">Cancel</button>
-          <button type="submit" class="px-5 py-2 bg-red-600 text-white font-bold rounded-xl shadow">Confirm & Dispatch</button>
-        </div>
-      </form>
-    </div>
-  </div>
 
   <!-- Footer -->
   <footer class="inventory-footer">
@@ -298,31 +228,6 @@
       }
     }
 
-    function openTransferModal() {
-      document.getElementById('transfer-modal').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
-    }
-
-    function closeTransferModal() {
-      document.getElementById('transfer-modal').classList.add('hidden');
-    }
-
-    function handleTransferSubmit(e) {
-      e.preventDefault();
-      const hospitalId = document.getElementById('hospital-select').value;
-      const group = document.getElementById('trans-group').value;
-      const comp = document.getElementById('trans-comp').value;
-      const targetHospital = document.getElementById('trans-hospital').value;
-
-      const res = RedDropStore.updateInventoryBag(hospitalId, group, comp, -1);
-      if (res.success) {
-        closeTransferModal();
-        showToast(`Transfer order for 1 bag of ${group} dispatched to ${targetHospital}!`, 'success');
-        renderInventory();
-      } else {
-        showToast(res.message, 'error');
-      }
-    }
   </script>
 </body>
 </html>
