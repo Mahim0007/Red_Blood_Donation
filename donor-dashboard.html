@@ -158,8 +158,8 @@
             </div>
           </div>
 
-          <p class="banner-note">
-            Your body has regenerated 85% of hemoglobin and red blood cells. You will be fully ready for your 13th voluntary donation on <strong>September 8, 2026</strong>.
+          <p class="banner-note" id="banner-note-text">
+            You haven't made any blood donations yet. You are <strong>immediately eligible</strong> to donate blood and save up to 3 lives!
           </p>
         </div>
 
@@ -207,8 +207,8 @@
           <h3 class="section-title">Donation History & Recognition</h3>
           <p class="history-subtitle">Official recorded donations and downloadable Lifesaver certificates</p>
         </div>
-        <span class="badge-total">
-          Total 12 Units Given
+        <span class="badge-total" id="badge-total-units">
+          Total 0 Units Given
         </span>
       </div>
 
@@ -267,6 +267,15 @@
       tierBadge.className = `badge-tier badge-tier-${tier.toLowerCase()}`;
       const lives = user.livesSaved != null ? user.livesSaved : (total * 3);
       document.getElementById('card-total').innerText = `${total} Times (${lives} Lives)`;
+
+      const noteText = document.getElementById('banner-note-text');
+      if (noteText) {
+        if (total === 0) {
+          noteText.innerHTML = `You haven't made any blood donations yet. You are <strong>immediately eligible</strong> to donate blood and save up to 3 lives!`;
+        } else {
+          noteText.innerHTML = `Great job! You have completed <strong>${total}</strong> donation(s) and saved <strong>${lives}</strong> lives. Keep it up!`;
+        }
+      }
     }
 
     function toggleStatus() {
@@ -288,17 +297,33 @@
     function renderHistory() {
       const user = RedDropStore.getUserProfile() || {};
       const container = document.getElementById('history-timeline');
-      const list = (user.history && Array.isArray(user.history) && user.history.length > 0)
-        ? user.history
-        : (typeof INITIAL_USER_PROFILE !== 'undefined' && Array.isArray(INITIAL_USER_PROFILE.history) ? INITIAL_USER_PROFILE.history : []);
+      const badgeTotal = document.getElementById('badge-total-units');
+      
+      const total = user.totalDonations != null ? user.totalDonations : 0;
+      // Only show certificates if user actually has donations (total > 0 and history has items)
+      const list = (total > 0 && user.history && Array.isArray(user.history)) ? user.history : [];
+      const totalUnits = list.reduce((acc, h) => acc + (h.bags || 1), 0);
+
+      if (badgeTotal) {
+        badgeTotal.innerText = `Total ${totalUnits} Units Given`;
+      }
+
       if (list.length === 0) {
         container.innerHTML = `
-          <div class="history-empty">
-            No donation records logged yet. Your upcoming donations will appear here!
+          <div class="py-12 px-6 text-center bg-slate-50/70 rounded-2xl border border-dashed border-slate-200">
+            <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="award" class="w-6 h-6"></i>
+            </div>
+            <h4 class="font-bold text-slate-800 text-sm">No Donation Certificates Yet</h4>
+            <p class="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+              You haven't completed any blood donations yet. Whenever you donate blood or fulfill an emergency request, your official certificate will appear here!
+            </p>
           </div>
         `;
+        if (window.lucide) lucide.createIcons();
         return;
       }
+
       container.innerHTML = list.map(h => `
         <div class="history-item">
           <div class="history-item-left">
@@ -306,7 +331,7 @@
               <i data-lucide="droplet"></i>
             </div>
             <div>
-              <h4 class="history-hospital">${h.hospital || 'Hospital'}</h4>
+              <h4 class="history-hospital">${h.hospital || 'Hospital Transfusion Center'}</h4>
               <p class="history-meta">${h.recipient || 'Emergency Patient'} • ${h.bags || 1} Bag Donated</p>
             </div>
           </div>

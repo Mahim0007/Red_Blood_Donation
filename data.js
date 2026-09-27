@@ -337,18 +337,18 @@ const INITIAL_HOSPITALS = [
 
 const INITIAL_USER_PROFILE = {
   id: 101,
-  name: "Tanvir Ahmed",
-  bloodGroup: "A+",
-  phone: "01711223344",
-  email: "tanvir.ahmed@gmail.com",
+  name: "Voluntary Donor",
+  bloodGroup: "O+",
+  phone: "01700000000",
+  email: "donor@reddrop.org",
   district: "Dhaka",
-  area: "Dhanmondi, Dhaka",
-  donorId: "RD-BD-2026-8942",
-  tier: "Gold Lifesaver",
-  totalDonations: 12,
-  livesSaved: 36,
-  lastDonatedDate: "2026-06-10",
-  nextEligibleDate: "2026-09-08",
+  area: "Dhaka Sadar",
+  donorId: "RD-BD-2026-0001",
+  tier: "Bronze Lifesaver",
+  totalDonations: 0,
+  livesSaved: 0,
+  lastDonatedDate: null,
+  nextEligibleDate: "Immediately Eligible",
   status: "AVAILABLE",
   vitals: {
     hemoglobin: "14.8 g/dL",
@@ -356,12 +356,7 @@ const INITIAL_USER_PROFILE = {
     pulseRate: "72 bpm",
     weight: "68 kg"
   },
-  history: [
-    { date: "2026-06-10", hospital: "NICVD, Dhaka", recipient: "Cardiac Surgery Patient", bags: 1, certificateId: "CERT-2026-1092" },
-    { date: "2026-02-14", hospital: "DMCH, Dhaka", recipient: "Emergency Thalassemia Child", bags: 1, certificateId: "CERT-2026-0871" },
-    { date: "2025-10-20", hospital: "BSMMU, Dhaka", recipient: "Dengue Platelets Donor", bags: 1, certificateId: "CERT-2025-0543" },
-    { date: "2025-06-15", hospital: "Central Red Crescent", recipient: "Blood Bank Replacement", bags: 1, certificateId: "CERT-2025-0211" }
-  ]
+  history: []
 };
 
 // Blood Compatibility Matrix
@@ -554,6 +549,21 @@ const RedDropStore = {
         }
         localStorage.setItem(STORAGE_KEYS.REQUESTS, JSON.stringify(requests));
 
+        // Generate certificate for the donor when donating
+        const certId = `CERT-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+        const user = this.getUserProfile() || {};
+        user.history = user.history || [];
+        user.history.unshift({
+          date: new Date().toISOString().split('T')[0],
+          hospital: target.hospital || 'Hospital Transfusion Center',
+          recipient: target.patientName || 'Emergency Patient',
+          bags: 1,
+          certificateId: certId
+        });
+        user.totalDonations = (user.totalDonations || 0) + 1;
+        user.livesSaved = (user.livesSaved || 0) + 3;
+        this.updateUserProfile(user);
+
         // Persist to MySQL database via PHP API
         if (window.fetch) {
           fetch('api/requests.php', {
@@ -562,14 +572,15 @@ const RedDropStore = {
             body: JSON.stringify({
               action: 'pledge',
               request_id: requestId,
-              donorName: donorName
+              donorName: donorName,
+              certificateId: certId
             })
           }).then(r => r.json()).then(res => {
             console.log('✅ Pledge/fulfillment saved in MySQL:', res);
           }).catch(err => console.log('Saved in LocalStorage'));
         }
 
-        return { success: true, request: target };
+        return { success: true, request: target, certificateId: certId };
       }
     }
     return { success: false, message: 'Request already fully fulfilled or not found' };
