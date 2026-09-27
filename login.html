@@ -147,26 +147,7 @@
           </button>
         </form>
 
-        <!-- 1-Click Quick Demo Login (Blood Styled Pills) -->
-        <div class="mt-6 pt-5 border-t border-[#331018]">
-          <div class="flex items-center justify-between mb-2.5">
-            <span class="text-[11px] font-bold text-rose-300/70 uppercase tracking-wider flex items-center gap-1">
-              <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i> Quick 1-Click Demo Accounts
-            </span>
-            <span class="text-[10px] text-emerald-400 font-mono">Instant test</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2">
-            <button type="button" onclick="quickFill('tanvir')" class="p-2.5 rounded-xl bg-[#1e090e] hover:bg-[#2b0e15] border border-[#3d121b] hover:border-red-500/50 text-[#fecdd3] text-[11px] font-semibold transition truncate text-center shadow-sm">
-              🩸 Tanvir (A+)
-            </button>
-            <button type="button" onclick="quickFill('sadia')" class="p-2.5 rounded-xl bg-[#1e090e] hover:bg-[#2b0e15] border border-[#3d121b] hover:border-red-500/50 text-[#fecdd3] text-[11px] font-semibold transition truncate text-center shadow-sm">
-              🩸 Dr. Sadia (O-)
-            </button>
-            <button type="button" onclick="quickFill('admin')" class="p-2.5 rounded-xl bg-[#1e090e] hover:bg-[#2b0e15] border border-[#3d121b] hover:border-amber-500/50 text-[#fef08a] text-[11px] font-semibold transition truncate text-center shadow-sm">
-              🛡️ DBMS Admin
-            </button>
-          </div>
-        </div>
+
       </div>
 
       <!-- ================= CREATE AN ACCOUNT VIEW (Blood Styled Form) ================= -->
@@ -431,27 +412,6 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // Quick Fill demo credentials
-    function quickFill(userKey) {
-      const idInput = document.getElementById('login-identifier');
-      const pwdInput = document.getElementById('login-password');
-      if (userKey === 'tanvir') {
-        setRole('donor');
-        idInput.value = '01711223344';
-        pwdInput.value = '123456';
-        showToast('Loaded demo credentials for Tanvir Ahmed (A+)', 'success');
-      } else if (userKey === 'sadia') {
-        setRole('donor');
-        idInput.value = '01822334455';
-        pwdInput.value = '123456';
-        showToast('Loaded demo credentials for Dr. Sadia (O-)', 'success');
-      } else if (userKey === 'admin') {
-        setRole('admin');
-        idInput.value = 'admin';
-        pwdInput.value = 'admin123';
-        showToast('Loaded credentials for DBMS Admin', 'warning');
-      }
-    }
 
     // Handle Login Submit
     function handleLoginSubmit(e) {
@@ -571,7 +531,7 @@
     }
 
     function showResetHelp() {
-      showToast('Demo PIN is 123456. Or use 1-click demo accounts below!', 'info');
+      showToast('Demo PIN is 123456.', 'info');
       document.getElementById('login-password').value = '123456';
     }
   </script>
