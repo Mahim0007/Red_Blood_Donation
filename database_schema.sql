@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS Blood_Inventory;
 DROP TABLE IF EXISTS Blood_Requests;
 DROP TABLE IF EXISTS Donors;
 DROP TABLE IF EXISTS Hospitals;
+DROP TABLE IF EXISTS Users;
 
 CREATE TABLE IF NOT EXISTS Hospitals (
     hospital_id VARCHAR(10) PRIMARY KEY,
@@ -94,6 +95,13 @@ CREATE TABLE IF NOT EXISTS Donation_Logs (
     remarks VARCHAR(255),
     FOREIGN KEY (donor_id) REFERENCES Donors(donor_id) ON DELETE CASCADE,
     FOREIGN KEY (hospital_id) REFERENCES Hospitals(hospital_id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS Users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL,
+    user_role ENUM('User', 'Admin') DEFAULT 'User',
+    login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 INSERT INTO Hospitals (hospital_id, name, district, address, hotline_phone, hospital_type, latitude, longitude) VALUES

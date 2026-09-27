@@ -77,10 +77,10 @@
           </p>
         </div>
 
-        <!-- Role Pills (Donor vs Admin) in Blood Theme -->
+        <!-- Role Pills (User vs Admin) in Blood Theme -->
         <div class="grid grid-cols-2 gap-2 p-1 bg-[#1e090e] rounded-xl border border-[#3d121b] mb-5 text-xs font-semibold">
           <button type="button" id="role-btn-donor" onclick="setRole('donor')" class="py-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-600/30 transition">
-            Donor / Lifesaver
+            User
           </button>
           <button type="button" id="role-btn-admin" onclick="setRole('admin')" class="py-2 rounded-lg text-[#b88590] hover:text-white transition">
             Hospital / Admin
@@ -429,6 +429,13 @@
       setTimeout(() => {
         if (activeRole === 'admin') {
           if ((identifier.toLowerCase() === 'admin' || identifier.toLowerCase() === 'dbms') && (password === 'admin123' || password === 'admin')) {
+            // Save login to MySQL Users table
+            fetch('api/login.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username: identifier, role: 'Admin' })
+            }).catch(e => console.log('Login recorded offline'));
+
             RedDropAuth.login({
               name: "DBMS Administrator",
               phone: "01700000000",
@@ -444,7 +451,13 @@
             showToast('Invalid admin credentials! (Use: admin / admin123)', 'error');
           }
         } else {
-          // Donor authentication
+          // Record login ONLY in MySQL Users table (does NOT touch Donors or Blood_Requests)
+          fetch('api/login.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: identifier, role: 'User' })
+          }).catch(e => console.log('Login recorded offline'));
+
           const donors = RedDropStore.getDonors();
           const matched = donors.find(d => 
             d.phone === identifier || 
@@ -453,7 +466,7 @@
             d.name.toLowerCase().includes(identifier.toLowerCase())
           );
 
-          let profile = matched ? {
+          const profile = matched ? {
             id: matched.id,
             name: matched.name,
             bloodGroup: matched.bloodGroup,
@@ -462,41 +475,19 @@
             district: matched.district,
             area: matched.area,
             avatar: matched.avatar,
-          } : null;
+          } : {
+            id: Date.now(),
+            name: identifier.includes('@') ? identifier.split('@')[0] : identifier,
+            phone: identifier,
+            email: identifier.includes('@') ? identifier : `${identifier}@gmail.com`,
+            bloodGroup: "O+",
+            district: "Dhaka",
+            area: "Dhaka Sadar",
+            avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${identifier}`
+          };
 
-          if (!profile) {
-            // New user logging in -> automatically add to Donors list and MySQL!
-            const newName = identifier.includes('@') ? identifier.split('@')[0] : identifier;
-            const newPhone = identifier.includes('@') ? '017' + Math.floor(10000000 + Math.random() * 90000000) : identifier;
-            const registeredDonor = RedDropStore.addDonor({
-              name: newName,
-              phone: newPhone,
-              email: identifier.includes('@') ? identifier : `${newName.toLowerCase().replace(/\s+/g, '')}@gmail.com`,
-              bloodGroup: "O+",
-              district: "Dhaka",
-              area: "Dhaka Sadar",
-              status: "AVAILABLE",
-              totalDonations: 1,
-              age: 23,
-              weight: 62,
-              gender: "Male"
-            });
-
-            profile = {
-              id: registeredDonor.id,
-              name: registeredDonor.name,
-              bloodGroup: registeredDonor.bloodGroup,
-              phone: registeredDonor.phone,
-              email: registeredDonor.email,
-              district: registeredDonor.district,
-              area: registeredDonor.area,
-              avatar: registeredDonor.avatar,
-              donorId: `RD-BD-2026-${registeredDonor.id}`
-            };
-          }
-
-          RedDropAuth.login(profile, 'donor');
-          showToast(`Welcome ${profile.name}! Added to Donors & Database.`, 'success');
+          RedDropAuth.login(profile, 'user');
+          showToast(`Welcome ${profile.name}! Logged in successfully.`, 'success');
           setTimeout(() => { window.location.href = 'index.html'; }, 700);
         }
       }, 400);
