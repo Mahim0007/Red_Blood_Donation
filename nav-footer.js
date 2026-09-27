@@ -3,11 +3,92 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  setupMobileNavigation();
   renderSharedModals();
-  setupEmergencyTicker();
   applyRoleBasedVisibility();
   if (window.lucide) lucide.createIcons();
 });
+
+function setupMobileNavigation() {
+  const header = document.querySelector('.site-header');
+  const container = header && header.querySelector('.nav-container');
+  const mainNav = container && container.querySelector('.main-nav');
+  if (!header || !container || !mainNav) return;
+
+  let button = container.querySelector('.mobile-menu-button');
+  let menu = header.querySelector('#mobile-nav');
+
+  if (!button) {
+    button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'mobile-menu-button';
+    button.setAttribute('aria-label', 'Open navigation');
+    button.setAttribute('aria-controls', 'mobile-nav');
+    button.setAttribute('aria-expanded', 'false');
+    button.textContent = '\u2630';
+    container.append(button);
+  }
+
+  if (!menu) {
+    menu = document.createElement('nav');
+    menu.id = 'mobile-nav';
+    menu.className = 'mobile-nav hidden';
+    menu.setAttribute('aria-label', 'Mobile navigation');
+
+    mainNav.querySelectorAll('a').forEach(link => {
+      const menuLink = document.createElement('a');
+      menuLink.href = link.href;
+      menuLink.className = 'mobile-nav-link';
+      menuLink.textContent = link.textContent.trim();
+      if (link.classList.contains('active')) menuLink.setAttribute('aria-current', 'page');
+      menu.append(menuLink);
+    });
+
+    const donateLink = document.createElement('a');
+    donateLink.href = 'auth.html';
+    donateLink.className = 'mobile-nav-link';
+    donateLink.textContent = 'Register as a donor';
+    menu.append(donateLink);
+
+    if (container.querySelector('.btn-nav-logout')) {
+      const logoutButton = document.createElement('button');
+      logoutButton.type = 'button';
+      logoutButton.className = 'mobile-nav-link';
+      logoutButton.textContent = 'Log out';
+      logoutButton.addEventListener('click', () => RedDropAuth.logout());
+      menu.append(logoutButton);
+    }
+
+    const requestButton = document.createElement('button');
+    requestButton.type = 'button';
+    requestButton.className = 'mobile-nav-action';
+    requestButton.textContent = 'Post a blood request';
+    requestButton.addEventListener('click', () => {
+      menu.classList.add('hidden');
+      button.setAttribute('aria-expanded', 'false');
+      button.setAttribute('aria-label', 'Open navigation');
+      window.openRequestModal();
+    });
+    menu.append(requestButton);
+    header.append(menu);
+  }
+
+  button.addEventListener('click', () => {
+    const isOpen = button.getAttribute('aria-expanded') === 'true';
+    button.setAttribute('aria-expanded', String(!isOpen));
+    button.setAttribute('aria-label', isOpen ? 'Open navigation' : 'Close navigation');
+    menu.classList.toggle('hidden', isOpen);
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !menu.classList.contains('hidden')) {
+      menu.classList.add('hidden');
+      button.setAttribute('aria-expanded', 'false');
+      button.setAttribute('aria-label', 'Open navigation');
+      button.focus();
+    }
+  });
+}
 
 function applyRoleBasedVisibility() {
   try {
@@ -41,17 +122,6 @@ function applyRoleBasedVisibility() {
   }
 }
 window.applyRoleBasedVisibility = applyRoleBasedVisibility;
-
-function setupEmergencyTicker() {
-  const tickerEl = document.getElementById('emergency-ticker-content');
-  if (!tickerEl) return;
-  const requests = RedDropStore.getRequests().filter(r => r.urgency === 'CRITICAL');
-  if (requests.length > 0) {
-    tickerEl.innerHTML = requests.map(r => 
-      `<span class="inline-flex items-center gap-1.5 mr-6 text-red-100"><span class="w-2 h-2 rounded-full bg-red-400 animate-ping"></span><strong>URGENT:</strong> ${r.bloodGroup} needed at ${r.hospital} (${r.timeLimit}) • Call: <a href="tel:${r.attendantPhone}" class="underline font-bold text-white">${r.attendantPhone}</a></span>`
-    ).join('');
-  }
-}
 
 function renderSharedModals() {
   if (document.getElementById('global-modals-root')) return;

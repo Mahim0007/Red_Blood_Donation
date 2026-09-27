@@ -7,8 +7,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="tailwind-config.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="donors.css">
+  <link rel="stylesheet" href="shared.css">
   <script>
     if (!localStorage.getItem('reddrop_auth_session')) {
       window.location.replace('login.html');
@@ -20,14 +20,10 @@
   <!-- Top Hotline Bar -->
   <div class="top-hotline-bar">
     <div class="hotline-content">
-      <div class="hotline-left">
-        <span class="dbms-status-badge inline-flex items-center gap-1.5 font-bold text-emerald-400">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Live MySQL Connected (XAMPP: red_blood_donation_db)
-        </span>
-      </div>
       <div class="hotline-right">
         <span>Emergency Ambulance: <strong class="hotline-num-white">999</strong></span>
         <span>RedDrop Helpline: <strong class="hotline-num-red">10678</strong></span>
+        <span>DGHS Health Helpline: <strong class="hotline-num-white">16263</strong></span>
       </div>
     </div>
   </div>
@@ -54,7 +50,7 @@
         <a href="donor-dashboard.html" class="nav-link">My Donor ID</a>
       </nav>
 
-      <div class="nav-actions-wrap">
+      <div class="nav-actions-wrap nav-actions-desktop">
         <button onclick="openAddDonorModal()" class="btn-register-donor">
           <i data-lucide="user-plus" class="icon-user-plus"></i> Register as Donor
         </button>
@@ -499,12 +495,20 @@
       emptyState.classList.add('hidden');
       grid.innerHTML = donors.map(d => {
         const isAvailable = d.status === 'AVAILABLE';
+        const initials = String(d.name || 'Donor')
+          .trim()
+          .split(/\s+/)
+          .filter(Boolean)
+          .slice(0, 2)
+          .map(namePart => namePart[0])
+          .join('')
+          .toUpperCase() || 'D';
         return `
           <div class="donor-profile-card">
             <div>
               <div class="donor-card-top">
                 <div class="donor-info-left">
-                  <img src="${d.avatar}" alt="${d.name}" class="donor-avatar">
+                  <span class="donor-avatar donor-avatar-initials" aria-hidden="true">${initials}</span>
                   <div>
                     <div class="donor-name-row">
                       <h3 class="donor-full-name">${d.name}</h3>
@@ -528,7 +532,7 @@
                 </div>
                 <div class="donor-vital-row">
                   <span class="donor-vital-label">Total Donations:</span>
-                  <span class="donor-vital-val">${d.totalDonations || 0} times (${(d.totalDonations || 0) * 3} lives saved)</span>
+                  <span class="donor-vital-val">${d.totalDonations || 0} times</span>
                 </div>
                 <div class="donor-vital-row">
                   <span class="donor-vital-label">Last Donated:</span>

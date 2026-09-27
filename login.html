@@ -7,9 +7,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="tailwind-config.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="login_style.css">
+  <link rel="stylesheet" href="shared.css">
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-10 text-slate-100 relative overflow-x-hidden">
 
@@ -538,7 +537,7 @@
 
           RedDropAuth.login(profile, 'donor');
           showToast(`Welcome ${profile.name}! Added to Donors & Database.`, 'success');
-          setTimeout(() => { window.location.href = 'donors.html'; }, 700);
+          setTimeout(() => { window.location.href = 'index.html'; }, 700);
         }
       }, 400);
     }
@@ -568,7 +567,7 @@
 
       RedDropAuth.login(newDonor, 'donor');
       showToast(`Account created & added to Donors! Welcome, ${fullName}`, 'success');
-      setTimeout(() => { window.location.href = 'donors.html'; }, 800);
+      setTimeout(() => { window.location.href = 'index.html'; }, 800);
     }
 
     function showResetHelp() {

@@ -3,8 +3,6 @@
  * Defines live SOS urgent queues, countdown pulse glows, and request card elevation effects.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
 :root {
   --primary-red: #e11d48;
   --blood-gradient: linear-gradient(135deg, #e11d48 0%, #be123c 50%, #9f1239 100%);

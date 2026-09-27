@@ -8,8 +8,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="tailwind-config.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="shared.css">
   <script>
     // Strict Authentication Gate - Redirect to login before entering the website
     (function() {
@@ -24,25 +24,7 @@
     })();
   </script>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-red-500 selection:text-white">
-
-  <!-- Top Emergency Alert Ticker -->
-  <div class="alert-ticker-bar">
-    <div class="alert-ticker-container">
-      <div class="alert-ticker-left">
-        <span class="sos-badge-sm">
-          <span class="ticker-dot"></span> Live SOS
-        </span>
-        <div id="emergency-ticker-content">
-          Loading live emergency blood requests across Bangladesh...
-        </div>
-      </div>
-      <div class="alert-ticker-right">
-        <span><i data-lucide="phone-call" class="ticker-icon"></i> Hotline: <a href="tel:10678" class="ticker-link">10678</a></span>
-        <span><i data-lucide="shield-alert" class="ticker-icon"></i> Govt Health: <a href="tel:16263" class="ticker-link">16263</a></span>
-      </div>
-    </div>
-  </div>
+<body class="home-page bg-slate-50 text-slate-800 font-sans antialiased selection:bg-red-500 selection:text-white">
 
   <!-- Main Navigation Header -->
   <header class="site-header">
@@ -85,7 +67,7 @@
       </nav>
 
       <!-- Action Buttons & Logged-In User Controls -->
-      <div class="nav-actions">
+      <div class="nav-actions nav-actions-desktop">
         <button onclick="openRequestModal()" class="btn-nav-request">
           <i data-lucide="plus-circle"></i> Post Request
         </button>
@@ -104,13 +86,13 @@
       </div>
 
       <!-- Mobile Menu Button -->
-      <button onclick="toggleMobileMenu()" class="lg:hidden p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+      <button type="button" class="mobile-menu-button lg:hidden p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition" aria-label="Open navigation" aria-controls="mobile-nav" aria-expanded="false">
         <i data-lucide="menu" class="w-5 h-5"></i>
       </button>
     </div>
 
     <!-- Mobile Drawer -->
-    <div id="mobile-nav" class="hidden lg:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-2 text-xs font-bold">
+    <nav id="mobile-nav" class="mobile-nav hidden lg:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-2 text-xs font-bold" aria-label="Mobile navigation">
       <a href="index.html" class="block p-2.5 rounded-xl bg-red-50 text-red-600">Home</a>
       <a href="donors.html" class="block p-2.5 rounded-xl hover:bg-slate-50">Find Donors</a>
       <a href="requests.html" class="block p-2.5 rounded-xl hover:bg-slate-50">Emergency SOS Requests</a>
@@ -126,7 +108,7 @@
           <i data-lucide="log-out" class="w-4 h-4"></i> Log Out / Switch Account
         </button>
       </div>
-    </div>
+    </nav>
   </header>
 
   <!-- Hero Section -->
@@ -268,10 +250,6 @@
           <p class="stat-caption">Verified Donors</p>
         </div>
         <div class="stat-counter-card">
-          <p class="stat-number stat-number-rose" id="stat-saved">7,820+</p>
-          <p class="stat-caption">Lives Saved</p>
-        </div>
-        <div class="stat-counter-card">
           <p class="stat-number">64 / 64</p>
           <p class="stat-caption">Districts Active</p>
         </div>
@@ -285,17 +263,17 @@
   </section>
 
   <!-- Interactive Blood Compatibility Matrix Tool -->
-  <section class="py-16 px-4 sm:px-6 lg:px-8 bg-white border-y border-slate-100">
-    <div class="max-w-6xl mx-auto">
-      <div class="text-center max-w-2xl mx-auto mb-10">
+  <section class="compatibility-section py-16 px-4 sm:px-6 lg:px-8 bg-white border-y border-slate-100">
+    <div class="compatibility-container">
+      <div class="compatibility-heading text-center max-w-2xl mx-auto mb-10">
         <span class="text-red-600 font-extrabold text-xs tracking-wider uppercase bg-red-50 px-3 py-1 rounded-full">Educational Tool</span>
         <h2 class="font-display text-3xl font-black text-slate-900 mt-2">Interactive Blood Compatibility Matrix</h2>
         <p class="text-slate-600 text-xs sm:text-sm mt-1">Select any blood type below to visually check who they can donate blood to and receive blood from safely.</p>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      <div class="compatibility-layout">
         <!-- Selector Buttons -->
-        <div class="lg:col-span-4 bg-slate-50 p-6 rounded-3xl border border-slate-100">
+        <div class="compatibility-selector bg-slate-50 p-6 rounded-3xl border border-slate-100">
           <p class="text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-4">Select Blood Type:</p>
           <div class="grid grid-cols-4 sm:grid-cols-4 gap-2.5" id="compat-pills">
             <!-- Rendered by JS -->
@@ -307,8 +285,8 @@
         </div>
 
         <!-- Visual Flow Display -->
-        <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="bg-rose-50/60 p-6 rounded-3xl border border-rose-100">
+        <div class="compatibility-results">
+          <div class="compatibility-panel compatibility-panel-give bg-rose-50/60 p-6 rounded-3xl border border-rose-100">
             <div class="flex items-center gap-2 mb-3">
               <div class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center text-xs font-black shadow-sm">
                 <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
@@ -323,7 +301,7 @@
             </div>
           </div>
 
-          <div class="bg-emerald-50/60 p-6 rounded-3xl border border-emerald-100">
+          <div class="compatibility-panel compatibility-panel-receive bg-emerald-50/60 p-6 rounded-3xl border border-emerald-100">
             <div class="flex items-center gap-2 mb-3">
               <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xs font-black shadow-sm">
                 <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
@@ -488,7 +466,7 @@
   <!-- Comprehensive Footer -->
   <footer class="bg-slate-950 text-slate-400 text-xs pt-16 pb-12 border-t border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         <!-- Brand Info -->
         <div class="space-y-4">
           <div class="flex items-center gap-2.5 text-white font-display font-black text-xl">
@@ -541,16 +519,6 @@
           </ul>
         </div>
 
-        <!-- DBMS Project Note -->
-        <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 text-[11px]">
-          <p class="font-bold text-white mb-1 flex items-center gap-1.5">
-            <i data-lucide="database" class="w-3.5 h-3.5 text-amber-400"></i> CSE DBMS Project
-          </p>
-          <p class="text-slate-400 leading-relaxed">
-            Equipped with SQL query generator, relational schema inspection, real-time trigger simulators, and ER diagrams.
-          </p>
-          <a href="admin.html" class="inline-block mt-3 bg-slate-800 hover:bg-slate-700 text-red-400 px-3 py-1.5 rounded-xl font-bold transition">Open SQL Console &rarr;</a>
-        </div>
       </div>
 
       <div class="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
@@ -596,11 +564,6 @@
         if (nameEl) nameEl.innerText = session.user.name || 'Lifesaver';
         if (avatarEl && session.user.avatar) avatarEl.src = session.user.avatar;
       }
-    }
-
-    function toggleMobileMenu() {
-      const menu = document.getElementById('mobile-nav');
-      menu.classList.toggle('hidden');
     }
 
     function handleHeroSearch(e) {
@@ -712,9 +675,7 @@
 
     function updateDynamicStats() {
       const donors = RedDropStore.getDonors();
-      const totalSaved = donors.reduce((sum, d) => sum + (d.totalDonations * 3), 0);
       document.getElementById('stat-donors').innerText = `${donors.length + 2450}+`;
-      document.getElementById('stat-saved').innerText = `${totalSaved + 7820}+`;
     }
 
     function handlePledge(reqId) {

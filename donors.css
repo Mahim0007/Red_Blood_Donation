@@ -3,8 +3,6 @@
  * Defines directory filter bars, blood group pills, donor cards grid, and status indicators.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
 :root {
   --primary-red: #e11d48;
   --blood-gradient: linear-gradient(135deg, #e11d48 0%, #be123c 50%, #9f1239 100%);
@@ -504,9 +502,18 @@ body {
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 1rem;
-  object-fit: cover;
   border: 2px solid #ffe4e6;
   flex-shrink: 0;
+}
+
+.donor-avatar-initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #fff1f2, #fecdd3);
+  color: #be123c;
+  font-size: 1.125rem;
+  font-weight: 800;
 }
 
 .donor-name-row {

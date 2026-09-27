@@ -3,8 +3,6 @@
  * Defines digital donor identity card, metallic sheen effects, badges, and print media rules.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;700&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
 :root {
   --primary-red: #e11d48;
   --primary-dark: #be123c;
@@ -263,9 +261,7 @@ body {
   font-family: 'Fira Code', monospace;
 }
 
-.badge-gold {
-  background: var(--gold-gradient);
-  color: #020617;
+.badge-tier {
   font-weight: 900;
   font-size: 0.625rem;
   padding: 0.25rem 0.625rem;
@@ -273,6 +269,21 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.badge-tier-gold {
+  background: var(--gold-gradient);
+  color: #020617;
+}
+
+.badge-tier-silver {
+  background: linear-gradient(135deg, #f8fafc, #94a3b8);
+  color: #0f172a;
+}
+
+.badge-tier-bronze {
+  background: linear-gradient(135deg, #f4b183, #a04f1d);
+  color: #ffffff;
 }
 
 .card-body {

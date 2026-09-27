@@ -7,8 +7,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="tailwind-config.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="inventory.css">
+  <link rel="stylesheet" href="shared.css">
   <script>
     if (!localStorage.getItem('reddrop_auth_session')) {
       window.location.replace('login.html');
@@ -52,7 +52,7 @@
         <a href="donor-dashboard.html" class="nav-link">My Donor ID</a>
       </nav>
 
-      <div>
+      <div class="nav-actions-desktop">
         <button onclick="openRequestModal()" class="btn-post">
           Post Request
         </button>

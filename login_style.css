@@ -3,8 +3,6 @@
  * Defines theme tokens, custom typography, animations, scrollbars, input components, and login page styles.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=Fira+Code:wght@400;500;600;700&display=swap');
-
 :root {
   --blood-50: #fff1f2;
   --blood-100: #ffe4e6;
