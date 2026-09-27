@@ -493,7 +493,7 @@
             d.name.toLowerCase().includes(identifier.toLowerCase())
           );
 
-          const profile = matched ? {
+          let profile = matched ? {
             id: matched.id,
             name: matched.name,
             bloodGroup: matched.bloodGroup,
