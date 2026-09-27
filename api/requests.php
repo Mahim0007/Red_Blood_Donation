@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/db.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
@@ -67,16 +68,14 @@ if ($method === 'GET') {
     }
 } elseif ($method === 'POST') {
     try {
-        $input = json_decode(file_get_contents('php://input'), true);
-        if (!$input) {
-            $input = $_POST;
-        }
+        $raw = file_get_contents('php://input');
+        $input = json_decode($raw, true) ?: $_POST;
 
-        // Handle Pledge / Fulfill action
+        // Action A: Pledge blood donation for an SOS request
         if (!empty($input['action']) && $input['action'] === 'pledge' && !empty($input['request_id'])) {
             $reqId = (int)$input['request_id'];
             
-            // 1. Update Blood_Requests
+            // 1. Update Blood_Requests fulfilled count & status
             $stmt = $pdo->prepare("
                 UPDATE Blood_Requests 
                 SET bags_fulfilled = LEAST(bags_needed, bags_fulfilled + 1),
@@ -90,7 +89,7 @@ if ($method === 'GET') {
             $reqStmt->execute([':id' => $reqId]);
             $requestData = $reqStmt->fetch();
 
-            // 3. Find or create Donor record in Donors table
+            // 3. Find or create donor in Donors table
             $donorId = !empty($input['donor_id']) ? (int)$input['donor_id'] : null;
             $donorName = !empty($input['donorName']) ? trim($input['donorName']) : 'Voluntary Donor';
             $donorPhone = !empty($input['donorPhone']) ? trim($input['donorPhone']) : '';
@@ -102,14 +101,13 @@ if ($method === 'GET') {
                 $dStmt->execute([':id' => $donorId]);
                 $donor = $dStmt->fetch();
             }
-            if (!$donor && (!empty($donorPhone) || !empty($donorEmail) || !empty($donorName))) {
+            if (!$donor && ($donorPhone || $donorEmail || $donorName)) {
                 $dStmt = $pdo->prepare("
                     SELECT * FROM Donors 
                     WHERE contact_phone = :p 
                        OR email = :e 
                        OR LOWER(full_name) = LOWER(:n) 
-                    ORDER BY donor_id DESC 
-                    LIMIT 1
+                    ORDER BY donor_id DESC LIMIT 1
                 ");
                 $dStmt->execute([
                     ':p' => $donorPhone ?: '---',
@@ -143,7 +141,7 @@ if ($method === 'GET') {
                 $donorId = (int)$donor['donor_id'];
             }
 
-            // 4. Increment total_donations and trigger 90-day cooldown in Donors table
+            // 4. Increment total_donations and set 90-day cooldown
             $updateDonor = $pdo->prepare("
                 UPDATE Donors 
                 SET total_donations = total_donations + 1,
@@ -154,7 +152,7 @@ if ($method === 'GET') {
             ");
             $updateDonor->execute([':id' => $donorId]);
 
-            // Query updated total_donations
+            // Query updated total
             $fetchUpdated = $pdo->prepare("SELECT total_donations FROM Donors WHERE donor_id = :id");
             $fetchUpdated->execute([':id' => $donorId]);
             $newTotal = (int)$fetchUpdated->fetchColumn();
@@ -163,7 +161,6 @@ if ($method === 'GET') {
             $certId = !empty($input['certificateId']) ? trim($input['certificateId']) : ('CERT-2026-' . rand(1000, 9999));
             $hospName = $requestData ? $requestData['hospital_name'] : (!empty($input['hospital']) ? $input['hospital'] : 'NICVD, Dhaka');
             
-            // Try to match hospital_id from Hospitals table
             $hospStmt = $pdo->prepare("SELECT hospital_id FROM Hospitals WHERE :h LIKE CONCAT('%', name, '%') OR name LIKE CONCAT('%', :h2, '%') LIMIT 1");
             $hospStmt->execute([':h' => $hospName, ':h2' => $hospName]);
             $matchedHospId = $hospStmt->fetchColumn() ?: 'H1';
@@ -202,6 +199,7 @@ if ($method === 'GET') {
             exit();
         }
 
+        // Action B: Create new emergency blood request
         if (empty($input['patientName']) || empty($input['bloodGroup']) || empty($input['hospital']) || empty($input['attendantPhone'])) {
             http_response_code(400);
             echo json_encode(['success' => false, 'error' => 'Patient Name, Blood Group, Hospital, and Attendant Phone are required.']);
@@ -252,22 +250,24 @@ if ($method === 'GET') {
 
         echo json_encode([
             'success' => true,
-            'message' => 'Blood request posted to MySQL database!',
+            'message' => 'Emergency blood request created successfully in MySQL!',
             'request_id' => $newId,
             'data' => [
                 'id' => $newId,
                 'patientName' => $patientName,
                 'bloodGroup' => $bloodGroup,
                 'bagsNeeded' => $bagsNeeded,
-                'urgency' => $urgency,
+                'bagsFulfilled' => 0,
                 'hospital' => $hospital,
                 'district' => $district,
-                'attendantPhone' => $attendantPhone,
                 'status' => 'ACTIVE'
             ]
-        ], JSON_PRETTY_PRINT);
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     } catch (\PDOException $e) {
         http_response_code(500);
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
+} else {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'error' => 'Method not allowed']);
 }
