@@ -75,21 +75,18 @@ if ($method === 'GET') {
         if (!empty($input['action']) && $input['action'] === 'pledge' && !empty($input['request_id'])) {
             $reqId = (int)$input['request_id'];
             
-            // 1. Update Blood_Requests fulfilled count & status
-            $stmt = $pdo->prepare("
-                UPDATE Blood_Requests 
-                SET bags_fulfilled = LEAST(bags_needed, bags_fulfilled + 1),
-                    request_status = IF(bags_fulfilled + 1 >= bags_needed, 'FULFILLED', 'ACTIVE')
-                WHERE request_id = :id
-            ");
-            $stmt->execute([':id' => $reqId]);
-
-            // 2. Fetch request details
+            // 1. Fetch request details first
             $reqStmt = $pdo->prepare("SELECT * FROM Blood_Requests WHERE request_id = :id LIMIT 1");
             $reqStmt->execute([':id' => $reqId]);
             $requestData = $reqStmt->fetch();
 
-            // 3. Find or create donor in Donors table
+            if (!$requestData) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'error' => 'Blood request not found.']);
+                exit();
+            }
+
+            // 2. Find or identify donor in Donors table
             $donorId = !empty($input['donor_id']) ? (int)$input['donor_id'] : null;
             $donorName = !empty($input['donorName']) ? trim($input['donorName']) : 'Voluntary Donor';
             $donorPhone = !empty($input['donorPhone']) ? trim($input['donorPhone']) : '';
@@ -117,6 +114,36 @@ if ($method === 'GET') {
                 $donor = $dStmt->fetch();
             }
 
+            // STRICT 90-DAY DATABASE COOLDOWN CHECK
+            if ($donor && !empty($donor['last_donated_date'])) {
+                $lastDate = $donor['last_donated_date'];
+                $diff = (int)$pdo->query("SELECT DATEDIFF(CURDATE(), '$lastDate')")->fetchColumn();
+                if ($diff >= 0 && $diff < 90) {
+                    $remaining = 90 - $diff;
+                    $nextDate = date('Y-m-d', strtotime($lastDate . ' +90 days'));
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'cooldown_active' => true,
+                        'last_donated_date' => $lastDate,
+                        'days_since_donation' => $diff,
+                        'days_remaining' => $remaining,
+                        'next_eligible_date' => $nextDate,
+                        'error' => "Medical Cooldown Active: You cannot pledge or donate blood within 90 days. You last donated on {$lastDate}. You will be eligible again in {$remaining} day(s) on {$nextDate}."
+                    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+            }
+
+            // 3. Update Blood_Requests fulfilled count & status
+            $stmt = $pdo->prepare("
+                UPDATE Blood_Requests 
+                SET bags_fulfilled = LEAST(bags_needed, bags_fulfilled + 1),
+                    request_status = IF(bags_fulfilled + 1 >= bags_needed, 'FULFILLED', 'ACTIVE')
+                WHERE request_id = :id
+            ");
+            $stmt->execute([':id' => $reqId]);
+
             if (!$donor) {
                 $insDonor = $pdo->prepare("
                     INSERT INTO Donors (
@@ -141,23 +168,7 @@ if ($method === 'GET') {
                 $donorId = (int)$donor['donor_id'];
             }
 
-            // 4. Increment total_donations and set 90-day cooldown
-            $updateDonor = $pdo->prepare("
-                UPDATE Donors 
-                SET total_donations = total_donations + 1,
-                    last_donated_date = CURDATE(),
-                    availability_status = 'COOLDOWN',
-                    tier = IF(total_donations + 1 >= 15, 'Platinum Lifesaver', IF(total_donations + 1 >= 10, 'Gold Lifesaver', IF(total_donations + 1 >= 5, 'Silver Lifesaver', 'Bronze Lifesaver')))
-                WHERE donor_id = :id
-            ");
-            $updateDonor->execute([':id' => $donorId]);
-
-            // Query updated total
-            $fetchUpdated = $pdo->prepare("SELECT total_donations FROM Donors WHERE donor_id = :id");
-            $fetchUpdated->execute([':id' => $donorId]);
-            $newTotal = (int)$fetchUpdated->fetchColumn();
-
-            // 5. Insert record into Donation_Logs
+            // 4. Insert record into Donation_Logs (Triggers MySQL database BEFORE INSERT cooldown verification)
             $certId = !empty($input['certificateId']) ? trim($input['certificateId']) : ('CERT-2026-' . rand(1000, 9999));
             $hospName = $requestData ? $requestData['hospital_name'] : (!empty($input['hospital']) ? $input['hospital'] : 'NICVD, Dhaka');
             
@@ -180,6 +191,22 @@ if ($method === 'GET') {
                 ':cert_id' => $certId,
                 ':remarks' => 'Emergency SOS blood pledge for ' . ($requestData ? $requestData['patient_name'] : 'emergency patient')
             ]);
+
+            // 5. Increment total_donations and set 90-day cooldown in Donors table
+            $updateDonor = $pdo->prepare("
+                UPDATE Donors 
+                SET total_donations = total_donations + 1,
+                    last_donated_date = CURDATE(),
+                    availability_status = 'COOLDOWN',
+                    tier = IF(total_donations + 1 >= 15, 'Platinum Lifesaver', IF(total_donations + 1 >= 10, 'Gold Lifesaver', IF(total_donations + 1 >= 5, 'Silver Lifesaver', 'Bronze Lifesaver')))
+                WHERE donor_id = :id
+            ");
+            $updateDonor->execute([':id' => $donorId]);
+
+            // Query updated total
+            $fetchUpdated = $pdo->prepare("SELECT total_donations FROM Donors WHERE donor_id = :id");
+            $fetchUpdated->execute([':id' => $donorId]);
+            $newTotal = (int)$fetchUpdated->fetchColumn();
 
             echo json_encode([
                 'success' => true,

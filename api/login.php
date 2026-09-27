@@ -29,6 +29,24 @@ function buildDonorProfile($pdo, $donor, $fallbackEmail = '') {
     $logsStmt->execute([':d_id' => $donorId]);
     $history = $logsStmt->fetchAll();
 
+    $lastDonated = $donor['last_donated_date'] ?: null;
+    $daysRemaining = 0;
+    $isEligible = true;
+    $nextEligible = 'Immediately Eligible';
+    $status = $donor['availability_status'];
+
+    if ($lastDonated) {
+        $diff = (int)$pdo->query("SELECT DATEDIFF(CURDATE(), '$lastDonated')")->fetchColumn();
+        if ($diff >= 0 && $diff < 90) {
+            $isEligible = false;
+            $daysRemaining = 90 - $diff;
+            $nextEligible = date('Y-m-d', strtotime($lastDonated . ' +90 days'));
+            $status = 'COOLDOWN';
+        } else {
+            $status = 'AVAILABLE';
+        }
+    }
+
     return [
         'id' => $donorId,
         'donorId' => $formattedId,
@@ -40,10 +58,12 @@ function buildDonorProfile($pdo, $donor, $fallbackEmail = '') {
         'area' => $donor['area_address'],
         'totalDonations' => $totalDonations,
         'livesSaved' => $totalDonations * 3,
-        'status' => $donor['availability_status'],
+        'status' => $status,
+        'isEligible' => $isEligible,
+        'daysRemaining' => $daysRemaining,
         'tier' => $donor['tier'] ?: 'Bronze Lifesaver',
-        'lastDonatedDate' => $donor['last_donated_date'] ?: null,
-        'nextEligibleDate' => $donor['last_donated_date'] ? date('Y-m-d', strtotime($donor['last_donated_date'] . ' +90 days')) : null,
+        'lastDonatedDate' => $lastDonated,
+        'nextEligibleDate' => $nextEligible,
         'history' => $history,
         'avatar' => 'https://api.dicebear.com/7.x/bottts/svg?seed=' . urlencode($donor['full_name'])
     ];

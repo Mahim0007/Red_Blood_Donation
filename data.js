@@ -425,6 +425,16 @@ const RedDropStore = {
     target.donorsCommitted = target.donorsCommitted || [];
 
     const user = this.getUserProfile() || {};
+
+    // Check 90-day cooldown before pledging
+    if (user.lastDonatedDate) {
+      const diff = Math.floor((Date.now() - new Date(user.lastDonatedDate + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24));
+      if (diff >= 0 && diff < 90) {
+        const remaining = 90 - diff;
+        return { success: false, message: `Medical Cooldown Active: You cannot pledge or donate blood within 90 days of your last donation. ${remaining} day(s) remaining in your recovery cycle.` };
+      }
+    }
+
     const donorName = typeof donorInfo === 'string' ? donorInfo : (donorInfo?.name || user.name || "Voluntary Donor");
     const donorId = typeof donorInfo === 'object' && donorInfo?.id ? donorInfo.id : user.id;
     const donorPhone = typeof donorInfo === 'object' && donorInfo?.phone ? donorInfo.phone : user.phone;
@@ -507,10 +517,77 @@ const RedDropStore = {
 
   async recordDirectDonation(hospitalName = 'Dhaka Medical College Hospital (DMCH)', remarks = 'Voluntary Blood Transfusion') {
     const user = this.getUserProfile() || {};
+    
+    // Check 90-day cooldown before initiating
+    if (user.lastDonatedDate) {
+      const diff = Math.floor((Date.now() - new Date(user.lastDonatedDate + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24));
+      if (diff >= 0 && diff < 90) {
+        const remaining = 90 - diff;
+        throw new Error(`Medical Cooldown Active: You cannot donate blood within 90 days. You have ${remaining} day(s) remaining in your recovery cycle.`);
+      }
+    }
+
     const certId = `CERT-2026-${Math.floor(1000 + Math.random() * 9000)}`;
     const today = new Date().toISOString().split('T')[0];
 
-    // Local optimistic update
+    // Persist directly to MySQL
+    if (window.fetch) {
+      const r = await fetch('api/donors.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'donate',
+          donor_id: user.id,
+          donorName: user.name,
+          donorPhone: user.phone,
+          donorEmail: user.email,
+          hospital: hospitalName,
+          remarks: remarks,
+          certificateId: certId
+        })
+      });
+      const res = await r.json();
+      if (!res.success) {
+        throw new Error(res.error || 'Donation rejected by database.');
+      }
+
+      user.history = user.history || [];
+      user.history.unshift({
+        date: today,
+        hospital: hospitalName,
+        recipient: 'Emergency Patient',
+        bags: 1,
+        certificateId: certId
+      });
+      user.totalDonations = res.total_donations;
+      user.livesSaved = res.lives_saved;
+      if (res.donorId) user.donorId = res.donorId;
+      if (res.donor_id) user.id = res.donor_id;
+      user.lastDonatedDate = res.lastDonatedDate || today;
+      user.status = 'COOLDOWN';
+      user.nextEligibleDate = res.nextEligibleDate;
+      this.updateUserProfile(user);
+
+      if (typeof RedDropAuth !== 'undefined') {
+        const s = RedDropAuth.getSession();
+        if (s && s.user) {
+          s.user = { ...s.user, ...user };
+          localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, JSON.stringify(s));
+        }
+      }
+      return {
+        success: true,
+        certificateId: certId,
+        totalDonations: res.total_donations,
+        livesSaved: res.lives_saved,
+        hospital: res.hospital,
+        date: res.date,
+        lastDonatedDate: res.lastDonatedDate,
+        nextEligibleDate: res.nextEligibleDate
+      };
+    }
+
+    // Offline fallback
     user.history = user.history || [];
     user.history.unshift({
       date: today,
@@ -524,63 +601,6 @@ const RedDropStore = {
     user.lastDonatedDate = today;
     user.status = 'COOLDOWN';
     this.updateUserProfile(user);
-
-    if (typeof RedDropAuth !== 'undefined') {
-      const session = RedDropAuth.getSession();
-      if (session && session.user) {
-        session.user = { ...session.user, ...user };
-        localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, JSON.stringify(session));
-      }
-    }
-
-    // Persist directly to MySQL
-    if (window.fetch) {
-      try {
-        const r = await fetch('api/donors.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'donate',
-            donor_id: user.id,
-            donorName: user.name,
-            donorPhone: user.phone,
-            donorEmail: user.email,
-            hospital: hospitalName,
-            remarks: remarks,
-            certificateId: certId
-          })
-        });
-        const res = await r.json();
-        if (res.success) {
-          user.totalDonations = res.total_donations;
-          user.livesSaved = res.lives_saved;
-          if (res.donorId) user.donorId = res.donorId;
-          if (res.donor_id) user.id = res.donor_id;
-          user.lastDonatedDate = res.lastDonatedDate || today;
-          user.status = res.status || 'COOLDOWN';
-          user.nextEligibleDate = res.nextEligibleDate;
-          this.updateUserProfile(user);
-
-          if (typeof RedDropAuth !== 'undefined') {
-            const s = RedDropAuth.getSession();
-            if (s && s.user) {
-              s.user = { ...s.user, ...user };
-              localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, JSON.stringify(s));
-            }
-          }
-          return {
-            success: true,
-            certificateId: certId,
-            totalDonations: res.total_donations,
-            livesSaved: res.lives_saved,
-            hospital: res.hospital,
-            date: res.date,
-            lastDonatedDate: res.lastDonatedDate,
-            nextEligibleDate: res.nextEligibleDate
-          };
-        }
-      } catch (e) {}
-    }
 
     return { success: true, certificateId: certId, totalDonations: user.totalDonations, livesSaved: user.livesSaved, hospital: hospitalName, date: today };
   },

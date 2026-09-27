@@ -299,23 +299,58 @@
       const lives = user.livesSaved != null ? parseInt(user.livesSaved) : (total * 3);
       document.getElementById('card-total').innerText = `${total} Times (${lives} Lives)`;
 
+      // Calculate 90-day medical cooldown
+      let isCooldown = false;
+      let daysRemaining = 0;
+      if (user.lastDonatedDate) {
+        const diff = Math.floor((Date.now() - new Date(user.lastDonatedDate + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24));
+        if (diff >= 0 && diff < 90) {
+          isCooldown = true;
+          daysRemaining = 90 - diff;
+        }
+      }
+
       const statusBtn = document.getElementById('status-toggle-btn');
       if (statusBtn) {
-        if (user.status === 'COOLDOWN' || (total > 0 && user.lastDonatedDate)) {
-          statusBtn.className = 'btn-status-toggle status-inactive';
-          statusBtn.innerText = '⏳ Cooldown (90 Days)';
+        if (isCooldown) {
+          statusBtn.className = 'btn-status-toggle status-inactive cursor-not-allowed';
+          statusBtn.innerText = `⏳ Cooldown (${daysRemaining} Days Left)`;
         } else {
           statusBtn.className = 'btn-status-toggle status-available';
           statusBtn.innerText = '● Available';
         }
       }
 
+      const donateBtn = document.getElementById('btn-donate-now');
+      if (donateBtn) {
+        if (isCooldown) {
+          donateBtn.disabled = true;
+          donateBtn.className = 'px-4 py-2.5 rounded-xl bg-slate-700/80 text-slate-300 font-bold text-xs cursor-not-allowed flex items-center gap-2 border border-slate-600/50 shadow-inner';
+          donateBtn.innerHTML = `<i data-lucide="clock" class="w-4 h-4 text-amber-400"></i> Cooldown (${daysRemaining}d Left)`;
+        } else {
+          donateBtn.disabled = false;
+          donateBtn.className = 'px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold text-xs shadow-md shadow-red-600/30 transition flex items-center gap-2 cursor-pointer';
+          donateBtn.innerHTML = `<i data-lucide="heart" class="w-4 h-4 fill-white"></i> Donate 1 Bag`;
+        }
+      }
+
       if (typeof updateCountdown === 'function') {
         updateCountdown();
       }
+      if (window.lucide) lucide.createIcons();
     }
 
     async function recordVoluntaryDonation() {
+      const user = RedDropStore.getUserProfile() || {};
+      if (user.lastDonatedDate) {
+        const diff = Math.floor((Date.now() - new Date(user.lastDonatedDate + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24));
+        if (diff >= 0 && diff < 90) {
+          const remaining = 90 - diff;
+          showToast(`Medical Cooldown Active: You cannot donate blood within 90 days. Please wait ${remaining} day(s) until your next eligible donation window opens.`, 'error');
+          return;
+        }
+      }
+
       const btn = document.getElementById('btn-donate-now');
       if (btn) {
         btn.disabled = true;
@@ -333,30 +368,25 @@
           openCertModal(res.certificateId, res.date || '2026-09-27', res.hospital || 'DMCH Blood Center');
         }, 350);
       } catch (err) {
-        showToast('Error recording donation: ' + err.message, 'error');
+        showToast(err.message, 'error');
       } finally {
-        if (btn) {
-          btn.disabled = false;
-          btn.innerHTML = `<i data-lucide="heart" class="w-4 h-4 fill-white"></i> Donate 1 Bag`;
-          if (window.lucide) lucide.createIcons();
-        }
+        loadProfileData();
       }
     }
 
     function toggleStatus() {
       const user = RedDropStore.getUserProfile() || {};
+      if (user.lastDonatedDate) {
+        const diff = Math.floor((Date.now() - new Date(user.lastDonatedDate + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24));
+        if (diff >= 0 && diff < 90) {
+          showToast(`You are on 90-day medical recovery cooldown (${90 - diff} days left). Status cannot be changed to Available.`, 'warning');
+          return;
+        }
+      }
       const newStatus = user.status === 'AVAILABLE' ? 'COOLDOWN' : 'AVAILABLE';
       RedDropStore.updateUserProfile({ status: newStatus });
-      const btn = document.getElementById('status-toggle-btn');
-      if (newStatus === 'AVAILABLE') {
-        btn.className = 'btn-status-toggle status-available';
-        btn.innerText = '● Available';
-        showToast('Your status is now Available for emergency requests!', 'success');
-      } else {
-        btn.className = 'btn-status-toggle status-inactive';
-        btn.innerText = '⏳ Inactive';
-        showToast('Status set to temporarily inactive.', 'warning');
-      }
+      loadProfileData();
+      showToast(newStatus === 'AVAILABLE' ? 'Your status is now Available for emergency requests!' : 'Status set to temporarily inactive.', newStatus === 'AVAILABLE' ? 'success' : 'warning');
     }
 
     function renderHistory() {

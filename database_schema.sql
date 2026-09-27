@@ -160,3 +160,27 @@ INSERT INTO Donation_Logs (log_id, donor_id, hospital_id, donation_date, bags_do
 (5, 102, 'H3', '2026-08-01', 1, 'Whole Blood', 'CERT-2026-1144', 'Rare O- emergency support at BSMMU ICU'),
 (6, 105, 'H6', '2026-07-28', 1, 'Whole Blood', 'CERT-2026-1120', 'Sylhet MAG Osmani road accident emergency');
 
+DROP TRIGGER IF EXISTS trg_check_donor_90_days_cooldown;
+
+DELIMITER $$
+CREATE TRIGGER trg_check_donor_90_days_cooldown
+BEFORE INSERT ON Donation_Logs
+FOR EACH ROW
+BEGIN
+    DECLARE last_date DATE;
+    DECLARE diff_days INT;
+    
+    SELECT last_donated_date INTO last_date 
+    FROM Donors 
+    WHERE donor_id = NEW.donor_id;
+    
+    IF last_date IS NOT NULL THEN
+        SET diff_days = DATEDIFF(NEW.donation_date, last_date);
+        IF diff_days >= 0 AND diff_days < 90 THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'DONATION REJECTED: Donor is in 90-day medical cooldown cycle. Must wait 90 days between donations.';
+        END IF;
+    END IF;
+END$$
+DELIMITER ;
+
