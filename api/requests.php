@@ -172,25 +172,28 @@ if ($method === 'GET') {
             $certId = !empty($input['certificateId']) ? trim($input['certificateId']) : ('CERT-2026-' . rand(1000, 9999));
             $hospName = $requestData ? $requestData['hospital_name'] : (!empty($input['hospital']) ? $input['hospital'] : 'NICVD, Dhaka');
             
-            $hospStmt = $pdo->prepare("SELECT hospital_id FROM Hospitals WHERE :h LIKE CONCAT('%', name, '%') OR name LIKE CONCAT('%', :h2, '%') LIMIT 1");
+            $hospStmt = $pdo->prepare("SELECT hospital_id, name FROM Hospitals WHERE :h LIKE CONCAT('%', name, '%') OR name LIKE CONCAT('%', :h2, '%') LIMIT 1");
             $hospStmt->execute([':h' => $hospName, ':h2' => $hospName]);
-            $matchedHospId = $hospStmt->fetchColumn() ?: 'H1';
+            $hospRow = $hospStmt->fetch(PDO::FETCH_ASSOC);
+            $matchedHospId = $hospRow ? $hospRow['hospital_id'] : 'H1';
+            $matchedHospName = $hospRow ? $hospRow['name'] : $hospName;
 
             $logStmt = $pdo->prepare("
                 INSERT INTO Donation_Logs (
-                    donor_id, donor_name, hospital_id, donation_date, bags_donated,
+                    donor_id, donor_name, hospital_id, hospital_name, donation_date, bags_donated,
                     blood_component, certificate_id, remarks
                 ) VALUES (
-                    :donor_id, :donor_name, :hospital_id, CURDATE(), 1,
+                    :donor_id, :donor_name, :hospital_id, :hospital_name, CURDATE(), 1,
                     'Whole Blood', :cert_id, :remarks
                 )
             ");
             $logStmt->execute([
-                ':donor_id'    => $donorId,
-                ':donor_name'  => $donorName,
-                ':hospital_id' => $matchedHospId,
-                ':cert_id'     => $certId,
-                ':remarks'     => 'Emergency SOS blood pledge for ' . ($requestData ? $requestData['patient_name'] : 'emergency patient')
+                ':donor_id'      => $donorId,
+                ':donor_name'    => $donorName,
+                ':hospital_id'   => $matchedHospId,
+                ':hospital_name' => $matchedHospName,
+                ':cert_id'       => $certId,
+                ':remarks'       => 'Emergency SOS blood pledge for ' . ($requestData ? $requestData['patient_name'] : 'emergency patient')
             ]);
 
 

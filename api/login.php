@@ -19,7 +19,7 @@ function buildDonorProfile($pdo, $donor, $fallbackEmail = '') {
             l.donation_date AS date,
             l.bags_donated AS bags,
             l.certificate_id AS certificateId,
-            COALESCE(h.name, l.remarks, 'Hospital Transfusion Center') AS hospital,
+            COALESCE(l.hospital_name, h.name, l.remarks, 'Hospital Transfusion Center') AS hospital,
             'Emergency Patient' AS recipient
         FROM Donation_Logs l
         LEFT JOIN Hospitals h ON l.hospital_id = h.hospital_id

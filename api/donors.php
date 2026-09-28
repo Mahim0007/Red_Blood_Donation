@@ -181,9 +181,11 @@ if ($method === 'GET') {
             $certId = !empty($input['certificateId']) ? trim($input['certificateId']) : ('CERT-2026-' . rand(1000, 9999));
             $hospName = !empty($input['hospital']) ? trim($input['hospital']) : 'Dhaka Medical College Hospital (DMCH)';
 
-            $hospStmt = $pdo->prepare("SELECT hospital_id FROM Hospitals WHERE :h LIKE CONCAT('%', name, '%') OR name LIKE CONCAT('%', :h2, '%') LIMIT 1");
+            $hospStmt = $pdo->prepare("SELECT hospital_id, name FROM Hospitals WHERE :h LIKE CONCAT('%', name, '%') OR name LIKE CONCAT('%', :h2, '%') LIMIT 1");
             $hospStmt->execute([':h' => $hospName, ':h2' => $hospName]);
-            $matchedHospId = $hospStmt->fetchColumn() ?: 'H1';
+            $hospRow = $hospStmt->fetch(PDO::FETCH_ASSOC);
+            $matchedHospId = $hospRow ? $hospRow['hospital_id'] : 'H1';
+            $matchedHospName = $hospRow ? $hospRow['name'] : $hospName;
 
             // Get donor name from Donors table if not provided
             $finalDonorName = $donorName;
@@ -195,19 +197,20 @@ if ($method === 'GET') {
 
             $logStmt = $pdo->prepare("
                 INSERT INTO Donation_Logs (
-                    donor_id, donor_name, hospital_id, donation_date, bags_donated,
+                    donor_id, donor_name, hospital_id, hospital_name, donation_date, bags_donated,
                     blood_component, certificate_id, remarks
                 ) VALUES (
-                    :donor_id, :donor_name, :hospital_id, CURDATE(), 1,
+                    :donor_id, :donor_name, :hospital_id, :hospital_name, CURDATE(), 1,
                     'Whole Blood', :cert_id, :remarks
                 )
             ");
             $logStmt->execute([
-                ':donor_id'   => $donorId,
-                ':donor_name' => $finalDonorName,
-                ':hospital_id'=> $matchedHospId,
-                ':cert_id'    => $certId,
-                ':remarks'    => !empty($input['remarks']) ? $input['remarks'] : 'Voluntary Blood Transfusion Camp'
+                ':donor_id'      => $donorId,
+                ':donor_name'    => $finalDonorName,
+                ':hospital_id'   => $matchedHospId,
+                ':hospital_name' => $matchedHospName,
+                ':cert_id'       => $certId,
+                ':remarks'       => !empty($input['remarks']) ? $input['remarks'] : 'Voluntary Blood Transfusion Camp'
             ]);
 
             // 2. Increment total_donations and trigger 90-day cooldown in Donors table
