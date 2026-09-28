@@ -178,19 +178,21 @@ if ($method === 'GET') {
 
             $logStmt = $pdo->prepare("
                 INSERT INTO Donation_Logs (
-                    donor_id, hospital_id, donation_date, bags_donated,
+                    donor_id, donor_name, hospital_id, donation_date, bags_donated,
                     blood_component, certificate_id, remarks
                 ) VALUES (
-                    :donor_id, :hospital_id, CURDATE(), 1,
+                    :donor_id, :donor_name, :hospital_id, CURDATE(), 1,
                     'Whole Blood', :cert_id, :remarks
                 )
             ");
             $logStmt->execute([
-                ':donor_id' => $donorId,
+                ':donor_id'    => $donorId,
+                ':donor_name'  => $donorName,
                 ':hospital_id' => $matchedHospId,
-                ':cert_id' => $certId,
-                ':remarks' => 'Emergency SOS blood pledge for ' . ($requestData ? $requestData['patient_name'] : 'emergency patient')
+                ':cert_id'     => $certId,
+                ':remarks'     => 'Emergency SOS blood pledge for ' . ($requestData ? $requestData['patient_name'] : 'emergency patient')
             ]);
+
 
             // 5. Increment total_donations and set 90-day cooldown in Donors table
             $updateDonor = $pdo->prepare("

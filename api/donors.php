@@ -185,20 +185,29 @@ if ($method === 'GET') {
             $hospStmt->execute([':h' => $hospName, ':h2' => $hospName]);
             $matchedHospId = $hospStmt->fetchColumn() ?: 'H1';
 
+            // Get donor name from Donors table if not provided
+            $finalDonorName = $donorName;
+            if (empty($finalDonorName) || $finalDonorName === 'Voluntary Donor') {
+                $nameStmt = $pdo->prepare("SELECT full_name FROM Donors WHERE donor_id = :id LIMIT 1");
+                $nameStmt->execute([':id' => $donorId]);
+                $finalDonorName = $nameStmt->fetchColumn() ?: $donorName;
+            }
+
             $logStmt = $pdo->prepare("
                 INSERT INTO Donation_Logs (
-                    donor_id, hospital_id, donation_date, bags_donated,
+                    donor_id, donor_name, hospital_id, donation_date, bags_donated,
                     blood_component, certificate_id, remarks
                 ) VALUES (
-                    :donor_id, :hospital_id, CURDATE(), 1,
+                    :donor_id, :donor_name, :hospital_id, CURDATE(), 1,
                     'Whole Blood', :cert_id, :remarks
                 )
             ");
             $logStmt->execute([
-                ':donor_id' => $donorId,
-                ':hospital_id' => $matchedHospId,
-                ':cert_id' => $certId,
-                ':remarks' => !empty($input['remarks']) ? $input['remarks'] : 'Voluntary Blood Transfusion Camp'
+                ':donor_id'   => $donorId,
+                ':donor_name' => $finalDonorName,
+                ':hospital_id'=> $matchedHospId,
+                ':cert_id'    => $certId,
+                ':remarks'    => !empty($input['remarks']) ? $input['remarks'] : 'Voluntary Blood Transfusion Camp'
             ]);
 
             // 2. Increment total_donations and trigger 90-day cooldown in Donors table
