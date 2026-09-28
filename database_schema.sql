@@ -86,6 +86,7 @@ CREATE TABLE IF NOT EXISTS Blood_Inventory (
 CREATE TABLE IF NOT EXISTS Donation_Logs (
     log_id INT AUTO_INCREMENT PRIMARY KEY,
     donor_id INT NOT NULL,
+    donor_name VARCHAR(100) NULL,
     hospital_id VARCHAR(10),
     donation_date DATE NOT NULL,
     bags_donated INT DEFAULT 1,
@@ -152,13 +153,13 @@ INSERT INTO Blood_Inventory (hospital_id, blood_group, whole_blood_bags, prbc_re
 ('H5', 'O-', 1, 0, 0, 1, 'CRITICAL'),
 ('H5', 'B+', 20, 14, 7, 9, 'OPTIMAL');
 
-INSERT INTO Donation_Logs (log_id, donor_id, hospital_id, donation_date, bags_donated, blood_component, certificate_id, remarks) VALUES
-(1, 101, 'H4', '2026-06-10', 1, 'Whole Blood', 'CERT-2026-1092', 'NICVD Cardiac Surgery emergency replacement'),
-(2, 101, 'H2', '2026-02-14', 1, 'Whole Blood', 'CERT-2026-0871', 'DMCH Emergency pediatric thalassemia child support'),
-(3, 101, 'H3', '2025-10-20', 1, 'Platelets Apheresis', 'CERT-2025-0543', 'BSMMU Dengue season apheresis donor'),
-(4, 101, 'H1', '2025-06-15', 1, 'Whole Blood', 'CERT-2025-0211', 'Red Crescent voluntary blood camp'),
-(5, 102, 'H3', '2026-08-01', 1, 'Whole Blood', 'CERT-2026-1144', 'Rare O- emergency support at BSMMU ICU'),
-(6, 105, 'H6', '2026-07-28', 1, 'Whole Blood', 'CERT-2026-1120', 'Sylhet MAG Osmani road accident emergency');
+INSERT INTO Donation_Logs (log_id, donor_id, donor_name, hospital_id, donation_date, bags_donated, blood_component, certificate_id, remarks) VALUES
+(1, 101, 'Tanvir Ahmed', 'H4', '2026-06-10', 1, 'Whole Blood', 'CERT-2026-1092', 'NICVD Cardiac Surgery emergency replacement'),
+(2, 101, 'Tanvir Ahmed', 'H2', '2026-02-14', 1, 'Whole Blood', 'CERT-2026-0871', 'DMCH Emergency pediatric thalassemia child support'),
+(3, 101, 'Tanvir Ahmed', 'H3', '2025-10-20', 1, 'Platelets Apheresis', 'CERT-2025-0543', 'BSMMU Dengue season apheresis donor'),
+(4, 101, 'Tanvir Ahmed', 'H1', '2025-06-15', 1, 'Whole Blood', 'CERT-2025-0211', 'Red Crescent voluntary blood camp'),
+(5, 102, 'Dr. Sadia Rahman', 'H3', '2026-08-01', 1, 'Whole Blood', 'CERT-2026-1144', 'Rare O- emergency support at BSMMU ICU'),
+(6, 105, 'Kazi Farhan Ishrak', 'H6', '2026-07-28', 1, 'Whole Blood', 'CERT-2026-1120', 'Sylhet MAG Osmani road accident emergency');
 
 DROP TRIGGER IF EXISTS trg_check_donor_90_days_cooldown;
 
