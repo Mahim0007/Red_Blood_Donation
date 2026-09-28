@@ -145,42 +145,84 @@
   <script src="data.js"></script>
   <script src="nav-footer.js"></script>
   <script>
-    function handleRegistration(e) {
+    async function handleRegistration(e) {
       e.preventDefault();
-      const name = document.getElementById('reg-name').value;
-      const bloodGroup = document.getElementById('reg-blood').value;
-      const gender = document.getElementById('reg-gender').value;
-      const age = document.getElementById('reg-age').value;
-      const weight = document.getElementById('reg-weight').value;
-      const district = document.getElementById('reg-district').value;
-      const area = document.getElementById('reg-area').value;
-      const phone = document.getElementById('reg-phone').value;
-      const email = document.getElementById('reg-email').value || `${name.toLowerCase().replace(/\s+/g, '')}@gmail.com`;
 
-      const newDonor = {
-        name,
-        bloodGroup,
-        gender,
-        age: parseInt(age),
-        weight: parseInt(weight),
-        district,
-        area: `${area}, ${district}`,
-        division: district === 'Chattogram' ? 'Chattogram' : district === 'Sylhet' ? 'Sylhet' : 'Dhaka',
-        phone,
-        email,
-        totalDonations: 0,
-        lastDonatedDate: null,
-        status: "AVAILABLE",
-        donorId: `RD-BD-2026-${Math.floor(1000 + Math.random() * 9000)}`
-      };
+      const name      = document.getElementById('reg-name').value.trim();
+      const bloodGroup= document.getElementById('reg-blood').value;
+      const gender    = document.getElementById('reg-gender').value;
+      const age       = parseInt(document.getElementById('reg-age').value);
+      const weight    = parseFloat(document.getElementById('reg-weight').value);
+      const district  = document.getElementById('reg-district').value;
+      const area      = document.getElementById('reg-area').value.trim();
+      const phone     = document.getElementById('reg-phone').value.trim();
+      const email     = document.getElementById('reg-email').value.trim() || `${name.toLowerCase().replace(/\s+/g, '')}@gmail.com`;
+      const division  = district === 'Chattogram' ? 'Chattogram' : district === 'Sylhet' ? 'Sylhet' : district === 'Rajshahi' ? 'Rajshahi' : district === 'Khulna' ? 'Khulna' : district === 'Barishal' ? 'Barishal' : district === 'Rangpur' ? 'Rangpur' : district === 'Mymensingh' ? 'Mymensingh' : 'Dhaka';
 
-      RedDropStore.addDonor(newDonor);
-      RedDropAuth.login(newDonor, 'donor');
+      // Button loading state
+      const btn = e.target.querySelector('button[type="submit"]');
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Registering to Database...';
 
-      showToast(`Welcome ${name}! Your donor profile is created.`, 'success');
-      setTimeout(() => {
-        window.location.href = 'donors.html';
-      }, 700);
+      try {
+        // ✅ Save to MySQL database via API
+        const response = await fetch('api/donors.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name, bloodGroup, gender,
+            age, weight,
+            district, area, division,
+            phone, email,
+            totalDonations: 0,
+            status: 'AVAILABLE'
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // ✅ Also update localStorage for session
+          const newDonor = {
+            name, bloodGroup, gender, age, weight,
+            district, area: `${area}, ${district}`, division,
+            phone, email,
+            totalDonations: 0,
+            lastDonatedDate: null,
+            status: 'AVAILABLE',
+            id: result.donor_id,
+            donorId: `RD-BD-2026-${String(result.donor_id).padStart(4, '0')}`
+          };
+          RedDropStore.addDonor(newDonor);
+          RedDropAuth.login(newDonor, 'donor');
+
+          showToast(`✅ Welcome ${name}! Donor ID: RD-BD-2026-${String(result.donor_id).padStart(4, '0')} saved to database!`, 'success');
+          setTimeout(() => { window.location.href = 'donors.html'; }, 1200);
+        } else {
+          throw new Error(result.error || 'Registration failed');
+        }
+
+      } catch (err) {
+        // ⚠️ API failed — fallback to localStorage only
+        console.warn('API unavailable, saving locally:', err.message);
+        const fallbackDonor = {
+          name, bloodGroup, gender, age, weight,
+          district, area: `${area}, ${district}`, division,
+          phone, email,
+          totalDonations: 0,
+          lastDonatedDate: null,
+          status: 'AVAILABLE',
+          donorId: `RD-BD-2026-${Math.floor(1000 + Math.random() * 9000)}`
+        };
+        RedDropStore.addDonor(fallbackDonor);
+        RedDropAuth.login(fallbackDonor, 'donor');
+        showToast(`Welcome ${name}! Profile saved locally (database offline).`, 'warning');
+        setTimeout(() => { window.location.href = 'donors.html'; }, 1000);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
     }
   </script>
 </body>

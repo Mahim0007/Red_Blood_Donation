@@ -438,33 +438,70 @@
       document.getElementById('add-donor-modal').classList.add('hidden');
     }
 
-    function handleNewDonorSubmit(e) {
+    async function handleNewDonorSubmit(e) {
       e.preventDefault();
-      const name = document.getElementById('donor-name').value;
-      const bloodGroup = document.getElementById('donor-blood').value;
-      const gender = document.getElementById('donor-gender').value;
-      const district = document.getElementById('donor-district').value;
-      const area = document.getElementById('donor-area').value;
-      const phone = document.getElementById('donor-phone').value;
+      const name         = document.getElementById('donor-name').value.trim();
+      const bloodGroup   = document.getElementById('donor-blood').value;
+      const gender       = document.getElementById('donor-gender').value;
+      const district     = document.getElementById('donor-district').value;
+      const area         = document.getElementById('donor-area').value.trim();
+      const phone        = document.getElementById('donor-phone').value.trim();
       const totalDonations = parseInt(document.getElementById('donor-total-donations').value) || 0;
+      const division     = district === 'Chattogram' ? 'Chattogram' : district === 'Sylhet' ? 'Sylhet' : 'Dhaka';
 
-      const newDonor = {
-        name,
-        bloodGroup,
-        gender,
-        district,
-        area: `${area}, ${district}`,
-        division: district === 'Chattogram' ? 'Chattogram' : district === 'Sylhet' ? 'Sylhet' : 'Dhaka',
-        phone,
-        totalDonations,
-        lastDonatedDate: "2026-05-10",
-        status: "AVAILABLE"
-      };
+      // Button loading state
+      const btn = e.target.querySelector('button[type="submit"]');
+      const originalText = btn ? btn.innerHTML : '';
+      if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Saving...'; }
 
-      RedDropStore.addDonor(newDonor);
-      closeAddDonorModal();
-      showToast(`Donor ${name} (${bloodGroup}) registered successfully!`, 'success');
-      applyFilters();
+      try {
+        // ✅ Save to MySQL database via API
+        const response = await fetch('api/donors.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name, bloodGroup, gender,
+            district, area, division,
+            phone, totalDonations,
+            status: 'AVAILABLE'
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          const newDonor = {
+            name, bloodGroup, gender,
+            district, area: `${area}, ${district}`, division,
+            phone, totalDonations,
+            lastDonatedDate: null,
+            status: 'AVAILABLE',
+            id: result.donor_id
+          };
+          RedDropStore.addDonor(newDonor);
+          closeAddDonorModal();
+          showToast(`✅ ${name} (${bloodGroup}) database এ register হয়েছে!`, 'success');
+          applyFilters();
+        } else {
+          throw new Error(result.error || 'Registration failed');
+        }
+
+      } catch (err) {
+        console.warn('API unavailable, saving locally:', err.message);
+        const newDonor = {
+          name, bloodGroup, gender,
+          district, area: `${area}, ${district}`, division,
+          phone, totalDonations,
+          lastDonatedDate: "2026-05-10",
+          status: "AVAILABLE"
+        };
+        RedDropStore.addDonor(newDonor);
+        closeAddDonorModal();
+        showToast(`${name} (${bloodGroup}) locally registered (database offline).`, 'warning');
+        applyFilters();
+      } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
+      }
     }
 
     function openContactModal(name, phone) {
