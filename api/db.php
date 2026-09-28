@@ -9,13 +9,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-$host = '127.0.0.1';
-$db   = 'red_blood_donation_db';
-$user = 'root';
-$pass = '';
+// Railway environment variables থেকে নেবে, না থাকলে local XAMPP এর values ব্যবহার করবে
+$host    = getenv('MYSQLHOST')     ?: '127.0.0.1';
+$db      = getenv('MYSQLDATABASE') ?: 'red_blood_donation_db';
+$user    = getenv('MYSQLUSER')     ?: 'root';
+$pass    = getenv('MYSQLPASSWORD') ?: '';
+$port    = getenv('MYSQLPORT')     ?: '3306';
 $charset = 'utf8mb4';
 
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
