@@ -142,26 +142,18 @@ if ($method === 'POST') {
 
         $username = !empty($input['username']) ? trim($input['username']) : (!empty($input['identifier']) ? trim($input['identifier']) : 'Anonymous User');
         $role = (!empty($input['role']) && strtolower($input['role']) === 'admin') ? 'Admin' : 'User';
-        $bloodGroup = !empty($input['blood_group']) ? trim($input['blood_group']) : 'O+';
-        $district = !empty($input['district']) ? trim($input['district']) : 'Dhaka';
-        $area = !empty($input['area']) ? trim($input['area']) : '';
 
-        // 1. Record login entry in Users table
+        // শুধু Users table এ record করো — Donors table এ হাত দেওয়া হবে না
         $stmt = $pdo->prepare("INSERT INTO Users (username, user_role, login_time) VALUES (:username, :user_role, NOW())");
         $stmt->execute([':username' => $username, ':user_role' => $role]);
         $newLoginId = (int)$pdo->lastInsertId();
 
-        // 2. Find or register in Donors table
-        $donor = findOrCreateDonor($pdo, $username, $bloodGroup, $district, $area);
-        $profile = buildDonorProfile($pdo, $donor, $username . '@gmail.com');
-
         echo json_encode([
-            'success' => true,
-            'message' => 'Login recorded and synchronized with MySQL database!',
-            'user_id' => $newLoginId,
+            'success'  => true,
+            'message'  => 'Login recorded in Users table.',
+            'user_id'  => $newLoginId,
             'username' => $username,
-            'role' => $role,
-            'profile' => $profile
+            'role'     => $role
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     } catch (\PDOException $e) {
         http_response_code(500);

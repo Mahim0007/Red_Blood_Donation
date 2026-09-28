@@ -447,80 +447,64 @@
       }
     }
 
-    // Handle Register Submit
+    // Handle Register Submit — শুধু Users table এ save করে
     async function handleRegisterSubmit(e) {
       e.preventDefault();
       const firstName = document.getElementById('reg-firstname').value.trim();
-      const lastName = document.getElementById('reg-lastname').value.trim();
-      const contact = document.getElementById('reg-contact').value.trim();
-      const blood = document.getElementById('reg-blood').value;
-      const district = document.getElementById('reg-district').value;
+      const lastName  = document.getElementById('reg-lastname').value.trim();
+      const contact   = document.getElementById('reg-contact').value.trim();
+      const blood     = document.getElementById('reg-blood').value;
+      const district  = document.getElementById('reg-district').value;
 
       const fullName = `${firstName} ${lastName}`.trim();
-      let newDonor = null;
+
+      const btn = document.getElementById('reg-submit-btn');
+      const origText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Creating account...';
 
       try {
-        const res = await fetch('api/donors.php', {
+        // শুধু Users table এ login record করো
+        const res = await fetch('api/login.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: fullName,
-            phone: contact,
-            bloodGroup: blood,
-            district: district,
-            area: `${district} Sadar`,
-            status: "AVAILABLE",
-            totalDonations: 0
-          })
+          body: JSON.stringify({ username: contact, role: 'User' })
         });
         const data = await res.json();
-        if (data.success && data.donor_id) {
-          const donorIdFormatted = 'RD-BD-2026-' + String(data.donor_id).padStart(4, '0');
-          newDonor = {
-            id: data.donor_id,
-            donorId: donorIdFormatted,
-            name: fullName,
-            phone: contact,
-            email: `${fullName.toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com`,
-            bloodGroup: blood,
-            district: district,
-            area: `${district} Sadar`,
-            status: "AVAILABLE",
-            totalDonations: 0,
-            livesSaved: 0,
-            history: [],
-            avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(fullName)}`
-          };
-          fetch('api/login.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: contact, role: 'User' })
-          }).catch(e => {});
-        }
-      } catch (err) {
-        console.log('Register offline fallback', err);
-      }
 
-      if (!newDonor) {
-        newDonor = RedDropStore.addDonor({
-          name: fullName,
-          phone: contact,
+        const newUser = {
+          name:     fullName,
+          phone:    contact.includes('@') ? '' : contact,
+          email:    contact.includes('@') ? contact : `${fullName.toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com`,
           bloodGroup: blood,
           district: district,
-          area: `${district} Sadar`,
-          status: "AVAILABLE",
+          area:     `${district} Sadar`,
+          status:   'AVAILABLE',
           totalDonations: 0,
-          age: 22,
-          weight: 65,
-          gender: "Male"
-        });
-        newDonor.donorId = 'RD-BD-2026-' + String(newDonor.id).slice(-4).padStart(4, '0');
-      }
+          livesSaved: 0,
+          history:  [],
+          avatar:   `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(fullName)}`
+        };
 
-      RedDropAuth.login(newDonor, 'user');
-      showToast(`Account created & synchronized! Welcome, ${fullName}`, 'success');
-      setTimeout(() => { window.location.href = 'index.html'; }, 800);
+        RedDropAuth.login(newUser, 'user');
+        showToast(`✅ Account created! Welcome, ${fullName}. To register as a donor, visit "Register as Donor" page.`, 'success');
+        setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+
+      } catch (err) {
+        console.log('Register offline fallback', err);
+        const fallbackUser = {
+          name: fullName, phone: contact, bloodGroup: blood,
+          district, area: `${district} Sadar`, status: 'AVAILABLE', totalDonations: 0
+        };
+        RedDropAuth.login(fallbackUser, 'user');
+        showToast(`Welcome, ${fullName}! (Offline mode)`, 'success');
+        setTimeout(() => { window.location.href = 'index.html'; }, 800);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origText;
+      }
     }
+
 
     function showResetHelp() {
       showToast('Demo PIN is 123456.', 'info');
