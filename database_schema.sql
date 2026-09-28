@@ -185,3 +185,15 @@ BEGIN
 END$$
 DELIMITER ;
 
+-- =====================================================
+-- MIGRATION: Existing database এর জন্য donor_name column যোগ করো
+-- (নতুন install এ এটা automatically হয়ে যাবে)
+-- =====================================================
+ALTER TABLE Donation_Logs 
+ADD COLUMN IF NOT EXISTS donor_name VARCHAR(100) NULL AFTER donor_id;
+
+-- পুরনো records এর donor_id থেকে নাম fill করো
+UPDATE Donation_Logs dl
+JOIN Donors d ON dl.donor_id = d.donor_id
+SET dl.donor_name = d.full_name
+WHERE dl.donor_name IS NULL;
