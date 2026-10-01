@@ -5,11 +5,11 @@ require_once __DIR__ . '/db.php';
 $method = $_SERVER['REQUEST_METHOD'];
 
 /**
- * Builds the complete donor profile including formatted ID and official donation history
+ * Builds donor/user profile from Donors table record
  */
 function buildDonorProfile($pdo, $donor, $fallbackEmail = '') {
     $donorId = (int)$donor['donor_id'];
-    $totalDonations = (int)$donor['total_donations'];
+    $totalDonations = (int)($donor['total_donations'] ?? 0);
     $formattedId = 'RD-BD-2026-' . str_pad($donorId, 4, '0', STR_PAD_LEFT);
 
     // Fetch official donation history from Donation_Logs
@@ -33,7 +33,7 @@ function buildDonorProfile($pdo, $donor, $fallbackEmail = '') {
     $daysRemaining = 0;
     $isEligible = true;
     $nextEligible = 'Immediately Eligible';
-    $status = $donor['availability_status'];
+    $status = $donor['availability_status'] ?? 'AVAILABLE';
 
     if ($lastDonated) {
         $diff = (int)$pdo->query("SELECT DATEDIFF(CURDATE(), '$lastDonated')")->fetchColumn();
@@ -51,11 +51,11 @@ function buildDonorProfile($pdo, $donor, $fallbackEmail = '') {
         'id' => $donorId,
         'donorId' => $formattedId,
         'name' => $donor['full_name'],
-        'bloodGroup' => $donor['blood_group'],
-        'phone' => $donor['contact_phone'],
+        'bloodGroup' => $donor['blood_group'] ?? 'O+',
+        'phone' => $donor['contact_phone'] ?? '',
         'email' => $donor['email'] ?: $fallbackEmail,
-        'district' => $donor['district'],
-        'area' => $donor['area_address'],
+        'district' => $donor['district'] ?? 'Dhaka',
+        'area' => $donor['area_address'] ?? 'Dhaka Sadar',
         'totalDonations' => $totalDonations,
         'livesSaved' => $totalDonations * 3,
         'status' => $status,
@@ -70,69 +70,60 @@ function buildDonorProfile($pdo, $donor, $fallbackEmail = '') {
 }
 
 /**
- * Finds an existing donor by phone, email, or name, or automatically creates one
+ * Builds user profile directly from Users table
  */
-function findOrCreateDonor($pdo, $identifier, $bloodGroup = 'O+', $district = 'Dhaka', $area = '') {
-    $donorStmt = $pdo->prepare("
+function buildUserProfileFromUserRow($pdo, $user) {
+    $userId = (int)$user['user_id'];
+    $identifier = $user['username'];
+    $phone = $user['phone'] ?: (strpos($identifier, '@') === false ? $identifier : '');
+    $email = $user['email'] ?: (strpos($identifier, '@') !== false ? $identifier : '');
+
+    // Check if this user also has a record in Donors table
+    $dStmt = $pdo->prepare("
         SELECT * FROM Donors 
-        WHERE contact_phone = :u1 
-           OR email = :u2 
-           OR LOWER(full_name) = LOWER(:u3)
+        WHERE (contact_phone != '' AND contact_phone = :p)
+           OR (email != '' AND email = :e)
+           OR (full_name != '' AND LOWER(full_name) = LOWER(:n))
         ORDER BY donor_id DESC 
         LIMIT 1
     ");
-    $donorStmt->execute([
-        ':u1' => $identifier,
-        ':u2' => $identifier,
-        ':u3' => $identifier
+    $dStmt->execute([
+        ':p' => $phone ?: '---',
+        ':e' => $email ?: '---',
+        ':n' => $user['full_name'] ?: '---'
     ]);
-    $donor = $donorStmt->fetch();
+    $donor = $dStmt->fetch();
 
-    if (!$donor) {
-        $cleanedName = strpos($identifier, '@') !== false ? explode('@', $identifier)[0] : $identifier;
-        $email = strpos($identifier, '@') !== false ? $identifier : ($identifier . '@gmail.com');
-        $phone = strpos($identifier, '@') !== false ? ('017' . substr(preg_replace('/\D/', '', md5($identifier)), 0, 8)) : $identifier;
-        $targetArea = !empty($area) ? $area : ($district . ' Sadar');
-
-        $insStmt = $pdo->prepare("
-            INSERT INTO Donors (
-                full_name, blood_group, gender, contact_phone, email, 
-                district, area_address, division, age, weight_kg, 
-                total_donations, availability_status, is_verified, tier
-            ) VALUES (
-                :name, :bloodGroup, 'Male', :phone, :email, 
-                :district, :area, 'Dhaka', 24, 62.00, 
-                0, 'AVAILABLE', 1, 'Bronze Lifesaver'
-            )
-        ");
-        $insStmt->execute([
-            ':name' => $cleanedName,
-            ':bloodGroup' => $bloodGroup,
-            ':phone' => $phone,
-            ':email' => $email,
-            ':district' => $district,
-            ':area' => $targetArea
-        ]);
-
-        $newId = (int)$pdo->lastInsertId();
-        $donor = [
-            'donor_id' => $newId,
-            'full_name' => $cleanedName,
-            'blood_group' => $bloodGroup,
-            'gender' => 'Male',
-            'contact_phone' => $phone,
-            'email' => $email,
-            'district' => $district,
-            'area_address' => $targetArea,
-            'division' => 'Dhaka',
-            'total_donations' => 0,
-            'availability_status' => 'AVAILABLE',
-            'tier' => 'Bronze Lifesaver',
-            'last_donated_date' => null
-        ];
+    if ($donor) {
+        $profile = buildDonorProfile($pdo, $donor, $email);
+        $profile['userId'] = $userId;
+        if (!empty($user['full_name'])) $profile['name'] = $user['full_name'];
+        if (!empty($user['blood_group'])) $profile['bloodGroup'] = $user['blood_group'];
+        if (!empty($user['district'])) $profile['district'] = $user['district'];
+        return $profile;
     }
 
-    return $donor;
+    return [
+        'id' => $userId,
+        'userId' => $userId,
+        'donorId' => 'RD-USR-' . str_pad($userId, 4, '0', STR_PAD_LEFT),
+        'name' => $user['full_name'] ?: $identifier,
+        'bloodGroup' => $user['blood_group'] ?: 'O+',
+        'phone' => $phone,
+        'email' => $email,
+        'district' => $user['district'] ?: 'Dhaka',
+        'area' => $user['area'] ?: (($user['district'] ?: 'Dhaka') . ' Sadar'),
+        'totalDonations' => 0,
+        'livesSaved' => 0,
+        'status' => 'AVAILABLE',
+        'isEligible' => true,
+        'daysRemaining' => 0,
+        'tier' => 'Community Member',
+        'lastDonatedDate' => null,
+        'nextEligibleDate' => 'Immediately Eligible',
+        'history' => [],
+        'avatar' => 'https://api.dicebear.com/7.x/bottts/svg?seed=' . urlencode($user['full_name'] ?: $identifier)
+    ];
 }
 
 if ($method === 'POST') {
@@ -140,21 +131,240 @@ if ($method === 'POST') {
         $raw = file_get_contents('php://input');
         $input = json_decode($raw, true) ?: $_POST;
 
-        $username = !empty($input['username']) ? trim($input['username']) : (!empty($input['identifier']) ? trim($input['identifier']) : 'Anonymous User');
-        $role = (!empty($input['role']) && strtolower($input['role']) === 'admin') ? 'Admin' : 'User';
+        $action = !empty($input['action']) ? trim($input['action']) : 'login';
 
-        // শুধু Users table এ record করো — Donors table এ হাত দেওয়া হবে না
-        $stmt = $pdo->prepare("INSERT INTO Users (username, user_role, login_time) VALUES (:username, :user_role, NOW())");
-        $stmt->execute([':username' => $username, ':user_role' => $role]);
-        $newLoginId = (int)$pdo->lastInsertId();
+        // =========================================================================
+        // ACTION 1: CREATE ACCOUNT (Sign Up)
+        // =========================================================================
+        if ($action === 'register') {
+            $firstName = !empty($input['firstName']) ? trim($input['firstName']) : '';
+            $lastName  = !empty($input['lastName']) ? trim($input['lastName']) : '';
+            $fullName  = !empty($input['fullName']) ? trim($input['fullName']) : trim("$firstName $lastName");
+            $contact   = !empty($input['contact']) ? trim($input['contact']) : (!empty($input['username']) ? trim($input['username']) : '');
+            $password  = !empty($input['password']) ? trim($input['password']) : '';
+            $blood     = !empty($input['blood']) ? trim($input['blood']) : (!empty($input['bloodGroup']) ? trim($input['bloodGroup']) : 'O+');
+            $district  = !empty($input['district']) ? trim($input['district']) : 'Dhaka';
+            $area      = !empty($input['area']) ? trim($input['area']) : ($district . ' Sadar');
 
+            if (empty($contact)) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Email or phone number is required.']);
+                exit();
+            }
+            if (empty($password)) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Password is required.']);
+                exit();
+            }
+
+            // Check if user already exists in Users table
+            $checkStmt = $pdo->prepare("
+                SELECT user_id, username FROM Users 
+                WHERE username = :c1 
+                   OR (email != '' AND email = :c2) 
+                   OR (phone != '' AND phone = :c3) 
+                LIMIT 1
+            ");
+            $checkStmt->execute([
+                ':c1' => $contact,
+                ':c2' => $contact,
+                ':c3' => $contact
+            ]);
+            $existing = $checkStmt->fetch();
+
+            if ($existing) {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'An account with this email/phone already exists! Please log in.'
+                ]);
+                exit();
+            }
+
+            $email = strpos($contact, '@') !== false ? $contact : '';
+            $phone = strpos($contact, '@') === false ? $contact : '';
+
+            $insStmt = $pdo->prepare("
+                INSERT INTO Users (
+                    full_name, username, email, phone, password, 
+                    blood_group, district, area, user_role, created_at, login_time
+                ) VALUES (
+                    :full_name, :username, :email, :phone, :password, 
+                    :blood_group, :district, :area, 'User', NOW(), NOW()
+                )
+            ");
+            $insStmt->execute([
+                ':full_name'   => $fullName ?: $contact,
+                ':username'    => $contact,
+                ':email'       => $email,
+                ':phone'       => $phone,
+                ':password'    => $password,
+                ':blood_group' => $blood,
+                ':district'    => $district,
+                ':area'        => $area
+            ]);
+            $newUserId = (int)$pdo->lastInsertId();
+
+            echo json_encode([
+                'success'   => true,
+                'message'   => 'Account created successfully in database! Please log in with your password.',
+                'user_id'   => $newUserId,
+                'username'  => $contact,
+                'full_name' => $fullName
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+
+        // =========================================================================
+        // ACTION 2: LOGIN (Log in using created account)
+        // =========================================================================
+        $identifier = !empty($input['identifier']) ? trim($input['identifier']) : (!empty($input['username']) ? trim($input['username']) : '');
+        $password   = !empty($input['password']) ? trim($input['password']) : '';
+        $role       = (!empty($input['role']) && strtolower($input['role']) === 'admin') ? 'Admin' : 'User';
+
+        if (empty($identifier)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Phone or email is required.']);
+            exit();
+        }
+
+        // A. Admin Login Branch
+        if ($role === 'Admin' || strtolower($identifier) === 'admin' || strtolower($identifier) === 'dbms') {
+            if ($password === 'admin123' || $password === 'admin') {
+                // Update login time for admin in Users table
+                $uStmt = $pdo->prepare("UPDATE Users SET login_time = NOW() WHERE username = 'admin' OR user_role = 'Admin'");
+                $uStmt->execute();
+
+                echo json_encode([
+                    'success' => true,
+                    'role'    => 'admin',
+                    'message' => 'Admin logged in successfully',
+                    'profile' => [
+                        'id'      => 1,
+                        'name'    => 'DBMS Administrator',
+                        'phone'   => '01700000000',
+                        'email'   => 'admin@reddrop.org',
+                        'role'    => 'admin',
+                        'donorId' => 'ADMIN-ROOT'
+                    ]
+                ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                exit();
+            } else {
+                http_response_code(401);
+                echo json_encode(['success' => false, 'error' => 'Invalid admin credentials! (Use admin / admin123)']);
+                exit();
+            }
+        }
+
+        // B. User Login Branch
+        // Find existing record in Users table
+        $userStmt = $pdo->prepare("
+            SELECT * FROM Users 
+            WHERE username = :id1 
+               OR (email != '' AND email = :id2) 
+               OR (phone != '' AND phone = :id3) 
+            ORDER BY user_id DESC 
+            LIMIT 1
+        ");
+        $userStmt->execute([
+            ':id1' => $identifier,
+            ':id2' => $identifier,
+            ':id3' => $identifier
+        ]);
+        $user = $userStmt->fetch();
+
+        if ($user) {
+            // Check password
+            $dbPassword = $user['password'];
+            $passwordsMatch = false;
+
+            if ($dbPassword !== null && $dbPassword !== '') {
+                $passwordsMatch = ($password === $dbPassword);
+            } else {
+                // Legacy demo accounts with empty password accept 123456 or empty
+                $passwordsMatch = ($password === '123456' || empty($password));
+            }
+
+            if (!$passwordsMatch) {
+                http_response_code(401);
+                echo json_encode([
+                    'success' => false,
+                    'error'   => 'Incorrect password! Please check and try again.'
+                ]);
+                exit();
+            }
+
+            // CRITICAL: DO NOT INSERT DUPLICATE ROW! Update login_time only.
+            $pdo->prepare("UPDATE Users SET login_time = NOW() WHERE user_id = :uid")
+                ->execute([':uid' => $user['user_id']]);
+
+            // Build profile from DB record
+            $profile = buildUserProfileFromUserRow($pdo, $user);
+
+            echo json_encode([
+                'success' => true,
+                'message' => "Welcome back, {$profile['name']}!",
+                'profile' => $profile
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+
+        // C. If user not in Users table, check Donors table (for initial sample donors)
+        $donorStmt = $pdo->prepare("
+            SELECT * FROM Donors 
+            WHERE contact_phone = :d1 
+               OR email = :d2 
+               OR LOWER(full_name) = LOWER(:d3) 
+            ORDER BY donor_id DESC 
+            LIMIT 1
+        ");
+        $donorStmt->execute([
+            ':d1' => $identifier,
+            ':d2' => $identifier,
+            ':d3' => $identifier
+        ]);
+        $donor = $donorStmt->fetch();
+
+        if ($donor && ($password === '123456' || empty($password))) {
+            // Seed this donor into Users once so future logins are direct
+            $email = $donor['email'] ?: '';
+            $phone = $donor['contact_phone'] ?: '';
+            $insStmt = $pdo->prepare("
+                INSERT INTO Users (
+                    full_name, username, email, phone, password, 
+                    blood_group, district, area, user_role, created_at, login_time
+                ) VALUES (
+                    :full_name, :username, :email, :phone, '123456', 
+                    :blood_group, :district, :area, 'User', NOW(), NOW()
+                )
+            ");
+            $insStmt->execute([
+                ':full_name'   => $donor['full_name'],
+                ':username'    => $donor['contact_phone'] ?: $donor['email'],
+                ':email'       => $email,
+                ':phone'       => $phone,
+                ':blood_group' => $donor['blood_group'],
+                ':district'    => $donor['district'],
+                ':area'        => $donor['area_address']
+            ]);
+
+            $profile = buildDonorProfile($pdo, $donor, $email);
+            echo json_encode([
+                'success' => true,
+                'message' => "Welcome back, {$profile['name']}!",
+                'profile' => $profile
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+
+        // D. Neither in Users nor valid Donor
+        http_response_code(404);
         echo json_encode([
-            'success'  => true,
-            'message'  => 'Login recorded in Users table.',
-            'user_id'  => $newLoginId,
-            'username' => $username,
-            'role'     => $role
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            'success' => false,
+            'error'   => 'No account found with this phone or email. Please create an account first!'
+        ]);
+        exit();
+
     } catch (\PDOException $e) {
         http_response_code(500);
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -164,17 +374,50 @@ if ($method === 'POST') {
         $identifier = !empty($_GET['identifier']) ? trim($_GET['identifier']) : (!empty($_GET['username']) ? trim($_GET['username']) : null);
         $donorIdParam = !empty($_GET['id']) ? (int)$_GET['id'] : null;
 
-        // If identifier or id is passed, synchronize and return single donor profile
+        // Synchronize and return profile WITHOUT creating duplicate rows
         if ($identifier || $donorIdParam) {
-            $donor = null;
-            if ($donorIdParam) {
-                $stmt = $pdo->prepare("SELECT * FROM Donors WHERE donor_id = :id LIMIT 1");
-                $stmt->execute([':id' => $donorIdParam]);
-                $donor = $stmt->fetch();
+            $user = null;
+            if ($identifier) {
+                $uStmt = $pdo->prepare("
+                    SELECT * FROM Users 
+                    WHERE username = :id1 
+                       OR (email != '' AND email = :id2) 
+                       OR (phone != '' AND phone = :id3) 
+                    ORDER BY user_id DESC 
+                    LIMIT 1
+                ");
+                $uStmt->execute([
+                    ':id1' => $identifier,
+                    ':id2' => $identifier,
+                    ':id3' => $identifier
+                ]);
+                $user = $uStmt->fetch();
             }
-            if (!$donor && $identifier) {
-                $donor = findOrCreateDonor($pdo, $identifier);
+
+            if ($user) {
+                $profile = buildUserProfileFromUserRow($pdo, $user);
+                echo json_encode([
+                    'success' => true,
+                    'profile' => $profile
+                ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                exit();
             }
+
+            // Check Donors table if not in Users
+            $dStmt = $pdo->prepare("
+                SELECT * FROM Donors 
+                WHERE donor_id = :did 
+                   OR contact_phone = :d1 
+                   OR email = :d2 
+                ORDER BY donor_id DESC 
+                LIMIT 1
+            ");
+            $dStmt->execute([
+                ':did' => $donorIdParam ?: 0,
+                ':d1'  => $identifier ?: '---',
+                ':d2'  => $identifier ?: '---'
+            ]);
+            $donor = $dStmt->fetch();
 
             if ($donor) {
                 $profile = buildDonorProfile($pdo, $donor);
@@ -187,12 +430,17 @@ if ($method === 'POST') {
         }
 
         // Default: Return recent login records from Users table
-        $stmt = $pdo->query("SELECT user_id, username, user_role, login_time FROM Users ORDER BY user_id DESC LIMIT 50");
+        $stmt = $pdo->query("
+            SELECT user_id, full_name, username, email, phone, blood_group, district, user_role, login_time 
+            FROM Users 
+            ORDER BY login_time DESC, user_id DESC 
+            LIMIT 50
+        ");
         $users = $stmt->fetchAll();
         echo json_encode([
             'success' => true,
-            'count' => count($users),
-            'data' => $users
+            'count'   => count($users),
+            'data'    => $users
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     } catch (\PDOException $e) {
         http_response_code(500);

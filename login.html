@@ -356,6 +356,11 @@
       const identifier = document.getElementById('login-identifier').value.trim();
       const password = document.getElementById('login-password').value.trim();
 
+      if (!identifier) {
+        showToast('Please enter your phone number or email.', 'error');
+        return;
+      }
+
       const btn = document.getElementById('login-submit-btn');
       btn.disabled = true;
       btn.innerHTML = `
@@ -363,91 +368,38 @@
         <span>Signing in...</span>
       `;
 
-      if (activeRole === 'admin') {
-        if ((identifier.toLowerCase() === 'admin' || identifier.toLowerCase() === 'dbms') && (password === 'admin123' || password === 'admin')) {
-          try {
-            await fetch('api/login.php', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ username: identifier, role: 'Admin' })
-            });
-          } catch(e) {}
+      try {
+        const res = await fetch('api/login.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'login',
+            identifier,
+            password,
+            role: activeRole === 'admin' ? 'Admin' : 'User'
+          })
+        });
+        const data = await res.json();
 
-          RedDropAuth.login({
-            name: "DBMS Administrator",
-            phone: "01700000000",
-            role: "admin",
-            donorId: "ADMIN-ROOT"
-          }, 'admin');
-          showToast('Admin logged in! Redirecting to Home...', 'success');
-          setTimeout(() => { window.location.href = 'index.html'; }, 600);
+        if (data.success && data.profile) {
+          const profile = data.profile;
+          RedDropAuth.login(profile, activeRole === 'admin' ? 'admin' : 'user');
+          showToast(`Welcome back, ${profile.name}! Logged in successfully.`, 'success');
+          setTimeout(() => { window.location.href = 'index.html'; }, 700);
         } else {
-          btn.disabled = false;
-          btn.innerHTML = `<span>Log in to RedDrop</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
-          if (window.lucide) lucide.createIcons();
-          showToast('Invalid admin credentials! (Use: admin / admin123)', 'error');
+          showToast(data.error || 'Login failed. Please check your credentials.', 'error');
         }
-      } else {
-        // User login - connects with MySQL to get official DB donorId & total_donations
-        let profile = null;
-        try {
-          const res = await fetch('api/login.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: identifier, role: 'User' })
-          });
-          const data = await res.json();
-          if (data.success && data.profile) {
-            profile = data.profile;
-          }
-        } catch (err) {
-          console.log('Login offline fallback', err);
-        }
-
-        if (!profile) {
-          const donors = RedDropStore.getDonors();
-          const matched = donors.find(d => 
-            d.phone === identifier || 
-            (d.email && d.email.toLowerCase() === identifier.toLowerCase()) || 
-            String(d.id) === identifier ||
-            d.name.toLowerCase().includes(identifier.toLowerCase())
-          );
-
-          const fallbackId = matched ? matched.id : Date.now();
-          profile = matched ? {
-            id: matched.id,
-            donorId: matched.donorId || ('RD-BD-2026-' + String(matched.id).padStart(4, '0')),
-            name: matched.name,
-            bloodGroup: matched.bloodGroup,
-            phone: matched.phone,
-            email: matched.email,
-            district: matched.district,
-            area: matched.area,
-            totalDonations: matched.totalDonations || 0,
-            livesSaved: (matched.totalDonations || 0) * 3,
-            avatar: matched.avatar,
-          } : {
-            id: fallbackId,
-            donorId: 'RD-BD-2026-' + String(fallbackId).slice(-4).padStart(4, '0'),
-            name: identifier.includes('@') ? identifier.split('@')[0] : identifier,
-            phone: identifier,
-            email: identifier.includes('@') ? identifier : `${identifier}@gmail.com`,
-            bloodGroup: "O+",
-            district: "Dhaka",
-            area: "Dhaka Sadar",
-            totalDonations: 0,
-            livesSaved: 0,
-            avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${identifier}`
-          };
-        }
-
-        RedDropAuth.login(profile, 'user');
-        showToast(`Welcome ${profile.name}! Logged in successfully.`, 'success');
-        setTimeout(() => { window.location.href = 'index.html'; }, 700);
+      } catch (err) {
+        console.error('Login error', err);
+        showToast('Server connection error. Please ensure MySQL is running.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>Log in to RedDrop</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+        if (window.lucide) lucide.createIcons();
       }
     }
 
-    // Handle Register Submit — শুধু Users table এ save করে
+    // Handle Register Submit — নতুন অ্যাকাউন্ট ডাটাবেজে সেভ করে এবং লগইন করতে বলে
     async function handleRegisterSubmit(e) {
       e.preventDefault();
       const firstName = document.getElementById('reg-firstname').value.trim();
@@ -455,50 +407,56 @@
       const contact   = document.getElementById('reg-contact').value.trim();
       const blood     = document.getElementById('reg-blood').value;
       const district  = document.getElementById('reg-district').value;
+      const password  = document.getElementById('reg-password').value.trim();
 
       const fullName = `${firstName} ${lastName}`.trim();
+
+      if (!contact) {
+        showToast('Please enter your email or phone number.', 'error');
+        return;
+      }
+      if (!password) {
+        showToast('Please choose a password.', 'error');
+        return;
+      }
 
       const btn = document.getElementById('reg-submit-btn');
       const origText = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '⏳ Creating account...';
+      btn.innerHTML = '⏳ Creating account in Database...';
 
       try {
-        // শুধু Users table এ login record করো
         const res = await fetch('api/login.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: contact, role: 'User' })
+          body: JSON.stringify({
+            action: 'register',
+            firstName,
+            lastName,
+            fullName,
+            contact,
+            blood,
+            district,
+            password
+          })
         });
         const data = await res.json();
 
-        const newUser = {
-          name:     fullName,
-          phone:    contact.includes('@') ? '' : contact,
-          email:    contact.includes('@') ? contact : `${fullName.toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com`,
-          bloodGroup: blood,
-          district: district,
-          area:     `${district} Sadar`,
-          status:   'AVAILABLE',
-          totalDonations: 0,
-          livesSaved: 0,
-          history:  [],
-          avatar:   `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(fullName)}`
-        };
-
-        RedDropAuth.login(newUser, 'user');
-        showToast(`✅ Account created! Welcome, ${fullName}. To register as a donor, visit "Register as Donor" page.`, 'success');
-        setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+        if (data.success) {
+          showToast(`✅ Account created successfully! Please log in with your password.`, 'success');
+          
+          // Switch to Login View and pre-fill login identifier
+          switchAuthMode('login');
+          document.getElementById('login-identifier').value = contact;
+          document.getElementById('login-password').value = password;
+          document.getElementById('login-password').focus();
+        } else {
+          showToast(data.error || 'Failed to create account.', 'error');
+        }
 
       } catch (err) {
-        console.log('Register offline fallback', err);
-        const fallbackUser = {
-          name: fullName, phone: contact, bloodGroup: blood,
-          district, area: `${district} Sadar`, status: 'AVAILABLE', totalDonations: 0
-        };
-        RedDropAuth.login(fallbackUser, 'user');
-        showToast(`Welcome, ${fullName}! (Offline mode)`, 'success');
-        setTimeout(() => { window.location.href = 'index.html'; }, 800);
+        console.error('Register error', err);
+        showToast('Connection error! Could not connect to database.', 'error');
       } finally {
         btn.disabled = false;
         btn.innerHTML = origText;

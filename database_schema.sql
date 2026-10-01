@@ -100,9 +100,17 @@ CREATE TABLE IF NOT EXISTS Donation_Logs (
 
 CREATE TABLE IF NOT EXISTS Users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(150),
     username VARCHAR(100) NOT NULL,
+    email VARCHAR(150),
+    phone VARCHAR(30),
+    password VARCHAR(255),
+    blood_group VARCHAR(10),
+    district VARCHAR(100),
+    area VARCHAR(150),
     user_role ENUM('User', 'Admin') DEFAULT 'User',
-    login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 INSERT INTO Hospitals (hospital_id, name, district, address, hotline_phone, hospital_type, latitude, longitude) VALUES
