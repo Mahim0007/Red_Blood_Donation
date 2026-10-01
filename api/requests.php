@@ -196,6 +196,12 @@ if ($method === 'GET') {
                 ':remarks'       => 'Emergency SOS blood pledge for ' . ($requestData ? $requestData['patient_name'] : 'emergency patient')
             ]);
 
+            // 4b. Record in Donor_Pledges bridge table (donor ↔ request link)
+            $pledgeStmt = $pdo->prepare("
+                INSERT IGNORE INTO Donor_Pledges (donor_id, request_id, pledge_status)
+                VALUES (:donor_id, :request_id, 'CONFIRMED')
+            ");
+            $pledgeStmt->execute([':donor_id' => $donorId, ':request_id' => $reqId]);
 
             // 5. Increment total_donations and set 90-day cooldown in Donors table
             $updateDonor = $pdo->prepare("
@@ -250,15 +256,20 @@ if ($method === 'GET') {
         $attendantName = !empty($input['attendantName']) ? trim($input['attendantName']) : 'Patient Attendant';
         $attendantPhone = trim($input['attendantPhone']);
 
+        // Look up hospital_id from Hospitals table
+        $hospLookup = $pdo->prepare("SELECT hospital_id FROM Hospitals WHERE name LIKE :name OR name LIKE :name2 LIMIT 1");
+        $hospLookup->execute([':name' => '%' . $hospital . '%', ':name2' => $hospital . '%']);
+        $matchedHospitalId = $hospLookup->fetchColumn() ?: null;
+
         $stmt = $pdo->prepare("
             INSERT INTO Blood_Requests (
                 patient_name, blood_group, bags_needed, bags_fulfilled,
-                urgency_level, time_limit, hospital_name, district,
+                urgency_level, time_limit, hospital_id, hospital_name, district,
                 bed_location, clinical_reason, attendant_name, attendant_phone,
                 request_status
             ) VALUES (
                 :patient_name, :blood_group, :bags_needed, 0,
-                :urgency, :time_limit, :hospital, :district,
+                :urgency, :time_limit, :hospital_id, :hospital, :district,
                 :bed_location, :reason, :attendant_name, :attendant_phone,
                 'ACTIVE'
             )
@@ -266,15 +277,16 @@ if ($method === 'GET') {
 
         $stmt->execute([
             ':patient_name' => $patientName,
-            ':blood_group' => $bloodGroup,
-            ':bags_needed' => $bagsNeeded,
-            ':urgency' => $urgency,
-            ':time_limit' => $timeLimit,
-            ':hospital' => $hospital,
-            ':district' => $district,
+            ':blood_group'  => $bloodGroup,
+            ':bags_needed'  => $bagsNeeded,
+            ':urgency'      => $urgency,
+            ':time_limit'   => $timeLimit,
+            ':hospital_id'  => $matchedHospitalId,
+            ':hospital'     => $hospital,
+            ':district'     => $district,
             ':bed_location' => $bedLocation,
-            ':reason' => $reason,
-            ':attendant_name' => $attendantName,
+            ':reason'       => $reason,
+            ':attendant_name'  => $attendantName,
             ':attendant_phone' => $attendantPhone
         ]);
 

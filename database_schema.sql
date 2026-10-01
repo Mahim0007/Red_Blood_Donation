@@ -1,7 +1,8 @@
-CREATE DATABASE IF NOT EXISTS red_blood_donation_db;
+CREATE DATABASE IF NOT EXISTS red_blood_donation_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE red_blood_donation_db;
 
 
+DROP TABLE IF EXISTS Donor_Pledges;
 DROP TABLE IF EXISTS Donation_Logs;
 DROP TABLE IF EXISTS Blood_Inventory;
 DROP TABLE IF EXISTS Blood_Requests;
@@ -58,6 +59,7 @@ CREATE TABLE IF NOT EXISTS Blood_Requests (
     bags_fulfilled INT DEFAULT 0,
     urgency_level ENUM('CRITICAL', 'URGENT', 'SCHEDULED') NOT NULL,
     time_limit VARCHAR(50) NOT NULL,
+    hospital_id VARCHAR(10) NULL,
     hospital_name VARCHAR(150) NOT NULL,
     district VARCHAR(50) NOT NULL,
     bed_location VARCHAR(100),
@@ -66,6 +68,7 @@ CREATE TABLE IF NOT EXISTS Blood_Requests (
     attendant_phone VARCHAR(15) NOT NULL,
     request_status ENUM('ACTIVE', 'FULFILLED', 'CANCELLED') DEFAULT 'ACTIVE',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (hospital_id) REFERENCES Hospitals(hospital_id) ON DELETE SET NULL,
     INDEX idx_req_blood_urgency (blood_group, urgency_level, request_status)
 );
 
@@ -100,6 +103,7 @@ CREATE TABLE IF NOT EXISTS Donation_Logs (
 
 CREATE TABLE IF NOT EXISTS Users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
+    donor_id INT NULL,
     full_name VARCHAR(150),
     username VARCHAR(100) NOT NULL,
     email VARCHAR(150),
@@ -110,8 +114,24 @@ CREATE TABLE IF NOT EXISTS Users (
     area VARCHAR(150),
     user_role ENUM('User', 'Admin') DEFAULT 'User',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (donor_id) REFERENCES Donors(donor_id) ON DELETE SET NULL
 );
+
+CREATE TABLE IF NOT EXISTS Donor_Pledges (
+    pledge_id INT AUTO_INCREMENT PRIMARY KEY,
+    donor_id INT NOT NULL,
+    request_id INT NOT NULL,
+    pledge_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    pledge_status ENUM('PENDING', 'CONFIRMED', 'CANCELLED') DEFAULT 'CONFIRMED',
+    FOREIGN KEY (donor_id) REFERENCES Donors(donor_id) ON DELETE CASCADE,
+    FOREIGN KEY (request_id) REFERENCES Blood_Requests(request_id) ON DELETE CASCADE,
+    UNIQUE KEY uq_donor_request (donor_id, request_id)
+);
+
+-- Default admin user (password: admin123)
+INSERT INTO Users (full_name, username, email, phone, password, blood_group, district, area, user_role)
+VALUES ('DBMS Administrator', 'admin', 'admin@reddrop.org', '01700000000', 'admin123', 'O+', 'Dhaka', 'Dhaka Sadar', 'Admin');
 
 INSERT INTO Hospitals (hospital_id, name, district, address, hotline_phone, hospital_type, latitude, longitude) VALUES
 ('H1', 'Central Red Crescent Blood Bank', 'Dhaka', '7/5 Aurangzeb Road, Mohammadpur, Dhaka', '02-9116563', 'Blood Bank', 23.766000, 90.358000),
@@ -133,12 +153,12 @@ INSERT INTO Donors (donor_id, full_name, blood_group, gender, contact_phone, ema
 (108, 'Sultana Parveen', 'AB-', 'Female', '01788990011', 'sultana.bm@gmail.com', 'Barishal', 'Sadar Road, Barishal', 'Barishal', 28, 60.00, 3, '2026-02-18', 'AVAILABLE', TRUE, 'Bronze Lifesaver'),
 (109, 'Shahadat Hossain', 'O+', 'Male', '01599887766', 'shahadat.cumilla@gmail.com', 'Cumilla', 'Kandirpar, Cumilla', 'Chattogram', 22, 65.00, 6, '2026-04-20', 'AVAILABLE', TRUE, 'Bronze Lifesaver');
 
-INSERT INTO Blood_Requests (request_id, patient_name, blood_group, bags_needed, bags_fulfilled, urgency_level, time_limit, hospital_name, district, bed_location, clinical_reason, attendant_name, attendant_phone, request_status) VALUES
-(501, 'Sumaiya Akhter (7 yrs)', 'O-', 2, 1, 'CRITICAL', 'Within 2 Hours', 'Dhaka Medical College Hospital (DMCH)', 'Dhaka', 'Cabin 304, Pediatric ICU', 'Thalassemia & Acute Anemia Crisis', 'Kamrul Islam (Father)', '01711998877', 'ACTIVE'),
-(502, 'Mohammad Rafiqul Islam', 'A+', 3, 2, 'CRITICAL', 'Within 4 Hours', 'National Institute of Cardiovascular Diseases (NICVD)', 'Dhaka', 'Cardiac CCU - Bed 12', 'Emergency Open Heart Bypass Surgery', 'Ashraful Islam (Brother)', '01819556677', 'ACTIVE'),
-(503, 'Nafisa Begum', 'B+', 1, 0, 'URGENT', 'Tomorrow Morning', 'Chattogram Medical College Hospital (CMCH)', 'Chattogram', 'Gynecology Ward 2, Bed 15', 'Post-Partum Hemorrhage / C-Section', 'Jashim Uddin (Husband)', '01678123456', 'ACTIVE'),
-(504, 'Abdul Mannan (62 yrs)', 'AB-', 2, 0, 'CRITICAL', 'Urgent (Rare Group)', 'Sylhet MAG Osmani Medical College', 'Sylhet', 'Emergency Trauma Unit - Bed 4', 'Road Traffic Accident Multiple Trauma', 'Enamul Haque (Son)', '01723456789', 'ACTIVE'),
-(505, 'Tahsina Tabassum', 'O+', 1, 1, 'SCHEDULED', 'Aug 28 (10:00 AM)', 'Evercare Hospital Dhaka', 'Dhaka', 'Oncology Ward 7A', 'Chemotherapy Supportive Platelets & Blood', 'Dr. Kabir (Relative)', '01987654321', 'FULFILLED');
+INSERT INTO Blood_Requests (request_id, patient_name, blood_group, bags_needed, bags_fulfilled, urgency_level, time_limit, hospital_id, hospital_name, district, bed_location, clinical_reason, attendant_name, attendant_phone, request_status) VALUES
+(501, 'Sumaiya Akhter (7 yrs)', 'O-', 2, 1, 'CRITICAL', 'Within 2 Hours', 'H2', 'Dhaka Medical College Hospital (DMCH)', 'Dhaka', 'Cabin 304, Pediatric ICU', 'Thalassemia & Acute Anemia Crisis', 'Kamrul Islam (Father)', '01711998877', 'ACTIVE'),
+(502, 'Mohammad Rafiqul Islam', 'A+', 3, 2, 'CRITICAL', 'Within 4 Hours', 'H4', 'National Institute of Cardiovascular Diseases (NICVD)', 'Dhaka', 'Cardiac CCU - Bed 12', 'Emergency Open Heart Bypass Surgery', 'Ashraful Islam (Brother)', '01819556677', 'ACTIVE'),
+(503, 'Nafisa Begum', 'B+', 1, 0, 'URGENT', 'Tomorrow Morning', 'H5', 'Chattogram Medical College Hospital (CMCH)', 'Chattogram', 'Gynecology Ward 2, Bed 15', 'Post-Partum Hemorrhage / C-Section', 'Jashim Uddin (Husband)', '01678123456', 'ACTIVE'),
+(504, 'Abdul Mannan (62 yrs)', 'AB-', 2, 0, 'CRITICAL', 'Urgent (Rare Group)', 'H6', 'Sylhet MAG Osmani Medical College', 'Sylhet', 'Emergency Trauma Unit - Bed 4', 'Road Traffic Accident Multiple Trauma', 'Enamul Haque (Son)', '01723456789', 'ACTIVE'),
+(505, 'Tahsina Tabassum', 'O+', 1, 1, 'SCHEDULED', 'Aug 28 (10:00 AM)', 'H7', 'Evercare Hospital Dhaka', 'Dhaka', 'Oncology Ward 7A', 'Chemotherapy Supportive Platelets & Blood', 'Dr. Kabir (Relative)', '01987654321', 'FULFILLED');
 
 INSERT INTO Blood_Inventory (hospital_id, blood_group, whole_blood_bags, prbc_red_cells_bags, platelets_units, plasma_ffp_bags, stock_status) VALUES
 ('H1', 'A+', 38, 24, 12, 18, 'OPTIMAL'),
@@ -170,6 +190,11 @@ INSERT INTO Donation_Logs (log_id, donor_id, donor_name, hospital_id, hospital_n
 (5, 102, 'Dr. Sadia Rahman', 'H3', 'Bangabandhu Sheikh Mujib Medical University (BSMMU)', '2026-08-01', 1, 'Whole Blood', 'CERT-2026-1144', 'Rare O- emergency support at BSMMU ICU'),
 (6, 105, 'Kazi Farhan Ishrak', 'H6', 'Sylhet MAG Osmani Medical College', '2026-07-28', 1, 'Whole Blood', 'CERT-2026-1120', 'Sylhet MAG Osmani road accident emergency');
 
+INSERT INTO Donor_Pledges (donor_id, request_id, pledge_status) VALUES
+(101, 502, 'CONFIRMED'),
+(102, 501, 'CONFIRMED'),
+(105, 504, 'CONFIRMED');
+
 DROP TRIGGER IF EXISTS trg_check_donor_90_days_cooldown;
 
 DELIMITER $$
@@ -194,25 +219,7 @@ BEGIN
 END$$
 DELIMITER ;
 
--- =====================================================
--- MIGRATION: Existing database এর জন্য donor_name ও hospital_name column যোগ করো
--- (নতুন install এ এটা automatically হয়ে যাবে)
--- =====================================================
-ALTER TABLE Donation_Logs 
-ADD COLUMN IF NOT EXISTS donor_name VARCHAR(100) NULL AFTER donor_id;
-
--- পুরনো records এর donor_id থেকে নাম fill করো
-UPDATE Donation_Logs dl
-JOIN Donors d ON dl.donor_id = d.donor_id
-SET dl.donor_name = d.full_name
-WHERE dl.donor_name IS NULL;
-
-ALTER TABLE Donation_Logs 
-ADD COLUMN IF NOT EXISTS hospital_name VARCHAR(150) NULL AFTER hospital_id;
-
--- পুরনো records এর hospital_id থেকে হাসপাতালের নাম fill করো
-UPDATE Donation_Logs dl
-JOIN Hospitals h ON dl.hospital_id = h.hospital_id
-SET dl.hospital_name = h.name
-WHERE dl.hospital_name IS NULL OR dl.hospital_name = '';
+-- NOTE: donor_name ও hospital_name কলাম দুটি উপরের CREATE TABLE Donation_Logs এ
+-- ইতোমধ্যে সংজ্ঞায়িত আছে। নতুন install-এ আলাদা ALTER TABLE দরকার নেই।
+-- MySQL 8.0 / Railway / ক্লাউডে ADD COLUMN IF NOT EXISTS সমর্থিত নয়।
 

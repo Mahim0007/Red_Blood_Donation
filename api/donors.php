@@ -224,7 +224,20 @@ if ($method === 'GET') {
             ");
             $updateStmt->execute([':id' => $donorId]);
 
-            // 3. Query updated donor record
+            // 3. Sync donor_id into Users table if matching user exists
+            $userSyncStmt = $pdo->prepare("
+                UPDATE Users SET donor_id = :did 
+                WHERE donor_id IS NULL 
+                  AND ((phone != '' AND phone = :p) OR (email != '' AND email = :e))
+                LIMIT 1
+            ");
+            $userSyncStmt->execute([
+                ':did' => $donorId,
+                ':p'   => $donorPhone ?: '---',
+                ':e'   => $donorEmail ?: '---'
+            ]);
+
+            // 4. Query updated donor record
             $fetchStmt = $pdo->prepare("SELECT total_donations, full_name, blood_group, district, tier FROM Donors WHERE donor_id = :id");
             $fetchStmt->execute([':id' => $donorId]);
             $updatedDonor = $fetchStmt->fetch();

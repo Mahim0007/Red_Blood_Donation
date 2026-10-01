@@ -205,6 +205,20 @@ if ($method === 'POST') {
             ]);
             $newUserId = (int)$pdo->lastInsertId();
 
+            // Link donor_id if this user exists in Donors table
+            $linkStmt = $pdo->prepare("
+                SELECT donor_id FROM Donors 
+                WHERE (contact_phone != '' AND contact_phone = :p)
+                   OR (email != '' AND email = :e)
+                LIMIT 1
+            ");
+            $linkStmt->execute([':p' => $phone ?: '---', ':e' => $email ?: '---']);
+            $linkedDonorId = $linkStmt->fetchColumn();
+            if ($linkedDonorId) {
+                $pdo->prepare("UPDATE Users SET donor_id = :did WHERE user_id = :uid")
+                    ->execute([':did' => $linkedDonorId, ':uid' => $newUserId]);
+            }
+
             echo json_encode([
                 'success'   => true,
                 'message'   => 'Account created successfully in database! Please log in with your password.',
@@ -298,6 +312,24 @@ if ($method === 'POST') {
             $pdo->prepare("UPDATE Users SET login_time = NOW() WHERE user_id = :uid")
                 ->execute([':uid' => $user['user_id']]);
 
+            // Sync donor_id if not yet linked
+            if (empty($user['donor_id'])) {
+                $phone = $user['phone'] ?: '';
+                $email = $user['email'] ?: '';
+                $syncStmt = $pdo->prepare("
+                    SELECT donor_id FROM Donors 
+                    WHERE (contact_phone != '' AND contact_phone = :p)
+                       OR (email != '' AND email = :e)
+                    LIMIT 1
+                ");
+                $syncStmt->execute([':p' => $phone ?: '---', ':e' => $email ?: '---']);
+                $syncedDonorId = $syncStmt->fetchColumn();
+                if ($syncedDonorId) {
+                    $pdo->prepare("UPDATE Users SET donor_id = :did WHERE user_id = :uid")
+                        ->execute([':did' => $syncedDonorId, ':uid' => $user['user_id']]);
+                }
+            }
+
             // Build profile from DB record
             $profile = buildUserProfileFromUserRow($pdo, $user);
 
@@ -347,6 +379,10 @@ if ($method === 'POST') {
                 ':district'    => $donor['district'],
                 ':area'        => $donor['area_address']
             ]);
+            $newUserId = (int)$pdo->lastInsertId();
+            // Link donor_id immediately
+            $pdo->prepare("UPDATE Users SET donor_id = :did WHERE user_id = :uid")
+                ->execute([':did' => $donor['donor_id'], ':uid' => $newUserId]);
 
             $profile = buildDonorProfile($pdo, $donor, $email);
             echo json_encode([
