@@ -7,6 +7,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="tailwind-config.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="donors.css">
   <link rel="stylesheet" href="shared.css">
   <script>
@@ -161,81 +164,115 @@
 
   </main>
 
-  <!-- Add New Donor Modal -->
-  <div id="add-donor-modal" class="fixed inset-0 z-[999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white max-w-md w-full rounded-3xl p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto text-xs">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-        <div class="flex items-center gap-2.5">
-          <div class="w-10 h-10 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center">
-            <i data-lucide="user-plus" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <h3 class="font-extrabold text-slate-900 text-base">Register as a Blood Donor</h3>
-            <p class="text-[11px] text-slate-500">Become a volunteer hero in your district</p>
-          </div>
+  <!-- Add New Donor Modal (Register as a Lifesaver) -->
+  <div id="add-donor-modal" onclick="if(event.target === this) closeAddDonorModal()" class="fixed inset-0 z-[999] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white max-w-xl w-full rounded-[2rem] p-6 sm:p-8 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto text-xs relative" onclick="event.stopPropagation()">
+      
+      <!-- Card Header -->
+      <div class="flex items-start justify-between pb-4 mb-4 border-b border-slate-100 gap-3">
+        <div>
+          <h2 class="text-2xl sm:text-[1.65rem] font-black text-slate-900 tracking-tight leading-tight" style="font-family: 'Outfit', sans-serif;">Register as a Lifesaver</h2>
+          <p class="text-xs text-slate-500 font-medium mt-1">Join over 2,450+ verified voluntary blood donors across Bangladesh.</p>
         </div>
-        <button onclick="closeAddDonorModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
+        <button type="button" onclick="closeAddDonorModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition flex-shrink-0" title="Close">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <form id="new-donor-form" onsubmit="handleNewDonorSubmit(event)" class="mt-4 space-y-3.5">
+      <!-- Registration Form matching Picture 1 -->
+      <form id="new-donor-form" onsubmit="handleNewDonorSubmit(event)" class="space-y-3.5">
+        <!-- Full Name -->
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Full Name *</label>
-          <input type="text" id="donor-name" required placeholder="e.g. Shakil Mahmud" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500 font-medium">
+          <label class="block font-bold text-slate-700 text-xs mb-1">Full Name *</label>
+          <input type="text" id="donor-name" required placeholder="e.g. Mahim Bin Tariq" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-xs font-medium text-slate-900 placeholder:text-slate-400 bg-white transition">
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
+        <!-- Blood Group & Gender -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Blood Group *</label>
-            <select id="donor-blood" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500 font-bold bg-white text-red-600">
-              <option value="A+">A+</option>
-              <option value="A-">A-</option>
-              <option value="B+">B+</option>
-              <option value="B-">B-</option>
-              <option value="O+">O+</option>
-              <option value="O-">O-</option>
-              <option value="AB+">AB+</option>
-              <option value="AB-">AB-</option>
+            <label class="block font-bold text-slate-700 text-xs mb-1">Blood Group *</label>
+            <select id="donor-blood" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-xs font-extrabold text-[#e11d48] bg-white transition cursor-pointer">
+              <option value="A+">A+ (A Positive)</option>
+              <option value="A-">A- (A Negative)</option>
+              <option value="B+">B+ (B Positive)</option>
+              <option value="B-">B- (B Negative)</option>
+              <option value="O+">O+ (O Positive)</option>
+              <option value="O-">O- (O Negative)</option>
+              <option value="AB+">AB+ (AB Positive)</option>
+              <option value="AB-">AB- (AB Negative)</option>
             </select>
           </div>
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Gender *</label>
-            <select id="donor-gender" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500 font-medium bg-white">
+            <label class="block font-bold text-slate-700 text-xs mb-1">Gender *</label>
+            <select id="donor-gender" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-xs font-medium text-slate-900 bg-white transition cursor-pointer">
               <option value="Male">Male</option>
               <option value="Female">Female</option>
             </select>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
+        <!-- Age & Weight -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-700 mb-1">District *</label>
-            <select id="donor-district" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500 font-medium bg-white">
+            <label class="block font-bold text-slate-700 text-xs mb-1">Age (Years) *</label>
+            <input type="number" id="donor-age" min="18" max="65" value="22" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-xs font-semibold text-slate-900 bg-white transition">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 text-xs mb-1">Body Weight (kg) *</label>
+            <input type="number" id="donor-weight" min="48" max="150" value="65" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-xs font-semibold text-slate-900 bg-white transition">
+          </div>
+        </div>
+
+        <!-- District & Area -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 text-xs mb-1">District *</label>
+            <select id="donor-district" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-xs font-medium text-slate-900 bg-white transition cursor-pointer">
               <option value="Dhaka" selected>Dhaka</option>
+              <option value="Chattogram">Chattogram</option>
+              <option value="Sylhet">Sylhet</option>
+              <option value="Rajshahi">Rajshahi</option>
+              <option value="Khulna">Khulna</option>
+              <option value="Barishal">Barishal</option>
+              <option value="Rangpur">Rangpur</option>
+              <option value="Mymensingh">Mymensingh</option>
+              <option value="Cumilla">Cumilla</option>
+              <option value="Gazipur">Gazipur</option>
+              <option value="Narayanganj">Narayanganj</option>
+              <option value="Bogura">Bogura</option>
+              <option value="Cox's Bazar">Cox's Bazar</option>
             </select>
           </div>
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Area / Thana *</label>
-            <input type="text" id="donor-area" required placeholder="e.g. Dhanmondi / Mirpur" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500 font-medium">
+            <label class="block font-bold text-slate-700 text-xs mb-1">Area / Thana *</label>
+            <input type="text" id="donor-area" required placeholder="e.g. Dhanmondi 32" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-xs font-medium text-slate-900 placeholder:text-slate-400 bg-white transition">
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
+        <!-- Phone & Email -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Phone Number *</label>
-            <input type="tel" id="donor-phone" required placeholder="017XXXXXXXX" pattern="01[3-9][0-9]{8}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500 font-bold">
+            <label class="block font-bold text-slate-700 text-xs mb-1">Phone (01XXXXXXXXX) *</label>
+            <input type="tel" id="donor-phone" required placeholder="01711223344" pattern="01[3-9][0-9]{8}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-xs font-bold text-slate-900 placeholder:text-slate-400 bg-white transition">
           </div>
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Total Donations</label>
-            <input type="number" id="donor-total-donations" min="0" value="1" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500 font-medium">
+            <label class="block font-bold text-slate-700 text-xs mb-1">Email (Optional)</label>
+            <input type="email" id="donor-email" placeholder="mahim@gmail.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-xs font-medium text-slate-900 placeholder:text-slate-400 bg-white transition">
           </div>
         </div>
 
-        <div class="pt-2 flex items-center justify-end gap-2">
-          <button type="button" onclick="closeAddDonorModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold">Cancel</button>
-          <button type="submit" class="px-6 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold shadow">Save & Register</button>
+        <!-- Compliance Checkbox Box -->
+        <div class="p-3 bg-[#f8fafc] border border-[#f1f5f9] rounded-2xl flex items-start gap-2.5">
+          <input type="checkbox" id="donor-agree" required class="mt-0.5 w-4 h-4 rounded text-[#e11d48] focus:ring-rose-500 border-slate-300 accent-[#e11d48] cursor-pointer">
+          <label for="donor-agree" class="text-[11px] text-[#475569] leading-relaxed cursor-pointer select-none font-medium">
+            I certify that I am at least 18 years old, weigh 48kg+, and am willing to voluntarily donate blood to save lives.
+          </label>
         </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="btn-donor-submit" class="w-full py-3.5 px-6 rounded-2xl text-white font-black text-sm tracking-wide shadow-lg shadow-rose-600/30 hover:opacity-95 hover:-translate-y-0.5 active:translate-y-0 transition cursor-pointer flex items-center justify-center gap-2" style="background: linear-gradient(135deg, #e11d48 0%, #be123c 50%, #9f1239 100%); font-family: 'Outfit', sans-serif;">
+          Complete Registration & Get Donor ID &rarr;
+        </button>
       </form>
     </div>
   </div>
@@ -443,16 +480,18 @@
       const name         = document.getElementById('donor-name').value.trim();
       const bloodGroup   = document.getElementById('donor-blood').value;
       const gender       = document.getElementById('donor-gender').value;
+      const age          = parseInt(document.getElementById('donor-age').value) || 22;
+      const weight       = parseFloat(document.getElementById('donor-weight').value) || 65;
       const district     = document.getElementById('donor-district').value;
       const area         = document.getElementById('donor-area').value.trim();
       const phone        = document.getElementById('donor-phone').value.trim();
-      const totalDonations = parseInt(document.getElementById('donor-total-donations').value) || 0;
-      const division     = district === 'Chattogram' ? 'Chattogram' : district === 'Sylhet' ? 'Sylhet' : 'Dhaka';
+      const email        = document.getElementById('donor-email').value.trim() || `${name.toLowerCase().replace(/\s+/g, '')}@gmail.com`;
+      const division     = district === 'Chattogram' ? 'Chattogram' : district === 'Sylhet' ? 'Sylhet' : district === 'Rajshahi' ? 'Rajshahi' : district === 'Khulna' ? 'Khulna' : district === 'Barishal' ? 'Barishal' : district === 'Rangpur' ? 'Rangpur' : district === 'Mymensingh' ? 'Mymensingh' : 'Dhaka';
 
       // Button loading state
-      const btn = e.target.querySelector('button[type="submit"]');
+      const btn = document.getElementById('btn-donor-submit');
       const originalText = btn ? btn.innerHTML : '';
-      if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Saving...'; }
+      if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Saving to Database...'; }
 
       try {
         // ✅ Save to MySQL database via API
@@ -461,8 +500,10 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name, bloodGroup, gender,
+            age, weight,
             district, area, division,
-            phone, totalDonations,
+            phone, email,
+            totalDonations: 0,
             status: 'AVAILABLE'
           })
         });
@@ -470,17 +511,22 @@
         const result = await response.json();
 
         if (result.success) {
+          const donorIdStr = `RD-BD-2026-${String(result.donor_id).padStart(4, '0')}`;
           const newDonor = {
-            name, bloodGroup, gender,
+            name, bloodGroup, gender, age, weight,
             district, area: `${area}, ${district}`, division,
-            phone, totalDonations,
+            phone, email,
+            totalDonations: 0,
             lastDonatedDate: null,
             status: 'AVAILABLE',
-            id: result.donor_id
+            id: result.donor_id,
+            donorId: donorIdStr,
+            verified: true,
+            tier: 'Volunteer Lifesaver'
           };
           RedDropStore.addDonor(newDonor);
           closeAddDonorModal();
-          showToast(`✅ ${name} (${bloodGroup}) database এ register হয়েছে!`, 'success');
+          showToast(`✅ Welcome Lifesaver ${name}! Donor ID: ${donorIdStr} registered successfully!`, 'success');
           applyFilters();
         } else {
           throw new Error(result.error || 'Registration failed');
@@ -488,21 +534,33 @@
 
       } catch (err) {
         console.warn('API unavailable, saving locally:', err.message);
+        const donorIdStr = `RD-BD-2026-${Math.floor(1000 + Math.random() * 9000)}`;
         const newDonor = {
-          name, bloodGroup, gender,
+          name, bloodGroup, gender, age, weight,
           district, area: `${area}, ${district}`, division,
-          phone, totalDonations,
-          lastDonatedDate: "2026-05-10",
-          status: "AVAILABLE"
+          phone, email,
+          totalDonations: 0,
+          lastDonatedDate: null,
+          status: 'AVAILABLE',
+          donorId: donorIdStr,
+          verified: true,
+          tier: 'Volunteer Lifesaver'
         };
         RedDropStore.addDonor(newDonor);
         closeAddDonorModal();
-        showToast(`${name} (${bloodGroup}) locally registered (database offline).`, 'warning');
+        showToast(`Welcome ${name}! Profile saved locally (ID: ${donorIdStr}).`, 'warning');
         applyFilters();
       } finally {
         if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
       }
     }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAddDonorModal();
+        closeContactModal();
+      }
+    });
 
     function openContactModal(name, phone) {
       document.getElementById('contact-modal-name').innerText = name;
