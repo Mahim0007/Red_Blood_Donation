@@ -290,6 +290,29 @@ if ($method === 'GET') {
         $status = !empty($input['status']) ? trim($input['status']) : 'AVAILABLE';
         $tier = $totalDonations >= 15 ? 'Platinum Lifesaver' : ($totalDonations >= 10 ? 'Gold Lifesaver' : ($totalDonations >= 5 ? 'Silver Lifesaver' : 'Bronze Lifesaver'));
 
+        // Check if donor with same phone already exists to avoid duplicate entries
+        $chkStmt = $pdo->prepare("SELECT donor_id, full_name, blood_group, district, availability_status, tier FROM Donors WHERE contact_phone = :phone LIMIT 1");
+        $chkStmt->execute([':phone' => $phone]);
+        $existing = $chkStmt->fetch();
+
+        if ($existing) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Donor already registered!',
+                'donor_id' => (int)$existing['donor_id'],
+                'data' => [
+                    'id' => (int)$existing['donor_id'],
+                    'name' => $existing['full_name'],
+                    'bloodGroup' => $existing['blood_group'],
+                    'phone' => $phone,
+                    'district' => $existing['district'],
+                    'status' => $existing['availability_status'],
+                    'tier' => $existing['tier']
+                ]
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+
         $stmt = $pdo->prepare("
             INSERT INTO Donors (
                 full_name, blood_group, gender, contact_phone, email, 

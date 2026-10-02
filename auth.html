@@ -167,13 +167,14 @@
 
       try {
         // ✅ Save to MySQL database via API
+        const fullArea = area ? `${area}, ${district}` : `${district} Sadar`;
         const response = await fetch('api/donors.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name, bloodGroup, gender,
             age, weight,
-            district, area, division,
+            district, area: fullArea, division,
             phone, email,
             totalDonations: 0,
             status: 'AVAILABLE'
@@ -183,10 +184,10 @@
         const result = await response.json();
 
         if (result.success) {
-          // ✅ Also update localStorage for session
+          // ✅ Also update localStorage for session without duplicate remote call
           const newDonor = {
             name, bloodGroup, gender, age, weight,
-            district, area: `${area}, ${district}`, division,
+            district, area: fullArea, division,
             phone, email,
             totalDonations: 0,
             lastDonatedDate: null,
@@ -194,7 +195,7 @@
             id: result.donor_id,
             donorId: `RD-BD-2026-${String(result.donor_id).padStart(4, '0')}`
           };
-          RedDropStore.addDonor(newDonor);
+          RedDropStore.addDonor(newDonor, false);
           RedDropAuth.login(newDonor, 'donor');
 
           showToast(`✅ Welcome ${name}! Donor ID: RD-BD-2026-${String(result.donor_id).padStart(4, '0')} saved to database!`, 'success');

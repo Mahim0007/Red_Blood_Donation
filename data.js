@@ -432,7 +432,7 @@ const RedDropStore = {
     return JSON.parse(localStorage.getItem(STORAGE_KEYS.DONORS) || '[]');
   },
 
-  addDonor(donor) {
+  addDonor(donor, persistRemote = true) {
     const donors = this.getDonors();
     donor.id = donor.id || Date.now();
     donor.totalDonations = donor.totalDonations || 0;
@@ -440,11 +440,18 @@ const RedDropStore = {
     donor.tier = donor.totalDonations >= 10 ? 'Gold Lifesaver' : donor.totalDonations >= 5 ? 'Silver Lifesaver' : 'Bronze Lifesaver';
     donor.badge = donor.totalDonations >= 10 ? 'Champion' : 'Active Volunteer';
     donor.avatar = donor.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(donor.name)}`;
-    donors.unshift(donor);
+
+    // Avoid duplicate entry in local array
+    const existingIdx = donors.findIndex(d => (donor.id && d.id === donor.id) || (donor.phone && d.phone === donor.phone));
+    if (existingIdx >= 0) {
+      donors[existingIdx] = { ...donors[existingIdx], ...donor };
+    } else {
+      donors.unshift(donor);
+    }
     localStorage.setItem(STORAGE_KEYS.DONORS, JSON.stringify(donors));
 
-    // Persist into MySQL
-    if (window.fetch) {
+    // Persist into MySQL only when requested
+    if (persistRemote && window.fetch) {
       fetch('api/donors.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

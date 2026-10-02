@@ -495,13 +495,14 @@
 
       try {
         // ✅ Save to MySQL database via API
+        const fullArea = area ? `${area}, ${district}` : `${district} Sadar`;
         const response = await fetch('api/donors.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name, bloodGroup, gender,
             age, weight,
-            district, area, division,
+            district, area: fullArea, division,
             phone, email,
             totalDonations: 0,
             status: 'AVAILABLE'
@@ -514,7 +515,7 @@
           const donorIdStr = `RD-BD-2026-${String(result.donor_id).padStart(4, '0')}`;
           const newDonor = {
             name, bloodGroup, gender, age, weight,
-            district, area: `${area}, ${district}`, division,
+            district, area: fullArea, division,
             phone, email,
             totalDonations: 0,
             lastDonatedDate: null,
@@ -524,7 +525,7 @@
             verified: true,
             tier: 'Volunteer Lifesaver'
           };
-          RedDropStore.addDonor(newDonor);
+          RedDropStore.addDonor(newDonor, false);
           closeAddDonorModal();
           showToast(`✅ Welcome Lifesaver ${name}! Donor ID: ${donorIdStr} registered successfully!`, 'success');
           applyFilters();
