@@ -56,7 +56,11 @@ if ($method === 'GET') {
             $params[':status'] = $_GET['status'];
         }
 
-        $sql .= " ORDER BY total_donations DESC, donor_id DESC";
+        if (!empty($_GET['sort']) && $_GET['sort'] === 'top') {
+            $sql .= " ORDER BY total_donations DESC, donor_id DESC";
+        } else {
+            $sql .= " ORDER BY donor_id DESC";
+        }
         if (!empty($_GET['limit'])) {
             $sql .= " LIMIT " . (int)$_GET['limit'];
         }

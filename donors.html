@@ -386,6 +386,9 @@
         return true;
       });
 
+      // Show newest registered donors at the very top
+      filtered.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
+
       renderDonorsGrid(filtered);
     }
 

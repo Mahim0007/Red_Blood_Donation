@@ -656,7 +656,7 @@
 
       // Query live MySQL database API for top donors
       try {
-        const response = await fetch('api/donors.php?limit=3', { cache: 'no-store' });
+        const response = await fetch('api/donors.php?limit=3&sort=top', { cache: 'no-store' });
         if (response.ok) {
           const resJson = await response.json();
           if (resJson.success && Array.isArray(resJson.data) && resJson.data.length > 0) {
